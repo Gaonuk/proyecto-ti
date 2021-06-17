@@ -17,6 +17,7 @@ def hash_maker(msg:str):
 # Funciones auxiliares para interactuar con Bodega y Fábrica
 
 def despachar_producto(params:dict):
+    # params contiene productoId, oc, direccion, precio
     auth_string = f'DELETE{params["productoId"]}{params["direccion"]}{params["precio"]}{params["oc"]}'
     auth_hash = hash_maker(auth_string)
     headers = {
@@ -30,21 +31,91 @@ def despachar_producto(params:dict):
     )
     return response
 
-def mover_entre_almacenes():
-    pass
+def mover_entre_almacenes(params:dict):
+    # params contiene productoId, almacenId
+    auth_string = f'POST{params["productoId"]}{params["almacenId"]}'
+    auth_hash = hash_maker(auth_string)
+    headers = {
+        'Authorization': f'INTEGRACION grupo13:{auth_hash}',
+        'Content-type': 'application/json',
+    }
+    response = requests.post(
+        f'{api_url}/moveStock',
+        json=params,
+        headers=headers
+    )
+    return response
 
-def mover_entre_bodegas():
-    pass
+def mover_entre_bodegas(params:dict):
+    # params contiene productoId, almacenId, oc, precio
+    auth_string = f'POST{params["productoId"]}{params["almacenId"]}'
+    auth_hash = hash_maker(auth_string)
+    headers = {
+        'Authorization': f'INTEGRACION grupo13:{auth_hash}',
+        'Content-type': 'application/json',
+    }
+    response = requests.post(
+        f'{api_url}/moveStockBodega',
+        json=params,
+        headers=headers
+    )
+    return response
 
 def obtener_almacenes():
-    pass
+    # no hay params porque es un GET
+    auth_string = f'GET'
+    auth_hash = hash_maker(auth_string)
+    headers = {
+        'Authorization': f'INTEGRACION grupo13:{auth_hash}',
+        'Content-type': 'application/json',
+    }
+    response = requests.get(
+        f'{api_url}/almacenes',
+        headers=headers
+    )
+    return response
 
-def obtener_productos_almacen():
-    pass
+def obtener_productos_almacen(params:dict):
+    # params contiene almacenId, sku, limit (opcionalmente, por defecto es 100)
+    auth_string = f'GET{params["productoId"]}{params["sku"]}'
+    auth_hash = hash_maker(auth_string)
+    headers = {
+        'Authorization': f'INTEGRACION grupo13:{auth_hash}',
+        'Content-type': 'application/json',
+    }
+    response = requests.get(
+        f'{api_url}/stock?almacenId={params["almacenId"]}&sku={params["sku"]}',
+        headers=headers
+    )
+    return response
 
-def obtener_stock():
-    pass
+def obtener_stock(params:dict):
+    # params contiene almacenId
+    auth_string = f'GET{params["almacenId"]}'
+    auth_hash = hash_maker(auth_string)
+    headers = {
+        'Authorization': f'INTEGRACION grupo13:{auth_hash}',
+        'Content-type': 'application/json',
+    }
+    response = requests.get(
+        f'{api_url}/skusWithStock?almacenId={params["almacenId"]}',
+        json=params,
+        headers=headers
+    )
+    return response
 
-def fabricar_producto():
-    pass
+def fabricar_producto(params:dict):
+    # params contiene sku, cantidad
+    auth_string = f'PUT{params["skuCantidad"]}'
+    auth_hash = hash_maker(auth_string)
+    headers = {
+        'Authorization': f'INTEGRACION grupo13:{auth_hash}',
+        'Content-type': 'application/json',
+    }
+    response = requests.put(
+        f'{api_url}/fabrica/fabricarSinPago',
+        json=params,
+        headers=headers
+    )
+    return response
 
