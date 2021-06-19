@@ -1,9 +1,6 @@
 from rest_framework.parsers import JSONParser
 from rest_framework import status
 import requests
-from hashlib import sha1
-import hmac
-import base64
 
 # URL de la API de órdenes de compra
 api_url = 'https://dev.oc.2021-1.tallerdeintegracion.cl/oc'
@@ -26,7 +23,7 @@ def anular_oc(id, params:dict):
     return response
 
 def crear_oc(params:dict):
-    # NO tiene param porque crea una OC nueva, parámetros recibidos:
+    # Parámetros recibidos:
     # Ejemplo de datos enviados en json
 #     {
 #     "cliente": "4af9f23d8ead0e1d320000a1",
