@@ -50,3 +50,7 @@ def algun_endopint(request, algun_id):
             {'message': f'{request.method} method not allowed for this request'},
             status=status.HTTP_405_METHOD_NOT_ALLOWED
         )
+
+def index(request):
+
+    return render(request, 'index.html',{'params':{'param_1':'Param 1 pasado desde el backend','param_2':'Param 2 pasado desde el backend'}})
