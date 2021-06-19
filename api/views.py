@@ -6,8 +6,63 @@ from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from django.http.response import JsonResponse
 from rest_framework.response import Response
+from .warehouse import despachar_producto, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto
 
 # Create your views here.
+
+# Endpoints que exponemos para otros grupos
+
+@api_view(['GET'])
+def consulta_stock(request):
+    if request.method == 'GET':
+        sku_stocks = {}
+        # data = JSONParser().parse(obtener_almacenes())
+        # print(data)
+        # fab_response = fabricar_producto({
+        #     'sku': 30013,
+        #     'cantidad': 2
+        # })
+
+        almacenes = obtener_almacenes().json()
+        
+        for almacen in almacenes:
+            # Depende de nosotros consultar todos los almacenes o no
+            # if almacen['despacho']:
+            #     continue
+            params = {'almacenId': almacen['_id']}
+            print(almacen['_id'])
+            stock = obtener_stock(params).json()
+            print(stock)
+            for producto in stock:
+                if producto['sku'] in sku_stocks:
+                    sku_stocks[producto['sku']] += producto['total']
+                else:
+                    sku_stocks[producto['sku']] = producto['total']
+        response = []
+        for sku in sku_stocks:
+            response.append({sku: sku_stocks[sku]})
+        return Response(response, status=status.HTTP_200_OK)
+
+    else: # En caso de un method nada que ver
+        return Response(
+            {'message': f'{request.method} method not allowed for this request'},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
+
+@api_view(['POST', 'PATCH']) 
+def manejo_oc(request, id):
+    if request.method == 'POST':
+        pass
+
+    elif request.method == 'PATCH':
+        pass
+    
+    else: # En caso de un method nada que ver
+        return Response(
+            {'message': f'{request.method} method not allowed for this request'},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
+
 
 @api_view(['GET', 'POST', 'DELETE', 'PUT']) # para que sirve esto
 def algun_endopint(request, algun_id):
