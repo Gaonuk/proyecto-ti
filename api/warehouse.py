@@ -106,7 +106,7 @@ def obtener_stock(params:dict):
 
 def fabricar_producto(params:dict):
     # params contiene sku, cantidad
-    auth_string = f'PUT{params["skuCantidad"]}'
+    auth_string = f'PUT{params["sku"]}{params["cantidad"]}'
     auth_hash = hash_maker(auth_string)
     headers = {
         'Authorization': f'INTEGRACION grupo13:{auth_hash}',
