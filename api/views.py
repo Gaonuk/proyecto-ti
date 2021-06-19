@@ -16,15 +16,7 @@ from .warehouse import despachar_producto, mover_entre_almacenes, mover_entre_bo
 def consulta_stock(request):
     if request.method == 'GET':
         sku_stocks = {}
-        # data = JSONParser().parse(obtener_almacenes())
-        # print(data)
-        # fab_response = fabricar_producto({
-        #     'sku': 30013,
-        #     'cantidad': 2
-        # })
-
         almacenes = obtener_almacenes().json()
-        
         for almacen in almacenes:
             # Depende de nosotros consultar todos los almacenes o no
             # if almacen['despacho']:
@@ -34,13 +26,16 @@ def consulta_stock(request):
             stock = obtener_stock(params).json()
             print(stock)
             for producto in stock:
-                if producto['sku'] in sku_stocks:
-                    sku_stocks[producto['sku']] += producto['total']
+                if producto['_id'] in sku_stocks:
+                    sku_stocks[producto['_id']] += producto['total']
                 else:
-                    sku_stocks[producto['sku']] = producto['total']
+                    sku_stocks[producto['_id']] = producto['total']
         response = []
         for sku in sku_stocks:
-            response.append({sku: sku_stocks[sku]})
+            response.append({
+                'sku': sku,
+                'total': sku_stocks[sku],
+            })
         return Response(response, status=status.HTTP_200_OK)
 
     else: # En caso de un method nada que ver
