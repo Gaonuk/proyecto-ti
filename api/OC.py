@@ -2,8 +2,24 @@ from rest_framework.parsers import JSONParser
 from rest_framework import status
 import requests
 
+#Only to define .env variables
+import os
+import environ
+from pathlib import Path
+
+#BASE DIRECTORY
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env(env_file= os.path.join(BASE_DIR, 'proyecto13/.env'))
+
+
 # URL de la API de órdenes de compra
-api_url = 'https://dev.oc.2021-1.tallerdeintegracion.cl/oc'
+if os.environ.get('DJANGO_DEVELOPMENT'):
+    api_url = env('API_OC_DEV')
+else:
+    api_url = env('API_OC_PROD')
 
 
 def anular_oc(id, params:dict):
@@ -17,7 +33,7 @@ def anular_oc(id, params:dict):
     }
     response = requests.delete(
         f'{api_url}/anular/{id}',
-        headers=headers
+        headers=headers,
         json=params
     )
     return response
@@ -41,7 +57,7 @@ def crear_oc(params:dict):
     }
     response = requests.put(
         f'{api_url}/crear',
-        headers=headers
+        headers=headers,
         json=params
     )
     return response
@@ -81,7 +97,7 @@ def rechazar_oc(id,params:dict):
     }
     response = requests.post(
         f'{api_url}/rechazar/{id}',
-        headers=headers
+        headers=headers,
         json=params
     )
     return response
