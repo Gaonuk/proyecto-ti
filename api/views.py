@@ -296,7 +296,7 @@ def backoffice(request):
             precio = request.POST.get('precio', '')
             if form_cambiar_bodega.is_valid():
                 post_valido = True
-                if ID_almacen_externo not in RECEPCIONES_DEV:
+                if ID_almacen_externo not in ALMACENES_RECEPCION_EXT:
                     messages.warning(
                         request, '¡El ID de este almacén externo NO existe!')
                     post_valido = False

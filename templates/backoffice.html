@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,104 +8,111 @@
     <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <title>Backoffice</title>
 </head>
+
 <body style="text-align:center;margin:0;padding: 0;font-family: 'Roboto', sans-serif;background-color: #E7ECEF;">
     <div style="color: white;background-color: #274C77;">
-    <h1 style="margin:0">Backoffice</h1>
-    <h2 style="margin-bottom:0">Almacenes Bodega Grupo 13</h2>
-</div>
+        <h1 style="margin:0">Backoffice</h1>
+        <h2 style="margin-bottom:0">Almacenes Bodega Grupo 13</h2>
+    </div>
 
     <div style="display:grid;grid-auto-flow:column;margin: 2rem;">
-    
-    {% for almacen in almacenes %} 
-    <div style="margin:0 auto;padding:1rem;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);background-color: whitesmoke;">
-    {% if almacen.pulmon %}
-    <h4 style="margin-top:0;">ALMACÉN PULMÓN</h4>
-    
-    {% elif almacen.despacho  %}
-    <h4 style="margin-top:0;">ALMACÉN DESPACHO</h4>
-    {% elif almacen.recepcion  %}
-    <h4 style="margin-top:0;">ALMACÉN RECEPCIÓN</h4>
-    {% else  %}
-    <h4 style="margin-top:0;">ALMACÉN CENTRAL</h4>
-    {% endif %}
-    <h5 style="margin:4px;">ID</h5>
-    <div>{{almacen.id}}</div>
-    <h5 style="margin:4px;">Capacidad</h5>
-    <div>{{almacen.totalSpace}}</div>
-    <h5 style="margin:10px;">Capacidad utilizada</h5>
-    <div>{{almacen.usedSpace}}</div>
-    <h5>Productos</h5>
-    {% if almacen.cant_productos < 1 %}
-    <div style="font-size: small;">No hay productos en este almacén</div>
-    {% else  %}
-    <h6 style="margin:4px;">SKU</h6>
-    {% for sku, producto in almacen.detalle_productos.items %}
-    <div>{{sku}}</div>
-    <div style="max-height: 300px;overflow-y: auto;">
-        {% for prod in producto %}
-        <h6 style="margin:4px;">ID</h6>
-        <div>{{prod.id}}</div>
-        <h6 style="margin:4px;">Vencimiento</h6>
-        <div>{{prod.vencimiento}}</div>
-        {% endfor %}
-    </div>
-    {% endfor %}
-    {% endif %}
-    
 
-    
-</div>
+        {% for almacen in almacenes %}
+        <div style="margin:0 auto;padding:1rem;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);background-color: whitesmoke;">
+            {% if almacen.pulmon %}
+            <h4 style="margin-top:0;">ALMACÉN PULMÓN</h4>
+
+            {% elif almacen.despacho %}
+            <h4 style="margin-top:0;">ALMACÉN DESPACHO</h4>
+            {% elif almacen.recepcion %}
+            <h4 style="margin-top:0;">ALMACÉN RECEPCIÓN</h4>
+            {% else %}
+            <h4 style="margin-top:0;">ALMACÉN CENTRAL</h4>
+            {% endif %}
+            <h5 style="margin:4px;">ID</h5>
+            <div>{{almacen.id}}</div>
+            <h5 style="margin:4px;">Capacidad</h5>
+            <div>{{almacen.totalSpace}}</div>
+            <h5 style="margin:10px;">Capacidad utilizada</h5>
+            <div>{{almacen.usedSpace}}</div>
+            <h5>Productos</h5>
+            {% if almacen.cant_productos < 1 %} <div style="font-size: small;">No hay productos en este almacén
+        </div>
+        {% else %}
+
+        {% for sku, producto in almacen.detalle_productos.items %}
+        <h6 style="margin:4px;">SKU | Cantidad</h6>
+        <div>{{sku}} | {{producto|length}}</div>
+        <div style="max-height: 200px;overflow-y: auto;">
+            {% for prod in producto %}
+            <h6 style="margin:4px;">ID</h6>
+            <div>{{prod.id}}</div>
+            <h6 style="margin:4px;">Vencimiento</h6>
+            <div>{{prod.vencimiento}}</div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+
+
+    </div>
     {% endfor %}
 
     </div>
     <h5>{{TITULO_ALM_EXT}}</h5>
-    <div style="text-align: left;display:grid;grid-template-columns: repeat(4,1fr);margin:0 3rem;padding:1rem;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);background-color: whitesmoke;">
-        {% for almacen_externo in ALMACENES_EXTERNOS %} 
-        <div><div style="font-weight: bold;">Grupo {{forloop.counter}}</div> {{almacen_externo}}</div>
+    <div
+        style="text-align: left;display:grid;grid-template-columns: repeat(4,1fr);margin:0 3rem;padding:1rem;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);background-color: whitesmoke;">
+        {% for almacen_externo in ALMACENES_EXTERNOS %}
+        <div>
+            <div style="font-weight: bold;">Grupo {{forloop.counter}}</div> {{almacen_externo}}
+        </div>
         {% endfor %}
     </div>
     {% if messages %}
-<ul class="messages" style="margin:1rem;padding:0;">
-    {% for message in messages %}
-    <li{% if message.tags %} style="color:red;list-style: none;margin:0;padding:0" class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
+    <ul class="messages" style="margin:1rem;padding:0;">
+        {% for message in messages %}
+        <li{% if message.tags %} style="color:red;list-style: none;margin:0;padding:0" class="{{ message.tags }}" {%
+            endif %}>{{ message }}</li>
+            {% endfor %}
+    </ul>
+    {% endif %}
     <div style="margin:auto;display: grid;grid-auto-flow: column;">
-    <div style="margin:0 auto;">
-        <h4 style="margin-top: 0;">Mover producto de Almacén</h4>
-        <form action="/backoffice/" method="post" style="display: grid;">
-            {% csrf_token %}
-            {{ form_cambiar_almacen }}
-            <input type="submit" value="Cambiar de producto de almacen">
-        </form>
+        <div style="margin:0 auto;">
+            <h4 style="margin-top: 0;">Mover producto de Almacén</h4>
+            <form action="/backoffice/" method="post" style="display: grid;">
+                {% csrf_token %}
+                {{ form_cambiar_almacen }}
+                <input type="submit" value="Cambiar de producto de almacen">
+            </form>
+        </div>
+        <div style="margin:0 auto;">
+            <h4 style="margin-top: 0;">Mover todos los productos de Almacén por SKU</h4>
+            <form action="/backoffice/" method="post" style="display: grid;">
+                {% csrf_token %}
+                {{ form_cambiar_almacen_SKU }}
+                <input type="submit" value="Cambiar productos de almacen por SKU">
+            </form>
+        </div>
+        <div style="margin:0 auto;">
+            <h4 style="margin-top: 0;">Mover producto de Bodega</h4>
+            <form action="/backoffice/" method="POST" style="display: grid;">
+                {% csrf_token %}
+                {{ form_cambiar_bodega }}
+                <input type="submit" value="Cambiar de producto de bodega">
+            </form>
+        </div>
+        <div style="margin:0 auto;">
+            <h4 style="margin-top: 0;">Fabricar Producto</h4>
+            <form action="/backoffice/" method="POST" style="display: grid;">
+                {% csrf_token %}
+                {{ form_fabricar }}
+                <input type="submit" value="Fabricar Producto">
+            </form>
+        </div>
     </div>
-    <div style="margin:0 auto;">
-        <h4 style="margin-top: 0;">Mover todos los productos de Almacén por SKU</h4>
-        <form action="/backoffice/" method="post" style="display: grid;">
-            {% csrf_token %}
-            {{ form_cambiar_almacen_SKU }}
-            <input type="submit" value="Cambiar productos de almacen por SKU">
-        </form>
-    </div>
-    <div style="margin:0 auto;">
-        <h4 style="margin-top: 0;">Mover producto de Bodega</h4>
-        <form action="/backoffice/" method="POST" style="display: grid;">
-            {% csrf_token %}
-            {{ form_cambiar_bodega }}
-            <input type="submit" value="Cambiar de producto de bodega">
-        </form>
-    </div>
-    <div style="margin:0 auto;">
-        <h4 style="margin-top: 0;">Fabricar Producto</h4>
-        <form action="/backoffice/" method="POST" style="display: grid;">
-            {% csrf_token %}
-            {{ form_fabricar }}
-            <input type="submit" value="Fabricar Producto">
-        </form>
-    </div>
-</div>
 
 
 </body>
+
 </html>
