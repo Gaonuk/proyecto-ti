@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from .models import AlgunModelo # Ejemplo de Import
 from .serializers import AlgunSerializer # Ejemplo de Import
 from rest_framework import status
 from rest_framework.parsers import JSONParser
@@ -7,10 +6,20 @@ from rest_framework.decorators import api_view
 from django.http.response import JsonResponse
 from rest_framework.response import Response
 from .warehouse import despachar_producto, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto
+from .OC import obtener_oc, recepcionar_oc, rechazar_oc
+from .models import RecievedOC, SentOC
+from datetime import datetime
+from random import randint
+import requests
+import json
 
 # Create your views here.
 
 # Endpoints que exponemos para otros grupos
+
+def parse_js_date(date):
+    date_format = date[:-1]
+    return datetime.fromisoformat(date_format)
 
 @api_view(['GET'])
 def consulta_stock(request):
@@ -47,10 +56,51 @@ def consulta_stock(request):
 @api_view(['POST', 'PATCH']) 
 def manejo_oc(request, id):
     if request.method == 'POST':
-        pass
+        body = json.loads(request.body)
+
+        if RecievedOC.objects.filter(id=id).exists():
+            return Response({'message': 'OC ya fue recibida'},
+            status=status.HTTP_400_BAD_REQUEST)
+        else:
+            orden_de_compra = obtener_oc(id).json()[0]
+            oc = RecievedOC(id = id, cliente = orden_de_compra["cliente"], proveedor = orden_de_compra["cliente"],
+            sku = orden_de_compra["sku"], fecha_entrega = parse_js_date(orden_de_compra["fechaEntrega"]), cantidad = orden_de_compra["cantidad"],
+            cantidad_despachada = orden_de_compra["cantidadDespachada"], precio_unitario = orden_de_compra["precioUnitario"],
+            canal = orden_de_compra["canal"], estado = orden_de_compra["estado"], created_at = parse_js_date(orden_de_compra["created_at"]),
+            updated_at =  parse_js_date(orden_de_compra["updated_at"]))
+            
+            if "notas" in orden_de_compra.keys():
+                oc.notas = orden_de_compra["notas"]
+            if "rechazo" in orden_de_compra.keys():
+                oc.rechazo = orden_de_compra["rechazo"]
+            if "anulacion" in orden_de_compra.keys():
+                oc.anulacion = orden_de_compra["anulacion"]
+            if "urlNotificacion" in orden_de_compra.keys():
+                oc.url_notificaion = orden_de_compra["urlNotificacion"]
+            oc.save()
+            url = orden_de_compra["urlNotificacion"]
+            if randint(0,1) == 1:
+                recepcionar_oc(id)
+                requests.patch(url=url, params={"estado":"aceptada"})
+            else:
+                rechazar_oc(id, {"rechazo": "Rechazada por azar"})
+                requests.patch(url=url, params={"estado":"rechazada"})
+
+            response = {"id": id, "cliente": body["cliente"], "sku": body["sku"],"fechaEntrega": body["fechaEntrega"],
+            "cantidad": body["cantidad"], "urlNotificacion": body["urlNotificacion"],"estado": "recibida"}
+
+            return Response(response, status=status.HTTP_201_CREATED)
+
 
     elif request.method == 'PATCH':
-        pass
+        body = request.body
+        estado = body["estado"]
+        if SentOC.objects.filter(id=id).exists():
+            sent_oc = SentOC.objects.get(id=id)
+            sent_oc.update(estado=estado)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
     
     else: # En caso de un method nada que ver
         return Response(

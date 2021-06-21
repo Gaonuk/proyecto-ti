@@ -17,7 +17,7 @@ def anular_oc(id, params:dict):
     }
     response = requests.delete(
         f'{api_url}/anular/{id}',
-        headers=headers
+        headers=headers,
         json=params
     )
     return response
@@ -41,7 +41,7 @@ def crear_oc(params:dict):
     }
     response = requests.put(
         f'{api_url}/crear',
-        headers=headers
+        headers=headers,
         json=params
     )
     return response
@@ -81,7 +81,7 @@ def rechazar_oc(id,params:dict):
     }
     response = requests.post(
         f'{api_url}/rechazar/{id}',
-        headers=headers
+        headers=headers,
         json=params
     )
     return response
