@@ -21,7 +21,19 @@ import json
 
 # Create your views here.
 from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
+import environ
+import os
+
+env = environ.Env()
+environ.Env.read_env()
+from pathlib import Path
 # Endpoints que exponemos para otros grupos
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+if os.environ.get('DJANGO_DEVELOPMENT'):
+    ALMACENES_RECEPCION_EXT= RECEPCIONES_DEV
+else:
+    ALMACENES_RECEPCION_EXT= RECEPCIONES_PROD
 
 
 def parse_js_date(date):
@@ -388,4 +400,4 @@ def backoffice(request):
         'form_cambiar_bodega': form_cambiar_bodega,
         'form_cambiar_almacen_SKU': form_cambiar_almacen_SKU,
         'form_fabricar': form_fabricar,
-        'ALMACENES_EXTERNOS': RECEPCIONES_DEV})
+        'ALMACENES_EXTERNOS': ALMACENES_RECEPCION_EXT})
