@@ -77,7 +77,7 @@ def obtener_almacenes():
 
 def obtener_productos_almacen(params:dict):
     # params contiene almacenId, sku, limit (opcionalmente, por defecto es 100)
-    auth_string = f'GET{params["productoId"]}{params["sku"]}'
+    auth_string = f'GET{params["almacenId"]}{params["sku"]}'
     auth_hash = hash_maker(auth_string)
     headers = {
         'Authorization': f'INTEGRACION grupo13:{auth_hash}',
