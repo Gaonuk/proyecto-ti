@@ -24,6 +24,7 @@ import environ
 import os
 from pathlib import Path
 
+from datetime import datetime
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
@@ -84,14 +85,25 @@ def manejo_oc(request, id):
             return Response({'message': 'OC ya fue recibida'},
                             status=status.HTTP_400_BAD_REQUEST)
         else:
+            # Momento de recepción en un txt
+            with open('registro_oc.txt', 'a') as registro:
+                registro.write(f'POST: OC {id} - {datetime.now()}\n')
+
             orden_de_compra = obtener_oc(id).json()[0]
-            oc = RecievedOC(id=id, cliente=orden_de_compra["cliente"], proveedor=orden_de_compra["proveedor"],
-                            sku=orden_de_compra["sku"], fecha_entrega=parse_js_date(orden_de_compra["fechaEntrega"]), cantidad=orden_de_compra["cantidad"],
-                            cantidad_despachada=orden_de_compra[
-                                "cantidadDespachada"], precio_unitario=orden_de_compra["precioUnitario"],
-                            canal=orden_de_compra["canal"], estado=orden_de_compra["estado"], created_at=parse_js_date(
-                                orden_de_compra["created_at"]),
-                            updated_at=parse_js_date(orden_de_compra["updated_at"]))
+            oc = RecievedOC(
+                id=id, 
+                cliente=orden_de_compra["cliente"], 
+                proveedor=orden_de_compra["proveedor"],
+                sku=orden_de_compra["sku"], 
+                fecha_entrega=parse_js_date(orden_de_compra["fechaEntrega"]),
+                cantidad=orden_de_compra["cantidad"],
+                cantidad_despachada=orden_de_compra["cantidadDespachada"],
+                precio_unitario=orden_de_compra["precioUnitario"],
+                canal=orden_de_compra["canal"],
+                estado=orden_de_compra["estado"],
+                created_at=parse_js_date(orden_de_compra["created_at"]),
+                updated_at=parse_js_date(orden_de_compra["updated_at"])
+            )
 
             if "notas" in orden_de_compra.keys():
                 oc.notas = orden_de_compra["notas"]
@@ -116,6 +128,12 @@ def manejo_oc(request, id):
             return Response(response, status=status.HTTP_201_CREATED)
 
     elif request.method == 'PATCH':
+
+        # Momento de recepción en un txt
+        with open('registro_oc.txt', 'a') as registro:
+                registro.write(f'PATCH: OC {id} - {datetime.now()}\n')
+
+
         estado = body["estado"]
         if SentOC.objects.filter(id=id).exists():
             sent_oc = SentOC.objects.get(id=id)
