@@ -208,24 +208,24 @@ def index(request):
     labels_stock = [key for key in cantidad_sku.keys()]
     stock = [cantidad_sku[i] for i in labels_stock]
 
-    orden_de_compra = obtener_oc("60d0ba39e72508000448529d").json()[0]
-    oc = SentOC(id="60d0ba39e72508000448529d", cliente=orden_de_compra["cliente"], proveedor=orden_de_compra["proveedor"],
-                    sku=orden_de_compra["sku"], fecha_entrega=parse_js_date(orden_de_compra["fechaEntrega"]), cantidad=orden_de_compra["cantidad"],
-                    cantidad_despachada=orden_de_compra[
-                        "cantidadDespachada"], precio_unitario=orden_de_compra["precioUnitario"],
-                    canal=orden_de_compra["canal"], estado=orden_de_compra["estado"], created_at=parse_js_date(
-                        orden_de_compra["created_at"]),
-                    updated_at=parse_js_date(orden_de_compra["updated_at"]))
+    # orden_de_compra = obtener_oc("60d0ba39e72508000448529d").json()[0]
+    # oc = SentOC(id="60d0ba39e72508000448529d", cliente=orden_de_compra["cliente"], proveedor=orden_de_compra["proveedor"],
+    #                 sku=orden_de_compra["sku"], fecha_entrega=parse_js_date(orden_de_compra["fechaEntrega"]), cantidad=orden_de_compra["cantidad"],
+    #                 cantidad_despachada=orden_de_compra[
+    #                     "cantidadDespachada"], precio_unitario=orden_de_compra["precioUnitario"],
+    #                 canal=orden_de_compra["canal"], estado=orden_de_compra["estado"], created_at=parse_js_date(
+    #                     orden_de_compra["created_at"]),
+    #                 updated_at=parse_js_date(orden_de_compra["updated_at"]))
 
-    if "notas" in orden_de_compra.keys():
-        oc.notas = orden_de_compra["notas"]
-    if "rechazo" in orden_de_compra.keys():
-        oc.rechazo = orden_de_compra["rechazo"]
-    if "anulacion" in orden_de_compra.keys():
-        oc.anulacion = orden_de_compra["anulacion"]
-    if "urlNotificacion" in orden_de_compra.keys():
-        oc.url_notificaion = orden_de_compra["urlNotificacion"]
-    oc.save()
+    # if "notas" in orden_de_compra.keys():
+    #     oc.notas = orden_de_compra["notas"]
+    # if "rechazo" in orden_de_compra.keys():
+    #     oc.rechazo = orden_de_compra["rechazo"]
+    # if "anulacion" in orden_de_compra.keys():
+    #     oc.anulacion = orden_de_compra["anulacion"]
+    # if "urlNotificacion" in orden_de_compra.keys():
+    #     oc.url_notificaion = orden_de_compra["urlNotificacion"]
+    # oc.save()
             
 
     return render(request, 'index.html', {'params': {'labels_almacenes': labels_almacenes, 'ocupacion_almacenes': ocupacion_almacenes,

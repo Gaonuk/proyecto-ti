@@ -137,6 +137,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-print(type(os.environ.get('DJANGO_DEVELOPMENT')))
+
 if os.environ.get('DJANGO_DEVELOPMENT')=='true':
     from proyecto13.settings_dev import DATABASES, DEBUG  # or specific overrides
