@@ -1,3 +1,5 @@
+{% load parse_iso %}
+{% load tz %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,7 +48,7 @@
         <h6 style="margin:4px;">ID</h6>
         <div>{{prod.id}}</div>
         <h6 style="margin:4px;">Vencimiento</h6>
-        <div>{{prod.vencimiento}}</div>
+        <div>{{prod.vencimiento|parse_iso|timezone:"America/Santiago"}}</div>
         {% endfor %}
     </div>
     {% endfor %}
