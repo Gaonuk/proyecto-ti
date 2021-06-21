@@ -20,5 +20,6 @@ from api import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('api.urls')),
-    path('index', views.index, name='index'),
+    path('index/', views.index, name='index'),
+    path('backoffice/', views.backoffice, name='backoffice'),
 ]
