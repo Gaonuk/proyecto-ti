@@ -23,12 +23,14 @@ import json
 from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
 import environ
 import os
-
-env = environ.Env()
-environ.Env.read_env()
 from pathlib import Path
-# Endpoints que exponemos para otros grupos
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+env = environ.Env()
+environ.Env.read_env(env_file= os.path.join(BASE_DIR, 'proyecto13/.env'))
+
+# Endpoints que exponemos para otros grupos
+
 
 if os.environ.get('DJANGO_DEVELOPMENT'):
     ALMACENES_RECEPCION_EXT= RECEPCIONES_DEV
