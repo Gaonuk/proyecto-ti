@@ -32,7 +32,7 @@ environ.Env.read_env(env_file= os.path.join(BASE_DIR, 'proyecto13/.env'))
 # Endpoints que exponemos para otros grupos
 
 
-if os.environ.get('DJANGO_DEVELOPMENT'):
+if os.environ.get('DJANGO_DEVELOPMENT')=='true':
     TITULO_RECEPCIONES = 'ALMACENES EXTERNOS DEV'
     ALMACENES_RECEPCION_EXT= RECEPCIONES_DEV
 else:

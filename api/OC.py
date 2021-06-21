@@ -18,7 +18,7 @@ environ.Env.read_env(env_file= os.path.join(BASE_DIR, 'proyecto13/.env'))
 
 
 # URL de la API de órdenes de compra
-if os.environ.get('DJANGO_DEVELOPMENT'):
+if os.environ.get('DJANGO_DEVELOPMENT')=='true':
     api_url = env('API_OC_DEV')
 else:
     api_url = env('API_OC_PROD')
