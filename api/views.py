@@ -6,9 +6,11 @@ from rest_framework.decorators import api_view
 from django.http.response import JsonResponse
 from rest_framework.response import Response
 from .warehouse import despachar_producto, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto
-from .OC import obtener_oc
+from .OC import obtener_oc, recepcionar_oc, rechazar_oc
 from .models import RecievedOC, SentOC
 from datetime import datetime
+from random import randint
+import requests
 
 # Create your views here.
 
@@ -58,16 +60,24 @@ def manejo_oc(request, id):
             return Response({'message': 'OC ya fue recibida'},
             status=status.HTTP_400_BAD_REQUEST)
         else:
-            
-            orden_de_compra = obtener_oc().json()
+            orden_de_compra = obtener_oc(id).json()
             RecievedOC(id = id, cliente = orden_de_compra["cliente"], proveedor = orden_de_compra["cliente"],
             sku = orden_de_compra["sku"], fecha_entrega = parse_js_date(orden_de_compra["fechaEntrega"]), cantidad = orden_de_compra["cantidad"],
             cantidad_despachada = orden_de_compra["cantidadDespachada"], precio_unitario = orden_de_compra["precioUnitario"],
             canal = orden_de_compra["canal"], estado = orden_de_compra["estado"], notas = orden_de_compra["notas"],
             rechazo = orden_de_compra["rechazo"],anulacion = orden_de_compra["anulacion"], url_notificaion = orden_de_compra["urlNotificacion"],
             created_at = parse_js_date(orden_de_compra["created_at"]), updated_at =  parse_js_date(orden_de_compra["updated_at"])).save()
+            url = orden_de_compra["urlNotificacion"]
+            if randint(0,1) == 1:
+                recepcionar_oc(id)
+                requests.patch(url=url, params={"estado":"aceptada"})
+            else:
+                rechazar_oc(id)
+                requests.patch(url=url, params={"estado":"rechazada"})
+
             response = {"id": id, "cliente": body["cliente"], "sku": body["sku"],"fechaEntrega": body["fechaEntrega"],
             "cantidad": body["cantidad"], "urlNotificacion": body["urlNotificacion"],"estado": "recibida"}
+
             return Response(response, status=status.HTTP_201_CREATED)
 
 
@@ -77,6 +87,7 @@ def manejo_oc(request, id):
         if SentOC.objects.filter(id=id).exists():
             sent_oc = SentOC.objects.get(id=id)
             sent_oc.update(estado=estado)
+            return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
     
