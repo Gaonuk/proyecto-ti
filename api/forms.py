@@ -13,3 +13,8 @@ class FormCambiarBodega(forms.Form):
     almacenId_externo = forms.CharField(label='ID Almacen Destino', max_length=100)
     oc =  forms.CharField(label='ID Orden de Compra', max_length=100, initial="4af9f23d8ead0e1d32000000")
     precio = forms.IntegerField(label= 'Precio de venta (solo números)' )
+
+class FormFabricar(forms.Form):
+    SKU = forms.CharField(label='SKU', max_length=100)
+    cantidad = forms.IntegerField(label= 'cantidad' )
+
