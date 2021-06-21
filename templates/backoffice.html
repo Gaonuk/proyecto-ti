@@ -40,12 +40,14 @@
     <h6 style="margin:4px;">SKU</h6>
     {% for sku, producto in almacen.detalle_productos.items %}
     <div>{{sku}}</div>
+    <div style="max-height: 300px;overflow-y: auto;">
         {% for prod in producto %}
         <h6 style="margin:4px;">ID</h6>
         <div>{{prod.id}}</div>
         <h6 style="margin:4px;">Vencimiento</h6>
         <div>{{prod.vencimiento}}</div>
         {% endfor %}
+    </div>
     {% endfor %}
     {% endif %}
     
@@ -55,7 +57,7 @@
     {% endfor %}
 
     </div>
-
+    <h5>{{TITULO_ALM_EXT}}</h5>
     <div style="text-align: left;display:grid;grid-template-columns: repeat(4,1fr);margin:0 3rem;padding:1rem;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);background-color: whitesmoke;">
         {% for almacen_externo in ALMACENES_EXTERNOS %} 
         <div><div style="font-weight: bold;">Grupo {{forloop.counter}}</div> {{almacen_externo}}</div>
@@ -82,7 +84,7 @@
         <form action="/backoffice/" method="post" style="display: grid;">
             {% csrf_token %}
             {{ form_cambiar_almacen_SKU }}
-            <input type="submit" value="Cambiar de producto de almacen por SKU">
+            <input type="submit" value="Cambiar productos de almacen por SKU">
         </form>
     </div>
     <div style="margin:0 auto;">

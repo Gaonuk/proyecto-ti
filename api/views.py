@@ -33,8 +33,10 @@ environ.Env.read_env(env_file= os.path.join(BASE_DIR, 'proyecto13/.env'))
 
 
 if os.environ.get('DJANGO_DEVELOPMENT'):
+    TITULO_RECEPCIONES = 'ALMACENES EXTERNOS DEV'
     ALMACENES_RECEPCION_EXT= RECEPCIONES_DEV
 else:
+    TITULO_RECEPCIONES = 'ALMACENES EXTERNOS PROD'
     ALMACENES_RECEPCION_EXT= RECEPCIONES_PROD
 
 
@@ -237,21 +239,23 @@ def backoffice(request):
         almacen['detalle_productos'] = {}
         print(stock)
         # Si hay productos en el almacen, iteramos sobre ellos
+        IDs_por_sku[almacen['_id']] = {}
         if len(stock) > 0:
             for sku in stock:
                 # Vamos a guardar en un objeto los SKUs y un array con sus IDs para ser usado en otro método
-                IDs_por_sku[sku['_id']] = []
+                IDs_por_sku[almacen['_id']][sku['_id']]= []
                 # Sacamos todos los IDs por SKU
                 productos_almacen = obtener_productos_almacen(
                     {"almacenId": almacen['_id'], "sku": sku["_id"]}).json()
                 for producto_almacen in productos_almacen:
-                    # Aquí se guardan todos los ID's por SKU
-                    IDs_por_sku[sku['_id']].append(producto_almacen['_id'])
+                    # Aquí se guardan todos los ID's por SKU y por almacen
+                    IDs_por_sku[almacen['_id']][sku['_id']].append(producto_almacen['_id'])
                     # Creamos una nueva variable 'id' porque front no permite "_"
                     producto_almacen['id'] = producto_almacen['_id']
                     IDs_productos.append(producto_almacen["_id"])
                 # Guardamos todos los productos según SKU en un objeto
                 almacen['detalle_productos'][sku["_id"]] = productos_almacen
+        
 
     if request.method == 'POST':
         # print(request.POST.get('cantidad'))
@@ -312,8 +316,10 @@ def backoffice(request):
             form_cambiar_bodega = FormCambiarBodega()
             form_fabricar = FormFabricar()
             form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU(request.POST)
+            almacen_origen = request.POST.get('almacen_origen', '')
             SKU = request.POST.get('SKU', '')
             ID_almacen = request.POST.get('almacenId', '')
+            cant_SKU = int(request.POST.get('cant_SKU', ''))
             precio = request.POST.get('precio', '')
             if form_cambiar_almacen_SKU.is_valid():
                 post_valido = True
@@ -321,15 +327,22 @@ def backoffice(request):
                     messages.warning(
                         request, '¡El ID de este almacén NO existe!')
                     post_valido = False
-                if SKU not in list(IDs_por_sku.keys()):
-                    messages.warning(request, '¡Este SKU NO existe!')
+                if SKU not in list(IDs_por_sku[almacen_origen].keys()):
+                    messages.warning(request, '¡Este SKU NO existe en este almacén!')
                     post_valido = False
                 if post_valido:
-                    for ID_producto in IDs_por_sku[SKU]:
+                    print(IDs_por_sku)
+                    for ID_producto in IDs_por_sku[almacen_origen][SKU][0:cant_SKU]:
+                        print(ID_producto)
                         mover_entre_almacenes(
                             {'productoId': ID_producto, "almacenId": ID_almacen})
-                    messages.info(
-                        request, f'{len(IDs_por_sku[SKU])} producto(s) han sido cambiado de almacén')
+                    if cant_SKU > len(IDs_por_sku[almacen_origen][SKU]):
+                        messages.info(
+                            request, f'{len(IDs_por_sku[almacen_origen][SKU])} producto(s) han sido cambiado de almacén')
+                    else:
+                        messages.info(
+                            request, f'{cant_SKU} producto(s) han sido cambiado de almacén')
+                    return HttpResponseRedirect('/backoffice')
 
         elif request.POST.get('cantidad') != '' and request.POST.get('SKU') != '':
             valid_SKUs = [
@@ -389,6 +402,7 @@ def backoffice(request):
                         request, f'Se han mandado a fabricar {cantidad} productos con sku {SKU}')
                     messages.info(
                         request, f"Su producto estara disponible el {date}")
+                    return HttpResponseRedirect('/backoffice')
     else:
         form_cambiar_bodega = FormCambiarBodega()
         form_cambiar_almacen = FormCambiarAlmacen()
@@ -402,4 +416,5 @@ def backoffice(request):
         'form_cambiar_bodega': form_cambiar_bodega,
         'form_cambiar_almacen_SKU': form_cambiar_almacen_SKU,
         'form_fabricar': form_fabricar,
+        'TITULO_ALM_EXT': TITULO_RECEPCIONES,
         'ALMACENES_EXTERNOS': ALMACENES_RECEPCION_EXT})
