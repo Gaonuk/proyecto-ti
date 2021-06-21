@@ -12,9 +12,8 @@ from .forms import FormCambiarAlmacen, FormCambiarBodega, FormCambiarAlmacenPorS
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 
-from .OC import obtener_oc, recepcionar_oc, rechazar_oc
+from .OC import obtener_oc, recepcionar_oc, rechazar_oc, parse_js_date
 from .models import RecievedOC, SentOC
-from datetime import datetime
 from random import randint
 import requests
 import json
@@ -24,6 +23,7 @@ from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
 import environ
 import os
 from pathlib import Path
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
@@ -40,9 +40,6 @@ else:
     ALMACENES_RECEPCION_EXT= RECEPCIONES_PROD
 
 
-def parse_js_date(date):
-    date_format = date[:-1]
-    return datetime.fromisoformat(date_format)
 
 
 @api_view(['GET'])
@@ -80,15 +77,15 @@ def consulta_stock(request):
 
 @api_view(['POST', 'PATCH'])
 def manejo_oc(request, id):
+    body = json.loads(request.body)
     if request.method == 'POST':
-        body = json.loads(request.body)
 
         if RecievedOC.objects.filter(id=id).exists():
             return Response({'message': 'OC ya fue recibida'},
                             status=status.HTTP_400_BAD_REQUEST)
         else:
             orden_de_compra = obtener_oc(id).json()[0]
-            oc = RecievedOC(id=id, cliente=orden_de_compra["cliente"], proveedor=orden_de_compra["cliente"],
+            oc = RecievedOC(id=id, cliente=orden_de_compra["cliente"], proveedor=orden_de_compra["proveedor"],
                             sku=orden_de_compra["sku"], fecha_entrega=parse_js_date(orden_de_compra["fechaEntrega"]), cantidad=orden_de_compra["cantidad"],
                             cantidad_despachada=orden_de_compra[
                                 "cantidadDespachada"], precio_unitario=orden_de_compra["precioUnitario"],
@@ -119,11 +116,11 @@ def manejo_oc(request, id):
             return Response(response, status=status.HTTP_201_CREATED)
 
     elif request.method == 'PATCH':
-        body = request.body
         estado = body["estado"]
         if SentOC.objects.filter(id=id).exists():
             sent_oc = SentOC.objects.get(id=id)
-            sent_oc.update(estado=estado)
+            sent_oc.estado=estado
+            sent_oc.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -210,6 +207,26 @@ def index(request):
                 cantidad_sku[sku["_id"]] = int(sku["total"])
     labels_stock = [key for key in cantidad_sku.keys()]
     stock = [cantidad_sku[i] for i in labels_stock]
+
+    orden_de_compra = obtener_oc("60d0ba39e72508000448529d").json()[0]
+    oc = SentOC(id="60d0ba39e72508000448529d", cliente=orden_de_compra["cliente"], proveedor=orden_de_compra["proveedor"],
+                    sku=orden_de_compra["sku"], fecha_entrega=parse_js_date(orden_de_compra["fechaEntrega"]), cantidad=orden_de_compra["cantidad"],
+                    cantidad_despachada=orden_de_compra[
+                        "cantidadDespachada"], precio_unitario=orden_de_compra["precioUnitario"],
+                    canal=orden_de_compra["canal"], estado=orden_de_compra["estado"], created_at=parse_js_date(
+                        orden_de_compra["created_at"]),
+                    updated_at=parse_js_date(orden_de_compra["updated_at"]))
+
+    if "notas" in orden_de_compra.keys():
+        oc.notas = orden_de_compra["notas"]
+    if "rechazo" in orden_de_compra.keys():
+        oc.rechazo = orden_de_compra["rechazo"]
+    if "anulacion" in orden_de_compra.keys():
+        oc.anulacion = orden_de_compra["anulacion"]
+    if "urlNotificacion" in orden_de_compra.keys():
+        oc.url_notificaion = orden_de_compra["urlNotificacion"]
+    oc.save()
+            
 
     return render(request, 'index.html', {'params': {'labels_almacenes': labels_almacenes, 'ocupacion_almacenes': ocupacion_almacenes,
                                                      'labels_stock': labels_stock, 'stock': stock}})

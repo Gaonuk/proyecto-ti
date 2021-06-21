@@ -6,6 +6,8 @@ import requests
 import os
 import environ
 from pathlib import Path
+from .models import SentOC, RecievedOC
+from datetime import datetime
 
 #BASE DIRECTORY
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,6 +22,10 @@ if os.environ.get('DJANGO_DEVELOPMENT'):
     api_url = env('API_OC_DEV')
 else:
     api_url = env('API_OC_PROD')
+
+def parse_js_date(date):
+    date_format = date[:-1]
+    return datetime.fromisoformat(date_format)
 
 
 def anular_oc(id, params:dict):
@@ -60,6 +66,19 @@ def crear_oc(params:dict):
         headers=headers,
         json=params
     )
+    oc = response.json()
+    sent_oc = SentOC(id=oc["_id"], cliente=oc["cliente"], proveedor=oc["proveedor"],sku=oc["sku"],fecha_entrega=parse_js_date(oc["fechaEntrega"]),
+    cantidad=oc["cantidad"], cantidad_despachada=oc["cantidadDespachada"], precio_unitario=oc["precioUnitario"], canal=oc["canal"],
+    estado=oc["estado"], created_at=parse_js_date(oc["created_at"]), updated_at=parse_js_date(oc["updated_at"]))
+    if "notas" in oc.keys():
+        sent_oc.notas = oc["notas"]
+    if "rechazo" in oc.keys():
+        sent_oc.rechazo = oc["rechazo"]
+    if "anulacion" in oc.keys():
+        sent_oc.anulacion = oc["anulacion"]
+    if "urlNotificacion" in oc.keys():
+        sent_oc.url_notificaion = oc["urlNotificacion"]
+    sent_oc.save()
     return response
 
 def obtener_oc(id):
@@ -84,6 +103,9 @@ def recepcionar_oc(id):
         f'{api_url}/recepcionar/{id}',
         headers=headers
     )
+    oc = RecievedOC.objects.get(id=id)
+    oc.estado = "aceptada"
+    oc.save()
     return response
 
 def rechazar_oc(id,params:dict):
@@ -100,4 +122,7 @@ def rechazar_oc(id,params:dict):
         headers=headers,
         json=params
     )
+    oc = RecievedOC.objects.get(id=id)
+    oc.estado = "rechazada"
+    oc.save()
     return response
