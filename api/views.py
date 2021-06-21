@@ -153,4 +153,37 @@ def algun_endopint(request, algun_id):
 
 def index(request):
 
-    return render(request, 'index.html',{'params':{'param_1':'Param 1 pasado desde el backend','param_2':'Param 2 pasado desde el backend'}})
+    ###Información de los almacenes
+    almacenes = obtener_almacenes().json()
+    info_almacenes = {}
+    for almacen in almacenes: 
+        id = almacen["_id"]
+        used = almacen["usedSpace"]
+        total = almacen["totalSpace"]
+        if almacen["recepcion"]:
+            info_almacenes['Recepción'] = [id,used,total]
+        if almacen["despacho"]:
+            info_almacenes['Despacho'] = [id,used,total]
+        if almacen["pulmon"]:
+            info_almacenes['Pulmón'] = [id,used,total]
+        if almacen["pulmon"] == False and almacen["despacho"] == False and almacen["recepcion"] == False: 
+            info_almacenes['Central'] = [id,used,total]
+        almacen["almacenId"] = almacen["_id"]
+    labels_almacenes = ['Recepción','Despacho','Pulmón','Central'] 
+    ocupacion_almacenes = [info_almacenes[i][1] for i in labels_almacenes]
+    id_almacenes = [info_almacenes[i][0] for i in labels_almacenes]
+    
+    ###Información stock disponible de vacunas y compuestos 
+    cantidad_sku = {}
+    for almacen in almacenes:
+        sku_almacen = obtener_stock(almacen).json()
+        for sku in sku_almacen:
+            if sku["_id"] in cantidad_sku:
+                cantidad_sku[sku["_id"]] += int(sku["total"])
+            else:
+                cantidad_sku[sku["_id"]] = int(sku["total"])
+    labels_stock = [key for key in cantidad_sku.keys()]
+    stock = [cantidad_sku[i] for i in labels_stock]
+
+    return render(request, 'index.html',{'params':{'labels_almacenes': labels_almacenes, 'ocupacion_almacenes': ocupacion_almacenes, \
+        'labels_stock': labels_stock, 'stock': stock }})
