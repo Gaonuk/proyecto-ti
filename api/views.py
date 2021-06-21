@@ -82,12 +82,14 @@ def manejo_oc(request, id):
     if request.method == 'POST':
 
         if RecievedOC.objects.filter(id=id).exists():
+            with open('registro_oc.txt', 'a') as registro:
+                registro.write(f'POST-400: OC {id} - {datetime.now()}\n')
             return Response({'message': 'OC ya fue recibida'},
                             status=status.HTTP_400_BAD_REQUEST)
         else:
             # Momento de recepción en un txt
             with open('registro_oc.txt', 'a') as registro:
-                registro.write(f'POST: OC {id} - {datetime.now()}\n')
+                registro.write(f'POST-201: OC {id} - {datetime.now()}\n')
 
             orden_de_compra = obtener_oc(id).json()[0]
             oc = RecievedOC(
@@ -129,18 +131,19 @@ def manejo_oc(request, id):
 
     elif request.method == 'PATCH':
 
-        # Momento de recepción en un txt
-        with open('registro_oc.txt', 'a') as registro:
-                registro.write(f'PATCH: OC {id} - {datetime.now()}\n')
-
 
         estado = body["estado"]
         if SentOC.objects.filter(id=id).exists():
+            # Momento de recepción en un txt
+            with open('registro_oc.txt', 'a') as registro:
+                registro.write(f'PATCH-204: OC {id} - {datetime.now()}\n')
             sent_oc = SentOC.objects.get(id=id)
             sent_oc.estado=estado
             sent_oc.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
+            with open('registro_oc.txt', 'a') as registro:
+                registro.write(f'PATCH-404: OC {id} - {datetime.now()}\n')
             return Response(status=status.HTTP_404_NOT_FOUND)
 
     else:  # En caso de un method nada que ver
