@@ -1,25 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
 <head>
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
 </head>
 
-<body>
-    <h1>Título del dashboard</h1>
-    <h2>Subtítulo del dashboard</h2>
-    <button onclick="funcion_ejemplo()">Soy un botón, aprétame</button>
-    <p>{{params.param_1}}</p>
-    <p>{{params.param_2}}</p>
-    <p id="demo_js"></p>
-</body>
+<body style="text-align:center;margin:0;padding: 0;font-family: 'Roboto', sans-serif;background-color: #E7ECEF;">
+    <div style="color: white;background-color: #274C77;">
+        <h1 style="margin:0">Dashboard Grupo 13</h1>
+    </div>
+    <h2 style="margin-bottom:0">Ocupación de la bodega</h2>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.3.2/dist/chart.min.js"></script>
+    <div style="width: 500px; margin: auto">
+    <canvas id="myChart" ></canvas>
+    </div>
+    <script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{params.labels_almacenes|safe}},
+            datasets: [{
+                label: 'Ocupación por almacén',
+                data: {{params.ocupacion_almacenes|safe}},
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    </script>
+    <h2 style="margin-bottom:0">Stock de compuestos y vacunas en la bodega</h2>
+    <div style="width: 500px; margin: auto">
+    <canvas id="chart2" ></canvas>
+    </div>
+    <script>
+    var ctx = document.getElementById('chart2').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{params.labels_stock|safe}},
+            datasets: [{
+                label: 'Cantidad de cada SKU',
+                data: {{params.stock|safe}},
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    </script>
+<!-- <h2></h2>
+<canvas id="chart2" width="50" height="50"></canvas>
 <script>
-    function funcion_ejemplo() {
-        document.getElementById("demo_js").innerHTML = "wena cabros";
-    }
-</script>
+    var ctx = document.getElementById('chart2').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [2,3,4],
+            datasets: [{
+                label: 'Stock de compuestos y vacunas',
+                data: [1,2,3],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    </script> -->
 
+</body>
 </html>
