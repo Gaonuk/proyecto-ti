@@ -5,8 +5,25 @@ from hashlib import sha1
 import hmac
 import base64
 
-api_url = 'https://dev.api-bodega.2021-1.tallerdeintegracion.cl/bodega'
-clave_privada = '%@DP6wJYRuD$.D'
+#Only to define .env variables
+import os
+import environ
+from pathlib import Path
+
+#BASE DIRECTORY
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env(env_file= os.path.join(BASE_DIR, 'proyecto13/.env'))
+
+
+if os.environ.get('DJANGO_DEVELOPMENT'):
+    api_url = env('API_BODEGA_DEV')
+    clave_privada = env('CLAVE_BODEGA_DEV')
+else:
+    api_url = env('API_BODEGA_PROD')
+    clave_privada = env('CLAVE_BODEGA_PROD')
 
 def hash_maker(msg:str):
     # función para hacer el hash para el header de Authorization

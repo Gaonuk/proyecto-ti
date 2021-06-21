@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['aysen13.ing.puc.cl','146.155.13.183','localhost', '127.0.0.1']
 
@@ -42,8 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'api.apps.ApiConfig',
+     'rest_framework',
+     'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
@@ -83,9 +83,9 @@ WSGI_APPLICATION = 'proyecto13.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env('DATABASE_NAME_PROD'),
-        'USER': env('DATABASE_USER_PROD'),
-        'PASSWORD': env('DATABASE_PASS_PROD'),
+        'NAME': env('DATABASE_NAME_DEV'),
+        'USER': env('DATABASE_USER_DEV'),
+        'PASSWORD': env('DATABASE_PASS_DEV'),
         'HOST': 'localhost',
         'PORT': '',
     }
@@ -136,6 +136,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-if os.environ.get('DJANGO_DEVELOPMENT'):
-    from proyecto13.settings_dev import DATABASES, DEBUG  # or specific overrides
