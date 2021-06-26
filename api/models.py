@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import datetime
+from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
 
@@ -8,6 +9,12 @@ class AlgunModelo(models.Model):
     name = models.CharField(max_length=50)
     age = models.IntegerField()
 
+class Lote(models.Model):
+    sku_numlote = models.CharField(primary_key=True, max_length=256)
+    sku = models.CharField(max_length=10)
+    fecha_vencimiento = models.DateTimeField()
+    cantidad_disponible = models.IntegerField()
+    productos = ArrayField(models.CharField(max_length=256))
 
 class RecievedOC(models.Model):
     id = models.TextField(primary_key=True)
