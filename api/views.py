@@ -7,12 +7,13 @@ from rest_framework.decorators import api_view
 from django.http.response import JsonResponse
 from rest_framework.response import Response
 from .warehouse import despachar_producto, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto
+import datetime
 
-from .forms import FormCambiarAlmacen, FormCambiarBodega, FormCambiarAlmacenPorSKU, FormFabricar
+from .forms import FormCambiarAlmacen, FormCambiarBodega, FormCambiarAlmacenPorSKU, FormFabricar, FormCrearOC
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 
-from .OC import obtener_oc, recepcionar_oc, rechazar_oc
+from .OC import obtener_oc, recepcionar_oc, rechazar_oc, crear_oc
 from .models import RecievedOC, SentOC
 from datetime import datetime
 from random import randint
@@ -22,6 +23,22 @@ import json
 # Create your views here.
 from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
 # Endpoints que exponemos para otros grupos
+import environ
+import os
+from pathlib import Path
+
+# BASE DIRECTORY
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env(env_file=os.path.join(BASE_DIR, 'proyecto13/.env'))
+
+
+if os.environ.get('DJANGO_DEVELOPMENT'):
+    cliente = '60bd2a763f1b6100049f1453'
+else:
+    cliente = '60caa3af31df040004e88df0'
 
 
 def parse_js_date(date):
@@ -247,6 +264,7 @@ def backoffice(request):
             form_cambiar_almacen = FormCambiarAlmacen(request.POST)
             form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU()
             form_fabricar = FormFabricar()
+            form_crear_oc = FormCrearOC()
             # print(IDs_almacenes)
             # print(IDs_productos)
             ID_producto = request.POST.get('productoId', '')
@@ -267,11 +285,93 @@ def backoffice(request):
                     messages.info(
                         request, 'El producto ha sido cambiado de almacén')
                     return HttpResponseRedirect('/backoffice')
+        elif request.POST.get('proveedor') != '':
+            valid_SKUs = [
+                '100',
+                '107',
+                '108',
+                '112',
+                '113',
+                '114',
+                '118',
+                '119',
+                '129',
+                '1000',
+                '10001',
+                '30001',
+                '30002',
+                '30003',
+                '30004',
+                '30005',
+                '30006',
+                '30007',
+                '30008',
+                '30009',
+                '30010',
+                '30011',
+                '30012',
+                '30013',
+                '30014',
+                '30015',
+                '30016',
+                '30017',
+                '30018',
+                '30019',
+                '30020',
+                '30021',
+                '30022',
+                '30023',
+                '30024'
+            ]
+            form_cambiar_bodega = FormCambiarBodega()
+            form_cambiar_almacen = FormCambiarAlmacen()
+            form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU()
+            form_fabricar = FormFabricar()
+            form_crear_oc = FormCrearOC(request.POST)
+            proveedor = request.POST.get('proveedor')
+            SKU = request.POST.get('SKU')
+            fechaEntrega = request.POST.get('fechaEntrega')
+            cantidad = request.POST.get('cantidad')
+            precio = request.POST.get('precio')
+            canal = request.POST.get('canal')
+            notas = request.POST.get('notas')
+            urlNotificacion = request.POST.get('urlNotificacion')
+            date, time = fechaEntrega.split(';')
+            day, month, year = date.split('/')
+            hour, minutes, seconds = time.split(':')
+            dateTime = datetime(int(year), int(month), int(
+                day), int(hour), int(minutes), int(seconds))
+            startDate = datetime(1970, 1, 1)
+            miliseconds = dateTime - startDate
+            print(int(miliseconds.total_seconds() * 1000))
+            if form_crear_oc.is_valid():
+                post_valido = True
+                if SKU not in valid_SKUs:
+                    messages.warning(request, '¡Este SKU NO existe!')
+                    post_valido = False
+                if post_valido:
+                    if notas != "":
+                        response = crear_oc({"cliente": cliente, "proveedor": proveedor, "sku": SKU, "fechaEntrega": int(
+                            miliseconds.total_seconds() * 1000), "cantidad": cantidad, "precioUnitario": precio, "canal": canal, "notas": notas})
+                        data = response.json()
+                        messages.info(request, f"{data}")
+                    if urlNotificacion != "":
+                        response = crear_oc({"cliente": cliente, "proveedor": proveedor, "sku": SKU, "fechaEntrega": int(miliseconds.total_seconds(
+                        ) * 1000), "cantidad": cantidad, "precioUnitario": precio, "canal": canal, "urlNotificacion": urlNotificacion})
+                        data = response.json()
+                        messages.info(request, f"{data}")
+                    else:
+                        response = crear_oc({"cliente": cliente, "proveedor": proveedor, "sku": SKU, "fechaEntrega": int(
+                            miliseconds.total_seconds() * 1000), "cantidad": cantidad, "precioUnitario": precio, "canal": canal})
+                        data = response.json()
+                        messages.info(request, f"{data}")
+
         elif request.POST.get('oc', '') != '' and request.POST.get('SKU', '') == '' and request.POST.get('cantidad', '') == '':
             form_cambiar_almacen = FormCambiarAlmacen()
             form_cambiar_bodega = FormCambiarBodega(request.POST)
             form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU()
             form_fabricar = FormFabricar()
+            form_crear_oc = FormCrearOC()
             ID_producto = request.POST.get('productoId', '')
             ID_almacen_externo = request.POST.get('almacenId_externo', '')
             ID_oc = request.POST.get('oc', '')
@@ -298,6 +398,7 @@ def backoffice(request):
             form_cambiar_bodega = FormCambiarBodega()
             form_fabricar = FormFabricar()
             form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU(request.POST)
+            form_crear_oc = FormCrearOC()
             SKU = request.POST.get('SKU', '')
             ID_almacen = request.POST.get('almacenId', '')
             precio = request.POST.get('precio', '')
@@ -359,6 +460,7 @@ def backoffice(request):
             form_cambiar_bodega = FormCambiarBodega()
             form_fabricar = FormFabricar(request.POST)
             form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU()
+            form_crear_oc = FormCrearOC()
             SKU = request.POST.get('SKU')
             cantidad = request.POST.get('cantidad')
             if form_fabricar.is_valid():
@@ -380,6 +482,7 @@ def backoffice(request):
         form_cambiar_almacen = FormCambiarAlmacen()
         form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU()
         form_fabricar = FormFabricar()
+        form_crear_oc = FormCrearOC()
 
     # print(almacenes)
     return render(request, 'backoffice.html', {
@@ -388,4 +491,5 @@ def backoffice(request):
         'form_cambiar_bodega': form_cambiar_bodega,
         'form_cambiar_almacen_SKU': form_cambiar_almacen_SKU,
         'form_fabricar': form_fabricar,
+        'form_crear_oc': form_crear_oc,
         'ALMACENES_EXTERNOS': RECEPCIONES_DEV})
