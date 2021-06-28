@@ -4,7 +4,7 @@ from datetime import datetime
 # Create your models here.
 
 class AlgunModelo(models.Model):
-    id = models.CharField(primary_key=True, max_length=22)
+    id = models.CharField(primary_key=True, max_length=100, editable=False)
     name = models.CharField(max_length=50)
     age = models.IntegerField()
 
