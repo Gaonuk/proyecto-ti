@@ -89,7 +89,7 @@ def manejo_oc(request, id):
                             status=status.HTTP_400_BAD_REQUEST)
         else:
             orden_de_compra = obtener_oc(id).json()[0]
-            oc = RecievedOC(id=id, cliente=orden_de_compra["cliente"], proveedor=orden_de_compra["cliente"],
+            oc = RecievedOC(id=id, cliente=orden_de_compra["cliente"], proveedor=orden_de_compra["proveedor"],
                             sku=orden_de_compra["sku"], fecha_entrega=parse_js_date(orden_de_compra["fechaEntrega"]), cantidad=orden_de_compra["cantidad"],
                             cantidad_despachada=orden_de_compra[
                                 "cantidadDespachada"], precio_unitario=orden_de_compra["precioUnitario"],
@@ -109,10 +109,14 @@ def manejo_oc(request, id):
             url = orden_de_compra["urlNotificacion"]
             if randint(0, 1) == 1:
                 recepcionar_oc(id)
-                requests.patch(url=url, params={"estado": "aceptada"})
+                params = json.dumps({"estado": "aceptada"})
+                headers = {'Content-type': 'application/json'}
+                requests.patch(url=url, data=params, headers=headers)
             else:
                 rechazar_oc(id, {"rechazo": "Rechazada por azar"})
-                requests.patch(url=url, params={"estado": "rechazada"})
+                params = json.dumps({"estado": "rechazada"})
+                headers = {'Content-type': 'application/json'}
+                requests.patch(url=url, data=params, headers=headers)
 
             response = {"id": id, "cliente": body["cliente"], "sku": body["sku"], "fechaEntrega": body["fechaEntrega"],
                         "cantidad": body["cantidad"], "urlNotificacion": body["urlNotificacion"], "estado": "recibida"}
@@ -120,7 +124,7 @@ def manejo_oc(request, id):
             return Response(response, status=status.HTTP_201_CREATED)
 
     elif request.method == 'PATCH':
-        body = request.body
+        body = json.loads(request.body)
         estado = body["estado"]
         if SentOC.objects.filter(id=id).exists():
             sent_oc = SentOC.objects.get(id=id)
