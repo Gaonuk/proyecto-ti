@@ -22,6 +22,7 @@ import json
 
 # Create your views here.
 from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
+from .arrays_clients_ids_oc import IDS_DEV, IDS_PROD
 # Endpoints que exponemos para otros grupos
 import environ
 import os
@@ -39,6 +40,11 @@ if os.environ.get('DJANGO_DEVELOPMENT'):
     cliente = '60bd2a763f1b6100049f1453'
 else:
     cliente = '60caa3af31df040004e88df0'
+
+if os.environ.get('DJANGO_DEVELOPMENT'):
+    ids_oc = IDS_DEV
+else:
+    ids_oc = IDS_PROD
 
 
 def parse_js_date(date):
@@ -89,13 +95,46 @@ def manejo_oc(request, id):
                             status=status.HTTP_400_BAD_REQUEST)
         else:
             orden_de_compra = obtener_oc(id).json()[0]
-            oc = RecievedOC(id=id, cliente=orden_de_compra["cliente"], proveedor=orden_de_compra["proveedor"],
-                            sku=orden_de_compra["sku"], fecha_entrega=parse_js_date(orden_de_compra["fechaEntrega"]), cantidad=orden_de_compra["cantidad"],
-                            cantidad_despachada=orden_de_compra[
-                                "cantidadDespachada"], precio_unitario=orden_de_compra["precioUnitario"],
-                            canal=orden_de_compra["canal"], estado=orden_de_compra["estado"], created_at=parse_js_date(
-                                orden_de_compra["created_at"]),
-                            updated_at=parse_js_date(orden_de_compra["updated_at"]))
+            if body["cliente"] != orden_de_compra["cliente"]:
+                return Response({'message': 'El cliente no corresponde al que se encuentra guardado en la API de OC'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if body["sku"] != orden_de_compra["sku"]:
+                return Response({'message': 'El sku no corresponde al que se encuentra guardado en la API de OC'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if body["fechaEntrega"] != orden_de_compra["fechaEntrega"]:
+                return Response({'message': 'La fecha de entrega no corresponde al que se encuentra guardado en la API de OC'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if body["cantidad"] != orden_de_compra["cantidad"]:
+                return Response({'message': 'La cantidad no corresponde al que se encuentra guardado en la API de OC'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if orden_de_compra["cliente"] not in ids_oc:
+                return Response({'message': 'Cliente no existe'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if orden_de_compra["proveedor"] != cliente:
+                return Response({'message': 'No somos el proveedor de esta OC'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if orden_de_compra["canal"] not in ["b2b", "b2c", "ftp"]:
+                return Response({'message': 'El canal no corresponde'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if orden_de_compra["estado"] not in ["creada", "aceptada", "rechazada", "finalizada", "anulada"]:
+                return Response({'message': 'El estado de la OC no corresponde'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if parse_js_date(orden_de_compra["fechaEntrega"]) < datetime.now():
+                return Response({'message': 'La fecha de entrega ya paso'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            oc = RecievedOC(id=id,
+                            cliente=orden_de_compra["cliente"],
+                            proveedor=orden_de_compra["proveedor"],
+                            sku=orden_de_compra["sku"],
+                            fecha_entrega=parse_js_date(orden_de_compra["fechaEntrega"]),
+                            cantidad=orden_de_compra["cantidad"],
+                            cantidad_despachada=orden_de_compra["cantidadDespachada"],
+                            precio_unitario=orden_de_compra["precioUnitario"],
+                            canal=orden_de_compra["canal"],
+                            estado=orden_de_compra["estado"],
+                            created_at=parse_js_date(orden_de_compra["created_at"]),
+                            updated_at=parse_js_date(orden_de_compra["updated_at"])
+                            )
 
             if "notas" in orden_de_compra.keys():
                 oc.notas = orden_de_compra["notas"]
@@ -118,8 +157,13 @@ def manejo_oc(request, id):
                 headers = {'Content-type': 'application/json'}
                 requests.patch(url=url, data=params, headers=headers)
 
-            response = {"id": id, "cliente": body["cliente"], "sku": body["sku"], "fechaEntrega": body["fechaEntrega"],
-                        "cantidad": body["cantidad"], "urlNotificacion": body["urlNotificacion"], "estado": "recibida"}
+            response = {"id": id,
+                        "cliente": body["cliente"],
+                        "sku": body["sku"],
+                        "fechaEntrega": body["fechaEntrega"],
+                        "cantidad": body["cantidad"],
+                        "urlNotificacion": body["urlNotificacion"],
+                        "estado": "recibida"}
 
             return Response(response, status=status.HTTP_201_CREATED)
 
