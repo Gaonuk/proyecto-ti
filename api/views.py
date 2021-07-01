@@ -114,7 +114,7 @@ def manejo_oc(request, id):
             if "anulacion" in orden_de_compra.keys():
                 oc.anulacion = orden_de_compra["anulacion"]
             if "urlNotificacion" in orden_de_compra.keys():
-                oc.url_notificaion = orden_de_compra["urlNotificacion"]
+                oc.url_notification = orden_de_compra["urlNotificacion"]
             oc.save()
             url = orden_de_compra["urlNotificacion"]
             if randint(0, 1) == 1:
@@ -245,7 +245,7 @@ def index(request):
     # if "anulacion" in orden_de_compra.keys():
     #     oc.anulacion = orden_de_compra["anulacion"]
     # if "urlNotificacion" in orden_de_compra.keys():
-    #     oc.url_notificaion = orden_de_compra["urlNotificacion"]
+    #     oc.url_notification = orden_de_compra["urlNotificacion"]
     # oc.save()
             
 
