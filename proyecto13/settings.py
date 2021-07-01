@@ -44,8 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api.apps.ApiConfig',
-    'django_celery_beat',
-    'django_celery_results',
+     'django_q'
 ]
 
 MIDDLEWARE = [
@@ -139,15 +138,23 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Celery Configuration Options
-CELERY_TASK_SERIALIZER = "json"
-CELERY_ACCEPT_CONTENT = ["application/json"]
-CELERY_TIMEZONE = "America/Santiago"
-CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_RESULT_BACKEND = 'django-cache'
+# CRONJOBS = [
+#     ('*/2 * * * *', 'api.cron.mover_recepcion_a_alm_central')
+# ]
+# ALLOW_PARALEL_RUNS = True
 
+Q_CLUSTER = {
+    'name': 'proyecto13',
+    "workers": 1,
+    "timeout": 10,
+    "retry": 20,
+    "queue_limit": 50,
+    "bulk": 10,
+    "orm": "default",
+    "ack_failures": True,
+    "max_attempts": 1,
+    "attempt_count": 0,
+}
 
 if os.environ.get('DJANGO_DEVELOPMENT')=='true':
     from proyecto13.settings_dev import DATABASES, DEBUG  # or specific overrides
