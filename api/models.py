@@ -1,13 +1,13 @@
 from django.db import models
 from datetime import datetime
+from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
 
-class AlgunModelo(models.Model):
-    id = models.CharField(primary_key=True, max_length=100, editable=False)
-    name = models.CharField(max_length=50)
-    age = models.IntegerField()
-
+# class AlgunModelo(models.Model):
+#     id = models.CharField(primary_key=True, max_length=100, editable=False)
+#     name = models.CharField(max_length=50)
+#     age = models.IntegerField()
 
 class RecievedOC(models.Model):
     id = models.TextField(primary_key=True)
@@ -45,3 +45,33 @@ class SentOC(models.Model):
     url_notification = models.TextField(blank=True)
     created_at = models.DateTimeField()
     updated_at =  models.DateTimeField()
+
+# class Lote(models.Model):
+#     sku_numlote = models.CharField(primary_key=True, max_length=256)
+#     sku = models.CharField(max_length=10)
+#     fecha_vencimiento = models.DateTimeField()
+#     cantidad_disponible = models.IntegerField()
+#     productos = ArrayField(models.CharField(max_length=256))
+
+class ProductoBodega(models.Model):
+    id = models.CharField(primary_key=True, max_length=22)
+    sku = models.CharField(max_length=10)
+    almacen = models.CharField(max_length=15)
+    fecha_vencimiento = models.DateTimeField()
+    # lote = models.ForeignKey(Lote, on_delete=models.CASCADE,)
+    oc_reservada = models.TextField(default=None) # Este atributo es el ID de la RecievedOC con la que se reservó el producto.
+
+class Pedido(models.Model):
+    id = models.CharField(primary_key=True, max_length=22)
+    sku = models.CharField(max_length=10)
+    cantidad = models.IntegerField()
+    fecha_disponible = models.DateTimeField()
+    disponbile_para_uso = models.BooleanField(default=True)
+
+class ProductoDespachado(models.Model):
+    id = models.CharField(primary_key=True, max_length=22)
+    sku = models.CharField(max_length=10)
+    cliente = models.CharField(max_length=20)
+    oc_cliente = models.CharField(max_length=25)
+    precio = models.IntegerField()
+
