@@ -1,0 +1,24 @@
+SKU,Nombre,Descripción,# Ingredientes,Ingrediente 1,Ingrediente 2,Ingrediente 3,Ingrediente 4,Ingrediente 5,Ingrediente 6,Ingrediente 7,Ingrediente 8,Ingrediente 9,Ingrediente 10,Productos para producir,Espacio para recibir producción
+100,"1,2-diestearol-sn-glicero-3-fosfocolina",Excipiente,0,,,,,,,,,,,0,5
+102,Acetato de sodio trihidrato,Excipiente,0,,,,,,,,,,,0,8
+103,Ácido acético,Excipiente,0,,,,,,,,,,,0,9
+107,ALC-0159,Excipiente,0,,,,,,,,,,,0,7
+108,ALC-0315,Excipiente,0,,,,,,,,,,,0,18
+110,Clorhidrato de trometamol,Excipiente,0,,,,,,,,,,,0,6
+112,Cloruro de potasio,Excipiente,0,,,,,,,,,,,0,5
+113,Cloruro de sodio,Excipiente,0,,,,,,,,,,,0,12
+114,Colesterol,Excipiente,0,,,,,,,,,,,0,14
+115,Dihidrogenofosfato de sodio,Excipiente,0,,,,,,,,,,,0,20
+118,Fosfato monobásico de potasio,Excipiente,0,,,,,,,,,,,0,4
+119,Fosfato sódico dibásico dihidrato,Excipiente,0,,,,,,,,,,,0,14
+120,Hidrogenofosfato de disodio,Excipiente,0,,,,,,,,,,,0,5
+121,Hidróxido de aluminio,Excipiente,0,,,,,,,,,,,0,3
+126,Lípido SM-102,Excipiente,0,,,,,,,,,,,0,10
+127,Polietilenglicol,Excipiente,0,,,,,,,,,,,0,5
+129,Sacarosa,Excipiente,0,,,,,,,,,,,0,10
+132,Trometamol,Excipiente,0,,,,,,,,,,,0,14
+1000,mRNA,Ingrediente activo RNA mensajero,0,,,,,,,,,,,0,8
+1001,Antígeno SARS-CoV-2 inactivado,Antígeno virus inactivado,0,,,,,,,,,,,0,5
+10001,BNT162B2,Vacuna Pfizer-Biontech,10,mRNA,ALC-0159,ALC-0315,"1,2-diestearol-sn-glicero-3-fosfocolina",Colesterol,Cloruro de potasio,Fosfato sódico dibásico dihidrato,Sacarosa,Cloruro de sodio,Fosfato monobásico de potasio,72,6
+10002,CORONAVAC,Vacuna Sinovac,5,Antígeno SARS-CoV-2 inactivado,Hidróxido de aluminio,Hidrogenofosfato de disodio,Dihidrogenofosfato de sodio,Cloruro de sodio,,,,,,56,8
+10005,mRNA-1273,Vacuna Moderna,10,mRNA,Lípido SM-102,Colesterol,"1,2-diestearol-sn-glicero-3-fosfocolina",Polietilenglicol,Trometamol,Clorhidrato de trometamol,Ácido acético,Acetato de sodio trihidrato,Sacarosa,52,4
