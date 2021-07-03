@@ -107,6 +107,16 @@
         </form>
     </div>
 </div>
+<div style="margin:auto;display: grid;grid-auto-flow: column;">
+    <div style="margin:0 auto;">
+    <h4 style="margin-top: 0;">Fabricar Orden de Compra</h4>
+    <form action="/backoffice/" method="POST" style="display: grid;">
+        {% csrf_token %}
+        {{ form_crear_oc }}
+        <input type="submit" value="Fabricar Producto">
+    </form>
+    </div>
+</div>
 
 
 </body>
