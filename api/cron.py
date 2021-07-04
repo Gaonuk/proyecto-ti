@@ -164,6 +164,7 @@ def mover_pulmon_a_alm_recepcion():
 def revision_oc():
     not_completed_oc = RecievedOC.objects.filter(estado="aceptada")
     for orden in not_completed_oc:
+        print(f"Actualizando OC de id {orden.id}")
         orden.cantidad_despachada = ProductoBodega.objects.filter(oc_reservada=orden.id).count()
         orden.save()
         sku = orden.sku
@@ -175,18 +176,21 @@ def revision_oc():
                 for producto in productos_disponibles:
                     producto.oc_reservada = orden.id
                     producto.save()
+                    print(f"Asignando producto de id {producto.id} a OC de id {orden.id}")
                 orden.cantidad_despachada = ProductoBodega.objects.filter(oc_reservada=orden.id).count()
             else:
                 contador = 0
                 for producto in productos_disponibles:
                     producto.oc_reservada = orden.id
                     producto.save()
+                    print(f"Asignando producto de id {producto.id} a OC de id {orden.id}")
                     contador += 1
                     if contador == cantidad:
                         break
         if orden.cantidad_despachada >= orden.cantidad:
             orden.estado = "finalizada"
         orden.save()
+        print(f"OC de id {orden.id} actualizada")
 
 def mover_despacho():
     almacenes = obtener_almacenes().json()
