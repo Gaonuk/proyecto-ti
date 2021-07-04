@@ -377,7 +377,7 @@ def backoffice(request):
                     messages.info(
                         request, 'El producto ha sido cambiado de almacén')
                     return HttpResponseRedirect('/backoffice')
-        elif request.POST.get('proveedor') != '':
+        elif request.POST.get('proveedor','') != '':
             valid_SKUs = [
                 '100',
                 '107',
@@ -519,7 +519,7 @@ def backoffice(request):
                             request, f'{cant_SKU} producto(s) han sido cambiado de almacén')
                     return HttpResponseRedirect('/backoffice')
 
-        elif request.POST.get('cantidad') != '' and request.POST.get('SKU') != '':
+        elif request.POST.get('cantidad','') != '' and request.POST.get('SKU','') != '':
             valid_SKUs = [
                 '100',
                 '107',
