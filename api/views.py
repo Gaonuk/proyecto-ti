@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from requests.api import post
-from .serializers import AlgunSerializer  # Ejemplo de Import
+
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
@@ -14,7 +14,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 
 from .OC import obtener_oc, recepcionar_oc, rechazar_oc, parse_js_date, crear_oc
-from .models import RecievedOC, SentOC
+from .models import RecievedOC, SentOC, Log
 from random import randint
 import requests
 import json
@@ -288,7 +288,9 @@ def index(request):
 
     return render(request, 'index.html', {'params': {'labels_almacenes': labels_almacenes, 'ocupacion_almacenes': ocupacion_almacenes,
                                                      'labels_stock': labels_stock, 'stock': stock}})
-
+def logs(request):
+    logs=Log.objects.all().order_by('-created_at')
+    return render(request, 'logs.html',{'logs': logs})
 
 def backoffice(request):
     # Arrays para hacer comparativas
@@ -361,7 +363,7 @@ def backoffice(request):
                     messages.info(
                         request, 'El producto ha sido cambiado de almacén')
                     return HttpResponseRedirect('/backoffice')
-        elif request.POST.get('proveedor') != '':
+        elif request.POST.get('proveedor','') != '':
             valid_SKUs = [
                 '100',
                 '107',
@@ -503,7 +505,7 @@ def backoffice(request):
                             request, f'{cant_SKU} producto(s) han sido cambiado de almacén')
                     return HttpResponseRedirect('/backoffice')
 
-        elif request.POST.get('cantidad') != '' and request.POST.get('SKU') != '':
+        elif request.POST.get('cantidad','') != '' and request.POST.get('SKU','') != '':
             valid_SKUs = [
                 '100',
                 '107',

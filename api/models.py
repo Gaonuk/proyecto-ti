@@ -4,10 +4,9 @@ from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
 
-# class AlgunModelo(models.Model):
-#     id = models.CharField(primary_key=True, max_length=100, editable=False)
-#     name = models.CharField(max_length=50)
-#     age = models.IntegerField()
+class Log(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    mensaje = models.TextField()
 
 class RecievedOC(models.Model):
     id = models.TextField(primary_key=True)
