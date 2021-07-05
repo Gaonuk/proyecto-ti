@@ -1,6 +1,11 @@
 from typing import Optional
 from django import forms
 from requests.api import options
+OPCIONES_VACUNAS = [
+    ('10001', 'Pfizer'),
+    ('10002', 'Sinovac'),
+    ('10005', 'Moderna')
+]
 
 class FormCambiarAlmacen(forms.Form):
     productoId = forms.CharField(label='ID Producto', max_length=100)
@@ -31,4 +36,6 @@ class FormCrearOC(forms.Form):
     canal = forms.CharField(label='Canal donde se está realizando la transacción. (b2b o b2c)')
     notas = forms.CharField(label="Notas adicionales a la OC.", required=False)
     urlNotificacion = forms.CharField(label='Url de notificacion de aceptación o rechazo de la OC.', required=False)
-    
+
+class FormCrearVacuna(forms.Form):
+    tipo = forms.CharField(label='Selecciona un tipo de vacuna', widget=forms.Select(choices=OPCIONES_VACUNAS))
