@@ -51,7 +51,7 @@ def mover_recepcion_a_alm_central():
                         if ProductoBodega.objects.filter(id=producto_almacen['_id']).exists():
                             pass   ## listos
                         else:  ### Bajar cantidad en pedido, borrar si llega a 0, crear productoBodega
-                            pedido = Pedido.objects.filter(sku=sku["_id"]).order_by('fecha_disponible').first()
+                            pedido = Pedido.objects.filter(sku=str(sku["_id"])).order_by('fecha_disponible').first()
                             id_pedido = pedido.id
                             if pedido.cantidad == 1:
                                 pedido.delete()
@@ -59,7 +59,7 @@ def mover_recepcion_a_alm_central():
                                 log_pedido.save()
                             else:
                                 pedido.cantidad -= 1
-                            producto_bodega = ProductoBodega(id = producto_almacen['_id'], sku=producto_almacen["sku"], almacen=almacen_recepcion['_id'],\
+                            producto_bodega = ProductoBodega(id = producto_almacen['_id'], sku=str(producto_almacen["sku"]), almacen=almacen_recepcion['_id'],\
                                 fecha_vencimiento=parse_js_date(producto_almacen["vencimiento"]))
                             log_producto = Log(mensaje=f"Llegó un producto del pedido {id_pedido} y se creó en bodega con id {producto_almacen['_id']}")
                             log_producto.save()
@@ -123,7 +123,7 @@ def mover_pulmon_a_alm_recepcion():
                         if ProductoBodega.objects.filter(id=producto_almacen['_id']).exists():
                             pass   ## listos
                         else:  ### Bajar cantidad en pedido, borrar si llega a 0, crear productoBodega
-                            pedido = Pedido.objects.filter(sku=sku["_id"]).order_by('fecha_disponible').first()
+                            pedido = Pedido.objects.filter(sku=str(sku["_id"])).order_by('fecha_disponible').first()
                             id_pedido = pedido.id
                             if pedido.cantidad == 1:
                                 pedido.delete()
@@ -131,7 +131,7 @@ def mover_pulmon_a_alm_recepcion():
                                 log_pedido.save()
                             else:
                                 pedido.cantidad -= 1
-                            producto_bodega = ProductoBodega(id = producto_almacen['_id'], sku=producto_almacen["sku"], almacen=almancen_pulmon['_id'],\
+                            producto_bodega = ProductoBodega(id = producto_almacen['_id'], sku=str(producto_almacen["sku"]), almacen=almancen_pulmon['_id'],\
                                 fecha_vencimiento=parse_js_date(producto_almacen["vencimiento"]))
                             producto_bodega.save()
                             pedido.save()

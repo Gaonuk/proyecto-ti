@@ -20,7 +20,7 @@ TIEMPOS_PRODUCCION_PROPIOS = {
 
 def stock_no_reservado(sku, fecha_vencimiento, margen_tiempo=5):
     all_stock = ProductoBodega.objects.filter(
-        sku=sku,
+        sku=str(sku),
         oc_reservada=None,
     )  
     stock_valido = []
@@ -30,14 +30,19 @@ def stock_no_reservado(sku, fecha_vencimiento, margen_tiempo=5):
     return stock_valido
 
 def pedidos_no_reservados(sku, fecha_entrega, margen_tiempo=5):
+    print("A--------------------------------")
     pedidos = Pedido.objects.filter(
-            sku=sku,
+            sku=str(sku),
             disponible_para_uso=True
         )
+    print("B--------------------------------")
     pedidos_validos = []
     for producto in pedidos:
+        print("C--------------------------------")
         if producto.fecha_vencimiento + margen_tiempo < fecha_entrega:
+            print("D--------------------------------")
             pedidos_validos.append(producto)
+        print("E--------------------------------")
     return pedidos_validos
 
 
@@ -50,18 +55,24 @@ def pedidos_no_reservados(sku, fecha_entrega, margen_tiempo=5):
 def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
     print(f'{datetime.now()}: Análisis de factibilidad\n{sku} - {cantidad_solicitada} - {fecha_entrega}')
     if sku not in TIEMPOS_PRODUCCION_PROPIOS.keys():
-
+        print("3--------------------------------")
         return False
+    print("2--------------------------------")
     pedidos = pedidos_no_reservados(sku, fecha_entrega, 15)
+    print("1--------------------------------")
     num_productos_pedidos = 0
+    print("4--------------------------------")
     for pedido in pedidos:
+        print("5--------------------------------")
         num_productos_pedidos += pedido.cantidad
+    print("6--------------------------------")
     stock_disponible = stock_no_reservado(sku, fecha_entrega, 10)
+    print("7--------------------------------")
     num_productos_stock = len(stock_disponible)
-
+    print("8--------------------------------")
     if sku not in SKU_VACUNAS:
         # Es un producto normal
-
+        print("9--------------------------------")
         total_productos = num_productos_pedidos + num_productos_stock
         
         print(f'Cantidad en almacenes: {num_productos_stock}\nCantidad en camino: {num_productos_pedidos}\nTotal: {total_productos}')
@@ -103,7 +114,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
 
         elif cantidad_solicitada > total_productos:
             # Evalúo si alcanzo a producir lo que me falta
-            tiempo_prod = TIEMPOS_PRODUCCION_PROPIOS[sku]
+            tiempo_prod = TIEMPOS_PRODUCCION_PROPIOS[str(sku)]
             delta = 10
             if fecha_entrega < datetime.now() + datetime.min(tiempo_prod + delta):
                 print(f'No alcanzo a entregar en esa fecha.')
@@ -134,7 +145,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 # Hay que hacer un pedido de la diferencia
                 
                 body_fabricar = {
-                    'sku': sku,
+                    'sku': str(sku),
                     'cantidad': productos_a_pedir
                 }
                 response = fabricar_producto(body_fabricar).json()
