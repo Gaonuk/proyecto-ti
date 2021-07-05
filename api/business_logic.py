@@ -148,8 +148,11 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                     'sku': str(sku),
                     'cantidad': productos_a_pedir
                 }
+                print("ADAASAAS")
                 response = fabricar_producto(body_fabricar).json()
+                print("JDISJIDSJIDS")
                 pedido = Pedido.objects.get(pk=response['_id'])
+                print("DMSJDMSJDS")
                 pedido.disponible_para_uso = False
                 pedido.save()
 

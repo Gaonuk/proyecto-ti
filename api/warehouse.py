@@ -6,6 +6,7 @@ import hmac
 import base64
 from .models import Pedido, ProductoBodega, ProductoDespachado
 from .OC import parse_js_date
+import math
 
 #Only to define .env variables
 import os
@@ -14,6 +15,20 @@ from pathlib import Path
 
 #BASE DIRECTORY
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+SKU_LOTE = {
+    '108': 18,
+    '119': 14,
+    '129': 10,
+    '121': 3,
+    '132': 14,
+    '1000': 8,
+    '1001': 5,
+    '10001': 6,
+    '10002': 8,
+    '10005': 4,
+
+}
 
 # Initialise environment variables
 env = environ.Env()
@@ -142,6 +157,13 @@ def obtener_stock(params:dict):
 def fabricar_producto(params:dict):
     # params contiene sku, cantidad
     print(params)
+    sku = params["sku"]
+    cantidad = params["cantidad"]
+    lote = SKU_LOTE[sku]
+    if cantidad <= lote:
+        params["cantidad"] = lote
+    else:
+        params["cantidad"] = math.ceil(cantidad/lote)
     auth_string = f'PUT{params["sku"]}{params["cantidad"]}'
     auth_hash = hash_maker(auth_string)
     headers = {
@@ -154,8 +176,10 @@ def fabricar_producto(params:dict):
         headers=headers
     )
     fabricar = response.json()
-    pedido = Pedido(id = fabricar["_id"], sku=fabricar["sku"], cantidad=params["cantidad"], \
+    print(fabricar)
+    pedido = Pedido(id = fabricar["_id"], sku=str(fabricar["sku"]), cantidad=params["cantidad"], \
         fecha_disponible=parse_js_date(fabricar["disponible"]))
+    print("----------------------")
     pedido.save()
     return response
 
