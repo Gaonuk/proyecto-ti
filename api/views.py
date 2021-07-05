@@ -120,20 +120,8 @@ def manejo_oc(request, id):
                 registro.write(f'POST-201: OC {id} - {datetime.now()}\n')
 
             orden_de_compra = obtener_oc(id).json()[0]
-            if body["cliente"] != orden_de_compra["cliente"]:
-                return Response({'message': 'El cliente no corresponde al que se encuentra guardado en la API de OC'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            if body["sku"] != orden_de_compra["sku"]:
-                return Response({'message': 'El sku no corresponde al que se encuentra guardado en la API de OC'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            if body["sku"] not in SKU_PRODUCCION_PROPIOS.keys():
+            if orden_de_compra["sku"] not in SKU_PRODUCCION_PROPIOS.keys():
                 return Response({'message': 'El sku no es fabricado por este grupo.'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            if body["fechaEntrega"] != orden_de_compra["fechaEntrega"]:
-                return Response({'message': 'La fecha de entrega no corresponde al que se encuentra guardado en la API de OC'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            if body["cantidad"] != orden_de_compra["cantidad"]:
-                return Response({'message': 'La cantidad no corresponde al que se encuentra guardado en la API de OC'},
                                 status=status.HTTP_400_BAD_REQUEST)
             if orden_de_compra["cliente"] not in ids_oc:
                 return Response({'message': 'Cliente no existe'},
