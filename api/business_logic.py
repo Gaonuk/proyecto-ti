@@ -21,7 +21,7 @@ TIEMPOS_PRODUCCION_PROPIOS = {
 def stock_no_reservado(sku, fecha_vencimiento, margen_tiempo=5):
     all_stock = ProductoBodega.objects.filter(
         sku=str(sku),
-        oc_reservada=None,
+        oc_reservada='',
     )  
     stock_valido = []
     for producto in all_stock:
@@ -39,7 +39,7 @@ def pedidos_no_reservados(sku, fecha_entrega, margen_tiempo=5):
     pedidos_validos = []
     for producto in pedidos:
         print("C--------------------------------")
-        if producto.fecha_vencimiento + timedelta(minutes=margen_tiempo) < fecha_entrega:
+        if producto.fecha_disponible + timedelta(minutes=margen_tiempo) < fecha_entrega:
             print("D--------------------------------")
             pedidos_validos.append(producto)
         print("E--------------------------------")

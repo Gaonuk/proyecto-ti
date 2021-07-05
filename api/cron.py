@@ -48,23 +48,26 @@ def mover_recepcion_a_alm_central():
                         IDs_por_sku_alm_recepcion[sku['_id']].append(producto_almacen['_id'])
                         ############### Instancia productoBodega
                         ###Chequear antes si ya existe por caso que no pueda moverlo al primer intento y ya se haya creado
-                        if ProductoBodega.objects.filter(id=producto_almacen['_id']).exists():
-                            pass   ## listos
-                        else:  ### Bajar cantidad en pedido, borrar si llega a 0, crear productoBodega
-                            pedido = Pedido.objects.filter(sku=str(sku["_id"])).order_by('fecha_disponible').first()
-                            id_pedido = pedido.id
-                            if pedido.cantidad == 1:
-                                pedido.delete()
-                                log_pedido = Log(mensaje=f"Se borró el pedido {id_pedido}")
-                                log_pedido.save()
-                            else:
-                                pedido.cantidad -= 1
-                            producto_bodega = ProductoBodega(id = producto_almacen['_id'], sku=str(producto_almacen["sku"]), almacen=almacen_recepcion['_id'],\
-                                fecha_vencimiento=parse_js_date(producto_almacen["vencimiento"]))
-                            log_producto = Log(mensaje=f"Llegó un producto del pedido {id_pedido} y se creó en bodega con id {producto_almacen['_id']}")
-                            log_producto.save()
-                            producto_bodega.save()
-                            pedido.save()
+                        try:
+                            if ProductoBodega.objects.filter(id=producto_almacen['_id']).exists():
+                                pass   ## listos
+                            else:  ### Bajar cantidad en pedido, borrar si llega a 0, crear productoBodega
+                                pedido = Pedido.objects.filter(sku=str(sku["_id"])).order_by('fecha_disponible').first()
+                                id_pedido = pedido.id
+                                if pedido.cantidad == 1:
+                                    pedido.delete()
+                                    log_pedido = Log(mensaje=f"Se borró el pedido {id_pedido}")
+                                    log_pedido.save()
+                                else:
+                                    pedido.cantidad -= 1
+                                producto_bodega = ProductoBodega(id = producto_almacen['_id'], sku=str(producto_almacen["sku"]), almacen=almacen_recepcion['_id'],\
+                                    fecha_vencimiento=parse_js_date(producto_almacen["vencimiento"]))
+                                log_producto = Log(mensaje=f"Llegó un producto del pedido {id_pedido} y se creó en bodega con id {producto_almacen['_id']}")
+                                log_producto.save()
+                                producto_bodega.save()
+                                pedido.save()
+                        except:
+                            pass
                         #################
                 for SKU in IDs_por_sku_alm_recepcion:
                     print(f'Moviendo productos de SKU {SKU}')
@@ -120,23 +123,26 @@ def mover_pulmon_a_alm_recepcion():
                         IDs_por_sku_alm_pulmon[sku['_id']].append(producto_almacen['_id'])
                         ############### Instancia productoBodega
                         ###Chequear antes si ya existe por caso que no pueda moverlo al primer intento y se haya creado
-                        if ProductoBodega.objects.filter(id=producto_almacen['_id']).exists():
-                            pass   ## listos
-                        else:  ### Bajar cantidad en pedido, borrar si llega a 0, crear productoBodega
-                            pedido = Pedido.objects.filter(sku=str(sku["_id"])).order_by('fecha_disponible').first()
-                            id_pedido = pedido.id
-                            if pedido.cantidad == 1:
-                                pedido.delete()
-                                log_pedido = Log(mensaje=f"Se borró el pedido {id_pedido}")
-                                log_pedido.save()
-                            else:
-                                pedido.cantidad -= 1
-                            producto_bodega = ProductoBodega(id = producto_almacen['_id'], sku=str(producto_almacen["sku"]), almacen=almancen_pulmon['_id'],\
-                                fecha_vencimiento=parse_js_date(producto_almacen["vencimiento"]))
-                            producto_bodega.save()
-                            pedido.save()
-                            log_producto = Log(mensaje=f"Llegó un producto del pedido {id_pedido} y se creó en bodega con id {producto_almacen['_id']}")
-                            log_producto.save()
+                        try:
+                            if ProductoBodega.objects.filter(id=producto_almacen['_id']).exists():
+                                pass   ## listos
+                            else:  ### Bajar cantidad en pedido, borrar si llega a 0, crear productoBodega
+                                pedido = Pedido.objects.filter(sku=str(sku["_id"])).order_by('fecha_disponible').first()
+                                id_pedido = pedido.id
+                                if pedido.cantidad == 1:
+                                    pedido.delete()
+                                    log_pedido = Log(mensaje=f"Se borró el pedido {id_pedido}")
+                                    log_pedido.save()
+                                else:
+                                    pedido.cantidad -= 1
+                                producto_bodega = ProductoBodega(id = producto_almacen['_id'], sku=str(producto_almacen["sku"]), almacen=almancen_pulmon['_id'],\
+                                    fecha_vencimiento=parse_js_date(producto_almacen["vencimiento"]))
+                                producto_bodega.save()
+                                pedido.save()
+                                log_producto = Log(mensaje=f"Llegó un producto del pedido {id_pedido} y se creó en bodega con id {producto_almacen['_id']}")
+                                log_producto.save()
+                        except:
+                            pass
                         #################
                         
                 for SKU in IDs_por_sku_alm_pulmon:
@@ -170,7 +176,7 @@ def revision_oc():
         sku = orden.sku
         cantidad = orden.cantidad - orden.cantidad_despachada
         if cantidad > 0:
-            productos_disponibles = ProductoBodega.objects.filter(sku=str(sku), oc_reservada=None)
+            productos_disponibles = ProductoBodega.objects.filter(sku=str(sku), oc_reservada='')
             cantidad_disponible = productos_disponibles.count()
             if cantidad_disponible <= cantidad:
                 for producto in productos_disponibles:
