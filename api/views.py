@@ -469,7 +469,7 @@ def backoffice(request):
                 '1001',
                 '10001',
                 '10002',
-                '10003'                
+                '10005'                
             ]
             form_cambiar_bodega = FormCambiarBodega()
             form_cambiar_almacen = FormCambiarAlmacen()
@@ -600,7 +600,7 @@ def backoffice(request):
                 '1001',
                 '10001',
                 '10002',
-                '10003' 
+                '10005' 
             ]
             form_cambiar_almacen = FormCambiarAlmacen()
             form_cambiar_bodega = FormCambiarBodega()
