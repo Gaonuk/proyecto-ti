@@ -25,7 +25,7 @@ from .business_logic import factibildad
 # Create your views here.
 from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from .arrays_clients_ids_oc import IDS_DEV, IDS_PROD
 
@@ -488,7 +488,7 @@ def backoffice(request):
             dateTime = datetime(int(year), int(month), int(
                 day), int(hour), int(minutes), int(seconds))
             startDate = datetime(1970, 1, 1)
-            miliseconds = dateTime - startDate
+            miliseconds = dateTime - startDate + timedelta (hours=4)
             print(int(miliseconds.total_seconds() * 1000))
             if form_crear_oc.is_valid():
                 post_valido = True
