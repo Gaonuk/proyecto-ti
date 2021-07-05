@@ -25,7 +25,7 @@ def stock_no_reservado(sku, fecha_vencimiento, margen_tiempo=5):
     )  
     stock_valido = []
     for producto in all_stock:
-        if producto.fecha_vencimiento + margen_tiempo < fecha_vencimiento:
+        if producto.fecha_vencimiento + timedelta(minutes=margen_tiempo) < fecha_vencimiento:
             stock_valido.append(producto)
     return stock_valido
 
@@ -39,7 +39,7 @@ def pedidos_no_reservados(sku, fecha_entrega, margen_tiempo=5):
     pedidos_validos = []
     for producto in pedidos:
         print("C--------------------------------")
-        if producto.fecha_vencimiento + margen_tiempo < fecha_entrega:
+        if producto.fecha_vencimiento + timedelta(minutes=margen_tiempo) < fecha_entrega:
             print("D--------------------------------")
             pedidos_validos.append(producto)
         print("E--------------------------------")
