@@ -1,3 +1,4 @@
+from api.business_logic import factibildad
 from django.shortcuts import render
 from requests.api import post
 
@@ -18,6 +19,8 @@ from .models import RecievedOC, SentOC, Log
 from random import randint
 import requests
 import json
+
+from .business_logic import factibildad
 
 # Create your views here.
 from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
@@ -90,6 +93,18 @@ def consulta_stock(request):
             status=status.HTTP_405_METHOD_NOT_ALLOWED
         )
 
+SKU_PRODUCCION_PROPIOS = {
+    '108': 25,
+    '119': 45,
+    '129': 15,
+    '121': 30,
+    '132': 15,
+    '1000': 50,
+    '1001': 40,
+    '10001': 35,
+    '10002': 25,
+    '10005': 40,
+}
 
 @api_view(['POST', 'PATCH'])
 def manejo_oc(request, id):
@@ -107,6 +122,21 @@ def manejo_oc(request, id):
                 registro.write(f'POST-201: OC {id} - {datetime.now()}\n')
 
             orden_de_compra = obtener_oc(id).json()[0]
+            if body["cliente"] != orden_de_compra["cliente"]:
+                return Response({'message': 'El cliente no corresponde al que se encuentra guardado en la API de OC'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if body["sku"] != orden_de_compra["sku"]:
+                return Response({'message': 'El sku no corresponde al que se encuentra guardado en la API de OC'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if body["sku"] not in SKU_PRODUCCION_PROPIOS.keys():
+                return Response({'message': 'El sku no es fabricado por este grupo.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if body["fechaEntrega"] != orden_de_compra["fechaEntrega"]:
+                return Response({'message': 'La fecha de entrega no corresponde al que se encuentra guardado en la API de OC'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if body["cantidad"] != orden_de_compra["cantidad"]:
+                return Response({'message': 'La cantidad no corresponde al que se encuentra guardado en la API de OC'},
+                                status=status.HTTP_400_BAD_REQUEST)
             if orden_de_compra["cliente"] not in ids_oc:
                 return Response({'message': 'Cliente no existe'},
                                 status=status.HTTP_400_BAD_REQUEST)
@@ -146,7 +176,11 @@ def manejo_oc(request, id):
                 oc.url_notification = orden_de_compra["urlNotificacion"]
             oc.save()
             url = orden_de_compra["urlNotificacion"]
-            if randint(0, 1) == 1:
+
+            oc_es_factible = factibildad(oc.sku, oc.cantidad, oc.fecha_entrega, oc.id)
+
+            #if randint(0, 1) == 1:
+            if oc_es_factible:
                 recepcionar_oc(id)
                 params = json.dumps({"estado": "aceptada"})
                 headers = {'Content-type': 'application/json'}
