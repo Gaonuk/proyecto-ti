@@ -27,6 +27,9 @@ def parse_js_date(date):
     date_format = date[:-1]
     return datetime.fromisoformat(date_format)
 
+def parse_timestamp_date(date):
+    return datetime.fromtimestamp(date/1000)
+
 
 def anular_oc(id, params:dict):
     # Recibe el id de la orden de compra
