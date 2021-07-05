@@ -74,7 +74,7 @@ def anular_oc(id, params:dict):
     )
     return response
 
-def pedir_producto(tiempo,oc):
+def pedir_producto(oc,tiempo):
     params = {
         "cliente": "60caa3af31df040004e88df0",
         "sku": oc["sku"],
