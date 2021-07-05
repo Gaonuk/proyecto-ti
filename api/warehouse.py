@@ -4,6 +4,8 @@ import requests
 from hashlib import sha1
 import hmac
 import base64
+from .models import Pedido, ProductoBodega, ProductoDespachado
+from .OC import parse_js_date
 
 #Only to define .env variables
 import os
@@ -46,6 +48,11 @@ def despachar_producto(params:dict):
         json=params,
         headers=headers
     )
+    # producto_bodega  = ProductoBodega.objects.get(id=params["productoId"]) 
+    # sku = producto_bodega.sku
+    # producto_bodega.delete()
+    # producto_despachado = ProductoDespachado(id = params["productoId"],sku = sku, cliente = params["direccion"], oc_cliente = params["oc"], precio = params["precio"] )
+    # producto_despachado.save()
     return response
 
 def mover_entre_almacenes(params:dict):
@@ -61,6 +68,9 @@ def mover_entre_almacenes(params:dict):
         json=params,
         headers=headers
     )
+    # producto_bodega  = ProductoBodega.objects.get(id=params["productoId"]) 
+    # producto_bodega.almacen = params["almacenId"]
+    # producto_bodega.save()
     return response
 
 def mover_entre_bodegas(params:dict):
@@ -76,6 +86,11 @@ def mover_entre_bodegas(params:dict):
         json=params,
         headers=headers
     )
+    # producto_bodega  = ProductoBodega.objects.get(id=params["productoId"]) 
+    # sku_prod = producto_bodega.sku
+    # producto_bodega.delete()
+    # producto_despachado = ProductoDespachado(id = params["productoId"], sku = sku_prod, cliente = params["almacenId_externo"], oc_cliente = params["oc"], precio = params["precio"] )
+    # producto_despachado.save()
     return response
 
 def obtener_almacenes():
@@ -135,5 +150,9 @@ def fabricar_producto(params:dict):
         json=params,
         headers=headers
     )
+    fabricar = response.json()
+    pedido = Pedido(id = fabricar["_id"], sku=fabricar["sku"], cantidad=params["cantidad"], \
+        fecha_disponible=parse_js_date(fabricar["disponible"]))
+    pedido.save()
     return response
 

@@ -1,9 +1,10 @@
 # Create your tasks here
 from api.models import RecievedOC, ProductoBodega
 from .warehouse import despachar_producto, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto
-from .models import Log
+from .models import Log, Pedido, ProductoBodega
 import time
-# import kronos
+
+from .OC import parse_js_date
 import os
 from .arrays_clients_ids_oc import IDS_DEV, IDS_PROD
 from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
@@ -45,6 +46,26 @@ def mover_recepcion_a_alm_central():
                         {"almacenId": almacen_recepcion['_id'], "sku": sku["_id"]}).json()
                     for producto_almacen in productos_almacen_recepcion:
                         IDs_por_sku_alm_recepcion[sku['_id']].append(producto_almacen['_id'])
+                        ############### Instancia productoBodega
+                        ###Chequear antes si ya existe por caso que no pueda moverlo al primer intento y ya se haya creado
+                        if ProductoBodega.objects.filter(id=producto_almacen['_id']).exists():
+                            pass   ## listos
+                        else:  ### Bajar cantidad en pedido, borrar si llega a 0, crear productoBodega
+                            pedido = Pedido.objects.filter(sku=sku["_id"]).order_by('fecha_disponible').first()
+                            id_pedido = pedido.id
+                            if pedido.cantidad == 1:
+                                pedido.delete()
+                                log_pedido = Log(mensaje=f"Se borró el pedido {id_pedido}")
+                                log_pedido.save()
+                            else:
+                                pedido.cantidad -= 1
+                            producto_bodega = ProductoBodega(id = producto_almacen['_id'], sku=producto_almacen["sku"], almacen=almacen_recepcion['_id'],\
+                                fecha_vencimiento=parse_js_date(producto_almacen["vencimiento"]))
+                            log_producto = Log(mensaje=f"Llegó un producto del pedido {id_pedido} y se creó en bodega con id {producto_almacen['_id']}")
+                            log_producto.save()
+                            producto_bodega.save()
+                            pedido.save()
+                        #################
                 for SKU in IDs_por_sku_alm_recepcion:
                     print(f'Moviendo productos de SKU {SKU}')
                     contador=0
@@ -97,6 +118,27 @@ def mover_pulmon_a_alm_recepcion():
                         {"almacenId": almancen_pulmon['_id'], "sku": sku["_id"]}).json()
                     for producto_almacen in productos_almacen_pulmon:
                         IDs_por_sku_alm_pulmon[sku['_id']].append(producto_almacen['_id'])
+                        ############### Instancia productoBodega
+                        ###Chequear antes si ya existe por caso que no pueda moverlo al primer intento y se haya creado
+                        if ProductoBodega.objects.filter(id=producto_almacen['_id']).exists():
+                            pass   ## listos
+                        else:  ### Bajar cantidad en pedido, borrar si llega a 0, crear productoBodega
+                            pedido = Pedido.objects.filter(sku=sku["_id"]).order_by('fecha_disponible').first()
+                            id_pedido = pedido.id
+                            if pedido.cantidad == 1:
+                                pedido.delete()
+                                log_pedido = Log(mensaje=f"Se borró el pedido {id_pedido}")
+                                log_pedido.save()
+                            else:
+                                pedido.cantidad -= 1
+                            producto_bodega = ProductoBodega(id = producto_almacen['_id'], sku=producto_almacen["sku"], almacen=almancen_pulmon['_id'],\
+                                fecha_vencimiento=parse_js_date(producto_almacen["vencimiento"]))
+                            producto_bodega.save()
+                            pedido.save()
+                            log_producto = Log(mensaje=f"Llegó un producto del pedido {id_pedido} y se creó en bodega con id {producto_almacen['_id']}")
+                            log_producto.save()
+                        #################
+                        
                 for SKU in IDs_por_sku_alm_pulmon:
                     print(f'Moviendo productos de SKU {SKU}')
                     contador=0
@@ -199,4 +241,3 @@ def despachar():
         except:
             print(f"El producto de id {producto.id} fue despachado al almacen {almacen_id}")
         time.sleep(1)
-
