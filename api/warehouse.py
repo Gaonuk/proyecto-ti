@@ -163,7 +163,7 @@ def fabricar_producto(params:dict):
     if cantidad <= lote:
         params["cantidad"] = lote
     else:
-        params["cantidad"] = math.ceil(cantidad/lote)
+        params["cantidad"] = math.ceil(cantidad/lote)*lote
     auth_string = f'PUT{params["sku"]}{params["cantidad"]}'
     auth_hash = hash_maker(auth_string)
     headers = {
