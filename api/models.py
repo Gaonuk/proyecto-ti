@@ -57,14 +57,14 @@ class ProductoBodega(models.Model):
     sku = models.CharField(max_length=15)
     almacen = models.CharField(max_length=50)
     fecha_vencimiento = models.DateTimeField()
-    oc_reservada = models.TextField(default=None) # Este atributo es el ID de la RecievedOC con la que se reservó el producto.
+    oc_reservada = models.TextField(default='') # Este atributo es el ID de la RecievedOC con la que se reservó el producto.
 
 class Pedido(models.Model):
     id = models.CharField(primary_key=True, max_length=100)
     sku = models.CharField(max_length=15)
     cantidad = models.IntegerField()
     fecha_disponible = models.DateTimeField()
-    disponbile_para_uso = models.BooleanField(default=True)
+    disponible_para_uso = models.BooleanField(default=True)
 
 class ProductoDespachado(models.Model):
     id = models.CharField(primary_key=True, max_length=100)

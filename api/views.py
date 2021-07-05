@@ -24,7 +24,7 @@ from .business_logic import factibildad
 # Create your views here.
 from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from .arrays_clients_ids_oc import IDS_DEV, IDS_PROD
 
@@ -41,7 +41,7 @@ env = environ.Env()
 environ.Env.read_env(env_file=os.path.join(BASE_DIR, 'proyecto13/.env'))
 
 
-if os.environ.get('DJANGO_DEVELOPMENT'):
+if os.environ.get('DJANGO_DEVELOPMENT')=='true':
     cliente = '60bd2a763f1b6100049f1453'
     ids_oc = IDS_DEV
 else:
@@ -119,20 +119,8 @@ def manejo_oc(request, id):
                 registro.write(f'POST-201: OC {id} - {datetime.now()}\n')
 
             orden_de_compra = obtener_oc(id).json()[0]
-            if body["cliente"] != orden_de_compra["cliente"]:
-                return Response({'message': 'El cliente no corresponde al que se encuentra guardado en la API de OC'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            if body["sku"] != orden_de_compra["sku"]:
-                return Response({'message': 'El sku no corresponde al que se encuentra guardado en la API de OC'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            if body["sku"] not in SKU_PRODUCCION_PROPIOS.keys():
+            if orden_de_compra["sku"] not in SKU_PRODUCCION_PROPIOS.keys():
                 return Response({'message': 'El sku no es fabricado por este grupo.'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            if body["fechaEntrega"] != orden_de_compra["fechaEntrega"]:
-                return Response({'message': 'La fecha de entrega no corresponde al que se encuentra guardado en la API de OC'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            if body["cantidad"] != orden_de_compra["cantidad"]:
-                return Response({'message': 'La cantidad no corresponde al que se encuentra guardado en la API de OC'},
                                 status=status.HTTP_400_BAD_REQUEST)
             if orden_de_compra["cliente"] not in ids_oc:
                 return Response({'message': 'Cliente no existe'},
@@ -175,7 +163,10 @@ def manejo_oc(request, id):
             if "urlNotificacion" in orden_de_compra.keys():
                 oc.url_notification = orden_de_compra["urlNotificacion"]
             oc.save()
-            url = orden_de_compra["urlNotificacion"]
+            if orden_de_compra["urlNotificacion"] == "":
+                url= body["urlNotificacion"]
+            else:
+                url = orden_de_compra["urlNotificacion"]
 
             oc_es_factible = factibildad(
                 oc.sku, oc.cantidad, oc.fecha_entrega, oc.id)
@@ -187,7 +178,7 @@ def manejo_oc(request, id):
                 headers = {'Content-type': 'application/json'}
                 requests.patch(url=url, data=params, headers=headers)
             else:
-                rechazar_oc(id, {"rechazo": "Rechazada por azar"})
+                rechazar_oc(id, {"rechazo": ""})
                 params = json.dumps({"estado": "rechazada"})
                 headers = {'Content-type': 'application/json'}
                 requests.patch(url=url, data=params, headers=headers)
@@ -205,6 +196,8 @@ def manejo_oc(request, id):
     elif request.method == 'PATCH':
         body = json.loads(request.body)
         estado = body["estado"]
+        log_oc = Log(mensaje=f'La OC de ID: {id} fue {estado}')
+        log_oc.save()
         if SentOC.objects.filter(id=id).exists():
             # Momento de recepción en un txt
             with open('registro_oc.txt', 'a') as registro:
@@ -351,11 +344,11 @@ def index(request):
 
     productos_bodega = ProductoBodega.objects.all()
     for prod in productos_bodega:
-        if int(p.sku) == 10001:
+        if int(prod.sku) == 10001:
             vacunas_fabricadas['Pfizer'] += 1
-        if int(p.sku) == 10002:
+        if int(prod.sku) == 10002:
             vacunas_fabricadas['Sinovac'] += 1
-        if int(p.sku) == 10005:
+        if int(prod.sku) == 10005:
             vacunas_fabricadas['Moderna'] += 1
 
     labels_grupo = [key for key in productos_grupo.keys()]
@@ -462,32 +455,20 @@ def backoffice(request):
                 '118',
                 '119',
                 '129',
+                '115',
+                '120',
+                '121',
+                '126',
+                '127',
+                '132',
+                '110',
+                '103',
+                '102',
                 '1000',
+                '1001',
                 '10001',
-                '30001',
-                '30002',
-                '30003',
-                '30004',
-                '30005',
-                '30006',
-                '30007',
-                '30008',
-                '30009',
-                '30010',
-                '30011',
-                '30012',
-                '30013',
-                '30014',
-                '30015',
-                '30016',
-                '30017',
-                '30018',
-                '30019',
-                '30020',
-                '30021',
-                '30022',
-                '30023',
-                '30024'
+                '10002',
+                '10005'                
             ]
             form_cambiar_bodega = FormCambiarBodega()
             form_cambiar_almacen = FormCambiarAlmacen()
@@ -508,7 +489,7 @@ def backoffice(request):
             dateTime = datetime(int(year), int(month), int(
                 day), int(hour), int(minutes), int(seconds))
             startDate = datetime(1970, 1, 1)
-            miliseconds = dateTime - startDate
+            miliseconds = dateTime - startDate + timedelta (hours=4)
             print(int(miliseconds.total_seconds() * 1000))
             if form_crear_oc.is_valid():
                 post_valido = True
@@ -605,32 +586,20 @@ def backoffice(request):
                 '118',
                 '119',
                 '129',
+                '115',
+                '120',
+                '121',
+                '126',
+                '127',
+                '132',
+                '110',
+                '103',
+                '102',
                 '1000',
+                '1001',
                 '10001',
-                '30001',
-                '30002',
-                '30003',
-                '30004',
-                '30005',
-                '30006',
-                '30007',
-                '30008',
-                '30009',
-                '30010',
-                '30011',
-                '30012',
-                '30013',
-                '30014',
-                '30015',
-                '30016',
-                '30017',
-                '30018',
-                '30019',
-                '30020',
-                '30021',
-                '30022',
-                '30023',
-                '30024'
+                '10002',
+                '10005' 
             ]
             form_cambiar_almacen = FormCambiarAlmacen()
             form_cambiar_bodega = FormCambiarBodega()

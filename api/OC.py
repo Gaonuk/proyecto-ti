@@ -6,7 +6,7 @@ import requests
 import os
 import environ
 from pathlib import Path
-from .models import SentOC, RecievedOC, Pedido
+from .models import SentOC, RecievedOC, Pedido, Log
 from datetime import datetime
 
 #BASE DIRECTORY
@@ -16,6 +16,33 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 environ.Env.read_env(env_file= os.path.join(BASE_DIR, 'proyecto13/.env'))
 
+URLS_GRUPOS = {
+"60caa3af31df040004e88de4":    "http://aysen1.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88de5":    "http://aysen2.ing.puc.cl/storage/ordenes-compra/",
+"60caa3af31df040004e88de6":    "http://aysen3.ing.puc.cl/api/ordenes-compra/",
+"60caa3af31df040004e88de7":    "http://aysen4.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88de8":    "http://aysen5.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88de9":    "http://aysen6.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88dea":    "http://aysen7.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88deb":    "http://aysen8.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88dec":    "http://aysen9.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88ded":    "http://aysen10.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88dee":    "http://aysen11.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88def":    "http://aysen12.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88df0":    "http://aysen13.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88df1":    "http://aysen14.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88df2":    "http://aysen15.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88df3":    "http://aysen16.ing.puc.cl/recepcionar/",
+"60caa3af31df040004e88df4":    "http://aysen17.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88df5":    "http://aysen18.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88df6":    "http://aysen19.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88df7":    "http://aysen20.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88df8":    "http://aysen21.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88df9":    "http://aysen22.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88dfa":    "http://aysen23.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88dfb":    "http://aysen24.ing.puc.cl/ordenes-compra/",
+"60caa3af31df040004e88dfc":    "http://aysen25.ing.puc.cl/ordenes-compra/"
+}
 
 # URL de la API de órdenes de compra
 if os.environ.get('DJANGO_DEVELOPMENT')=='true':
@@ -47,6 +74,25 @@ def anular_oc(id, params:dict):
     )
     return response
 
+def pedir_producto(oc,tiempo):
+    params = {
+        "cliente": "60caa3af31df040004e88df0",
+        "sku": oc["sku"],
+        "urlNotificacion": oc["urlNotificacion"],
+        "fechaEntrega": tiempo,
+        "cantidad": oc["cantidad"]
+    }
+    headers = {
+        'Content-type': 'application/json',
+    }
+    url = URLS_GRUPOS[oc["proveedor"]]
+    response = requests.post(
+        f'{url}{oc["_id"]}',
+        headers=headers,
+        json=params)
+
+    return response
+
 def crear_oc(params:dict):
     # Parámetros recibidos:
     # Ejemplo de datos enviados en json
@@ -73,7 +119,12 @@ def crear_oc(params:dict):
     sent_oc = SentOC(id=oc["_id"], cliente=oc["cliente"], proveedor=oc["proveedor"],sku=oc["sku"],fecha_entrega=parse_js_date(oc["fechaEntrega"]),
     cantidad=oc["cantidad"], cantidad_despachada=oc["cantidadDespachada"], precio_unitario=oc["precioUnitario"], canal=oc["canal"],
     estado=oc["estado"], created_at=parse_js_date(oc["created_at"]), updated_at=parse_js_date(oc["updated_at"]))
-    pedido = Pedido(id = oc["_id"], sku =oc["sku"], cantidad=oc["cantidad"], fecha_disponible=parse_js_date(oc["fechaEntrega"]))
+    respuesta = pedir_producto(oc, params["fechaEntrega"])
+    if respuesta.status_code == 201:
+        answer = respuesta.json()
+        log_respuesta = Log(mensaje=f'OC de ID {answer["id"]} fue recibida')
+        log_respuesta.save()
+    pedido = Pedido(id = oc["_id"], sku =str(oc["sku"]), cantidad=oc["cantidad"], fecha_disponible=parse_js_date(oc["fechaEntrega"]))
     pedido.save()
     if "notas" in oc.keys():
         sent_oc.notas = oc["notas"]
