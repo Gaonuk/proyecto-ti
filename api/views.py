@@ -343,11 +343,11 @@ def index(request):
 
     productos_bodega = ProductoBodega.objects.all()
     for prod in productos_bodega:
-        if int(p.sku) == 10001:
+        if int(prod.sku) == 10001:
             vacunas_fabricadas['Pfizer'] += 1
-        if int(p.sku) == 10002:
+        if int(prod.sku) == 10002:
             vacunas_fabricadas['Sinovac'] += 1
-        if int(p.sku) == 10005:
+        if int(prod.sku) == 10005:
             vacunas_fabricadas['Moderna'] += 1
 
     labels_grupo = [key for key in productos_grupo.keys()]
