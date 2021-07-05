@@ -64,7 +64,7 @@ class Pedido(models.Model):
     sku = models.CharField(max_length=15)
     cantidad = models.IntegerField()
     fecha_disponible = models.DateTimeField()
-    disponbile_para_uso = models.BooleanField(default=True)
+    disponible_para_uso = models.BooleanField(default=True)
 
 class ProductoDespachado(models.Model):
     id = models.CharField(primary_key=True, max_length=100)
