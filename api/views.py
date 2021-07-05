@@ -42,7 +42,7 @@ env = environ.Env()
 environ.Env.read_env(env_file=os.path.join(BASE_DIR, 'proyecto13/.env'))
 
 
-if os.environ.get('DJANGO_DEVELOPMENT'):
+if os.environ.get('DJANGO_DEVELOPMENT')=='true':
     cliente = '60bd2a763f1b6100049f1453'
     ids_oc = IDS_DEV
 else:

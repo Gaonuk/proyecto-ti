@@ -9,7 +9,7 @@ import os
 from .arrays_clients_ids_oc import IDS_DEV, IDS_PROD
 from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
 
-if os.environ.get('DJANGO_DEVELOPMENT'):
+if os.environ.get('DJANGO_DEVELOPMENT')=='true':
     ids_grupos = IDS_DEV
     ids_recepcion = RECEPCIONES_DEV
 else:
