@@ -234,8 +234,8 @@ def mover_despacho():
                 time.sleep(1)
                 try:
                     mover_entre_almacenes({'productoId': producto.id, "almacenId": almacen_despacho['_id']})
-                    print(f'Se han movido 1 producto del SKU {producto.sku} al almacén desapcho\n')
-                    log = Log(mensaje=f'Se han movido 1 producto del SKU {producto.sku} al almacén desapcho\n')
+                    print(f'Se han movido 1 producto del SKU {producto.sku} al almacén despacho\n')
+                    log = Log(mensaje=f'Se han movido 1 producto del SKU {producto.sku} al almacén despacho\n')
                     log.save()
                     time.sleep(1)
                 except:
@@ -250,18 +250,21 @@ def despachar():
         if almacen['despacho']:
             almacen_despacho = almacen
     productos_para_despachar = ProductoBodega.objects.filter(almacen__in=almacen_despacho['_id']).exclude(oc_reservada='')
+    print(productos_para_despachar)
     for producto in productos_para_despachar:
+        print('despachando...')
         oc = producto.oc_reservada
         oc_object = RecievedOC.objects.filter(id=oc)
         posicion = ids_grupos.index(oc.cliente)
         almacen_id = ids_recepcion[posicion]
         respuesta = mover_entre_bodegas({'productoId': producto.id, 'almacenId': almacen_id, 'oc': oc, 'precio': oc_object.precio_unitario}).json()
         try:
-            print(respuesta["error"])
-            log = Log(mensaje=respuesta["error"])
-            log.save()
-        except:
             print(f"El producto de id {producto.id} fue despachado al almacen {almacen_id}")
             log = Log(mensaje=f"El producto de id {producto.id} fue despachado al almacen {almacen_id}")
             log.save()
+        except:
+            print(respuesta["error"])
+            log = Log(mensaje=respuesta["error"])
+            log.save()
+
         time.sleep(1)
