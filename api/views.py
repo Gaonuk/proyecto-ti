@@ -14,7 +14,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 
 from .OC import obtener_oc, recepcionar_oc, rechazar_oc, parse_js_date, crear_oc
-from .models import RecievedOC, SentOC, Log
+from .models import ProductoBodega, RecievedOC, SentOC, Log, ProductoDespachado
 from random import randint
 import requests
 import json
@@ -50,14 +50,12 @@ else:
     ids_oc = IDS_PROD
 
 
-if os.environ.get('DJANGO_DEVELOPMENT')=='true':
+if os.environ.get('DJANGO_DEVELOPMENT') == 'true':
     TITULO_RECEPCIONES = 'ALMACENES EXTERNOS DEV'
-    ALMACENES_RECEPCION_EXT= RECEPCIONES_DEV
+    ALMACENES_RECEPCION_EXT = RECEPCIONES_DEV
 else:
     TITULO_RECEPCIONES = 'ALMACENES EXTERNOS PROD'
-    ALMACENES_RECEPCION_EXT= RECEPCIONES_PROD
-
-
+    ALMACENES_RECEPCION_EXT = RECEPCIONES_PROD
 
 
 @api_view(['GET'])
@@ -140,14 +138,17 @@ def manejo_oc(request, id):
                             cliente=orden_de_compra["cliente"],
                             proveedor=orden_de_compra["proveedor"],
                             sku=orden_de_compra["sku"],
-                            fecha_entrega=parse_js_date(orden_de_compra["fechaEntrega"]),
+                            fecha_entrega=parse_js_date(
+                                orden_de_compra["fechaEntrega"]),
                             cantidad=orden_de_compra["cantidad"],
                             cantidad_despachada=orden_de_compra["cantidadDespachada"],
                             precio_unitario=orden_de_compra["precioUnitario"],
                             canal=orden_de_compra["canal"],
                             estado=orden_de_compra["estado"],
-                            created_at=parse_js_date(orden_de_compra["created_at"]),
-                            updated_at=parse_js_date(orden_de_compra["updated_at"])
+                            created_at=parse_js_date(
+                                orden_de_compra["created_at"]),
+                            updated_at=parse_js_date(
+                                orden_de_compra["updated_at"])
                             )
 
             if "notas" in orden_de_compra.keys():
@@ -189,7 +190,7 @@ def manejo_oc(request, id):
             with open('registro_oc.txt', 'a') as registro:
                 registro.write(f'PATCH-204: OC {id} - {datetime.now()}\n')
             sent_oc = SentOC.objects.get(id=id)
-            sent_oc.estado=estado
+            sent_oc.estado = estado
             sent_oc.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
@@ -248,6 +249,11 @@ def algun_endopint(request, algun_id):
 
 
 def index(request):
+    vacunas_fabricadas = {
+        "Pfizer": 0,
+        "Sinovac": 0,
+        "Moderna": 0
+    }
     # Información de los almacenes
     almacenes = obtener_almacenes().json()
     info_almacenes = {}
@@ -298,13 +304,62 @@ def index(request):
     # if "urlNotificacion" in orden_de_compra.keys():
     #     oc.url_notification = orden_de_compra["urlNotificacion"]
     # oc.save()
-            
+
+    productos = ProductoDespachado.objects.all()
+    productos_grupo = {}
+    productos_sku = {}
+    
+    for p in productos:
+        if int(p.sku) == 10001:
+            vacunas_fabricadas['Pfizer'] += 1
+        if int(p.sku) == 10002:
+            vacunas_fabricadas['Sinovac'] += 1
+        if int(p.sku) == 10005:
+            vacunas_fabricadas['Moderna'] += 1
+        grupo = ids_oc.index(p.cliente) + 1
+        if grupo in productos_grupo and p.sku in productos_sku:
+            productos_grupo[grupo] += 1
+            productos_sku[p.sku] += 1
+        elif grupo in productos_grupo and p.sku not in productos_sku:
+            productos_grupo[grupo] += 1
+            productos_sku[p.sku] = 1
+        elif grupo not in productos_grupo and p.sku in productos_sku:
+            productos_grupo[grupo] = 1
+            productos_sku[p.sku] += 1
+        else:
+            productos_sku[p.sku] = 1
+            productos_grupo[grupo] = 1
+
+    productos_bodega = ProductoBodega.objects.all()
+    for prod in productos_bodega:
+        if int(p.sku) == 10001:
+            vacunas_fabricadas['Pfizer'] += 1
+        if int(p.sku) == 10002:
+            vacunas_fabricadas['Sinovac'] += 1
+        if int(p.sku) == 10005:
+            vacunas_fabricadas['Moderna'] += 1
+
+    labels_grupo = [key for key in productos_grupo.keys()]
+    prods_grupo = [productos_grupo[i] for i in labels_grupo]
+
+    labels_sku = [key for key in productos_sku.keys()]
+    prods_sku = [productos_sku[i] for i in labels_sku]
+
+    labels_vacunas = [key for key in vacunas_fabricadas.keys()]
+    prods_vacunas = [vacunas_fabricadas[i] for i in labels_vacunas]
 
     return render(request, 'index.html', {'params': {'labels_almacenes': labels_almacenes, 'ocupacion_almacenes': ocupacion_almacenes,
-                                                     'labels_stock': labels_stock, 'stock': stock}})
+                                                      'labels_stock': labels_stock, 'stock': stock, 
+                                                      'labels_grupo': labels_grupo, "prods_grupo": prods_grupo, 
+                                                      "labels_sku": labels_sku, 'prods_sku': prods_sku,
+                                                      "labels_vacunas": labels_vacunas, "prods_vacunas": prods_vacunas
+                                                      }})
+
+
 def logs(request):
-    logs=Log.objects.all().order_by('-created_at')
-    return render(request, 'logs.html',{'logs': logs})
+    logs = Log.objects.all().order_by('-created_at')
+    return render(request, 'logs.html', {'logs': logs})
+
 
 def backoffice(request):
     # Arrays para hacer comparativas
@@ -334,19 +389,19 @@ def backoffice(request):
         if len(stock) > 0:
             for sku in stock:
                 # Vamos a guardar en un objeto los SKUs y un array con sus IDs para ser usado en otro método
-                IDs_por_sku[almacen['_id']][sku['_id']]= []
+                IDs_por_sku[almacen['_id']][sku['_id']] = []
                 # Sacamos todos los IDs por SKU
                 productos_almacen = obtener_productos_almacen(
                     {"almacenId": almacen['_id'], "sku": sku["_id"]}).json()
                 for producto_almacen in productos_almacen:
                     # Aquí se guardan todos los ID's por SKU y por almacen
-                    IDs_por_sku[almacen['_id']][sku['_id']].append(producto_almacen['_id'])
+                    IDs_por_sku[almacen['_id']][sku['_id']].append(
+                        producto_almacen['_id'])
                     # Creamos una nueva variable 'id' porque front no permite "_"
                     producto_almacen['id'] = producto_almacen['_id']
                     IDs_productos.append(producto_almacen["_id"])
                 # Guardamos todos los productos según SKU en un objeto
                 almacen['detalle_productos'][sku["_id"]] = productos_almacen
-        
 
     if request.method == 'POST':
         # print(request.POST.get('cantidad'))
@@ -377,7 +432,7 @@ def backoffice(request):
                     messages.info(
                         request, 'El producto ha sido cambiado de almacén')
                     return HttpResponseRedirect('/backoffice')
-        elif request.POST.get('proveedor','') != '':
+        elif request.POST.get('proveedor', '') != '':
             valid_SKUs = [
                 '100',
                 '107',
@@ -503,7 +558,8 @@ def backoffice(request):
                         request, '¡El ID de este almacén NO existe!')
                     post_valido = False
                 if SKU not in list(IDs_por_sku[almacen_origen].keys()):
-                    messages.warning(request, '¡Este SKU NO existe en este almacén!')
+                    messages.warning(
+                        request, '¡Este SKU NO existe en este almacén!')
                     post_valido = False
                 if post_valido:
                     print(IDs_por_sku)
@@ -519,7 +575,7 @@ def backoffice(request):
                             request, f'{cant_SKU} producto(s) han sido cambiado de almacén')
                     return HttpResponseRedirect('/backoffice')
 
-        elif request.POST.get('cantidad','') != '' and request.POST.get('SKU','') != '':
+        elif request.POST.get('cantidad', '') != '' and request.POST.get('SKU', '') != '':
             valid_SKUs = [
                 '100',
                 '107',

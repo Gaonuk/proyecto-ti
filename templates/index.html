@@ -1,91 +1,256 @@
 <!DOCTYPE html>
 <html lang="en">
-
-
-<head>
-    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-</head>
-
-<body style="text-align:center;margin:0;padding: 0;font-family: 'Roboto', sans-serif;background-color: #E7ECEF;">
-    <div style="color: white;background-color: #274C77;">
-        <h1 style="margin:0">Dashboard Grupo 13</h1>
-    </div>
-    <h2 style="margin-bottom:0">Ocupación de la bodega</h2>
+  <head>
+    <link
+      href="http://fonts.googleapis.com/css?family=Roboto"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css"
+    />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.3.2/dist/chart.min.js"></script>
-    <div style="width: 500px; margin: auto">
-    <canvas id="myChart" ></canvas>
-    </div>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
     <script>
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: {{params.labels_almacenes|safe}},
-            datasets: [{
-                label: 'Ocupación por almacén',
-                data: {{params.ocupacion_almacenes|safe}},
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
+      const CHART_COLORS = {
+        red: "rgb(255, 99, 132)",
+        orange: "rgb(255, 159, 64)",
+        yellow: "rgb(255, 205, 86)",
+        green: "rgb(75, 192, 192)",
+        blue: "rgb(54, 162, 235)",
+        purple: "rgb(153, 102, 255)",
+        grey: "rgb(201, 203, 207)",
+      };
     </script>
-    <h2 style="margin-bottom:0">Stock de compuestos y vacunas en la bodega</h2>
-    <div style="width: 500px; margin: auto">
-    <canvas id="chart2" ></canvas>
-    </div>
-    <script>
-    var ctx = document.getElementById('chart2').getContext('2d');
-    var myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: {{params.labels_stock|safe}},
-            datasets: [{
-                label: 'Cantidad de cada SKU',
-                data: {{params.stock|safe}},
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-    </script>
-<!-- <h2></h2>
+  </head>
+
+  <body>
+    <nav class="navbar is-link">
+      <div class="level has-text-centered">
+        <div class="level-item">
+          <p class="title has-text-white">Dashboard Grupo 13</p>
+        </div>
+      </div>
+    </nav>
+    <section class="hero is-fullheight-with-navbar">
+      <div class="">
+        <div class="container">
+          <div class="columns is-multiline">
+            <div id="is-chart" class="column">
+              <div style="width: 500px; margin: auto">
+                <canvas id="myChart"></canvas>
+              </div>
+              <script>
+                var ctx = document.getElementById('myChart').getContext('2d');
+                var myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: {{params.labels_almacenes|safe}},
+                        datasets: [{
+                            label: 'Ocupación por almacén',
+                            data: {{params.ocupacion_almacenes|safe}},
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                      scales: {
+                          y: {
+                              beginAtZero: true
+                          }
+                      },
+                      plugins: {
+                        legend: {
+                          position: "top",
+                        },
+                        title: {
+                          display: true,
+                          text: "Ocupación de la bodega",
+                        },
+                      },
+                    }
+                });
+              </script>
+            </div>
+            <div id="is-chart" class="column">
+              <div style="width: 500px; margin: auto">
+                <canvas id="chart2"></canvas>
+              </div>
+              <script>
+                var ctx = document.getElementById('chart2').getContext('2d');
+                var myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: {{params.labels_stock|safe}},
+                        datasets: [{
+                            label: 'Cantidad de cada SKU',
+                            data: {{params.stock|safe}},
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                      scales: {
+                          y: {
+                              beginAtZero: true
+                          }
+                      },
+                      plugins: {
+                        legend: {
+                          position: "top",
+                        },
+                        title: {
+                          display: true,
+                          text: "Stock de compuestos y vacunas en la bodega",
+                        },
+                      },
+                    }
+                });
+              </script>
+            </div>
+          </div>
+        </div>
+        <div class="container">
+          <div class="columns">
+            <div id="is-chart" class="column">
+              <div style="width: 500px; margin: auto">
+                <canvas id="skuChart"></canvas>
+              </div>
+              <script>
+                var ctx = document.getElementById("skuChart").getContext("2d");
+
+                let skus_data = {
+                  labels: {{params.labels_sku|safe}},
+                  datasets: [
+                    {
+                      label: "Dataset 1",
+                      data: {{params.prods_sku|safe}},
+                      backgroundColor: Object.values(CHART_COLORS),
+                    },
+                  ],
+                };
+                var skuChart = new Chart(ctx, {
+                  type: "pie",
+                  data: skus_data,
+                  options: {
+                    responsive: true,
+                    plugins: {
+                      legend: {
+                        position: "top",
+                        display: false,
+                      },
+                      title: {
+                        display: true,
+                        text: "Productos despachados por SKU",
+                      },
+                    },
+                  },
+                });
+              </script>
+            </div>
+            <div id="is-chart" class="column">
+              <div style="width: 500px; margin: auto">
+                <canvas id="grupoChart"></canvas>
+              </div>
+              <script>
+                var ctx = document
+                  .getElementById("grupoChart")
+                  .getContext("2d");
+
+                let grupos_data = {
+                  labels: {{params.labels_grupo|safe}},
+                  datasets: [
+                    {
+                      label: "Dataset 1",
+                      data: {{params.prods_grupo|safe}},
+                      backgroundColor: Object.values(CHART_COLORS),
+                    },
+                  ],
+                };
+                var grupoChart = new Chart(ctx, {
+                  type: "pie",
+                  data: grupos_data,
+                  options: {
+                    responsive: true,
+                    plugins: {
+                      legend: {
+                        position: "top",
+                        display: false,
+                      },
+                      title: {
+                        display: true,
+                        text: "Productos despachados por Grupo",
+                      },
+                    },
+                  },
+                });
+              </script>
+            </div>
+          </div>
+        </div>
+        <div class="container">
+          <div style="width: 500px; margin: auto">
+            <canvas id="vacunasChart"></canvas>
+          </div>
+          <script>
+            var ctx = document.getElementById("vacunasChart").getContext("2d");
+            const NUMBER_CFG3 = { count: 3, min: 0, max: 100 };
+
+            let vacunas_data = {
+              labels: {{params.labels_vacunas|safe}},
+              datasets: [
+                {
+                  label: "Dataset 1",
+                  data: {{params.prods_vacunas|safe}},
+                  backgroundColor: Object.values(CHART_COLORS),
+                },
+              ],
+            };
+            var vacunasChart = new Chart(ctx, {
+              type: "pie",
+              data: vacunas_data,
+              options: {
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: "top",
+                    display: false,
+                  },
+                  title: {
+                    display: true,
+                    text: "Vacunas Fabricadas",
+                  },
+                },
+              },
+            });
+          </script>
+        </div>
+      </div>
+    </section>
+
+    <!-- <h2></h2>
 <canvas id="chart2" width="50" height="50"></canvas>
 <script>
     var ctx = document.getElementById('chart2').getContext('2d');
@@ -118,6 +283,5 @@
         }
     });
     </script> -->
-
-</body>
+  </body>
 </html>
