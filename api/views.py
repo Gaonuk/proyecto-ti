@@ -164,7 +164,10 @@ def manejo_oc(request, id):
             if "urlNotificacion" in orden_de_compra.keys():
                 oc.url_notification = orden_de_compra["urlNotificacion"]
             oc.save()
-            url = orden_de_compra["urlNotificacion"]
+            if orden_de_compra["urlNotificacion"] == "":
+                url= body["urlNotificacion"]
+            else:
+                url = orden_de_compra["urlNotificacion"]
 
             oc_es_factible = factibildad(oc.sku, oc.cantidad, oc.fecha_entrega, oc.id)
 
