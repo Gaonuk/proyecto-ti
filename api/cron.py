@@ -170,7 +170,7 @@ def revision_oc():
         sku = orden.sku
         cantidad = orden.cantidad - orden.cantidad_despachada
         if cantidad > 0:
-            productos_disponibles = ProductoBodega.objects.filter(sku=sku, oc_reservada=None)
+            productos_disponibles = ProductoBodega.objects.filter(sku=str(sku), oc_reservada=None)
             cantidad_disponible = productos_disponibles.count()
             if cantidad_disponible <= cantidad:
                 for producto in productos_disponibles:
