@@ -1,5 +1,5 @@
 from .models import Pedido, ProductoBodega, ProductoDespachado
-from datetime import datetime
+from datetime import datetime, timedelta
 from .warehouse import fabricar_producto
 
 SKU_VACUNAS = ['10001','10002','10005']
@@ -116,7 +116,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
             # Evalúo si alcanzo a producir lo que me falta
             tiempo_prod = TIEMPOS_PRODUCCION_PROPIOS[str(sku)]
             delta = 10
-            if fecha_entrega < datetime.now() + datetime.min(tiempo_prod + delta):
+            if fecha_entrega < datetime.now() + timedelta(minutes=tiempo_prod + delta):
                 print(f'No alcanzo a entregar en esa fecha.')
                 return False
             else:
