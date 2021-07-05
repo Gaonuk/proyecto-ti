@@ -1,26 +1,26 @@
 SKU Producto,Nombre Producto,SKU Ingrediente,Nombre Ingrediente,Cantidad,Unidad,Lote producción,Cantidad para lote
 10001,BNT162B2,1000,mRNA,2,Unid,6,12
-10001,BNT162B2,107,ALC-0159,1,Unid,6,0
-10001,BNT162B2,108,ALC-0315,1,Unid,6,0
+10001,BNT162B2,107,ALC-0159,1,Unid,6,6
+10001,BNT162B2,108,ALC-0315,1,Unid,6,6
 10001,BNT162B2,100,"1,2-diestearol-sn-glicero-3-fosfocolina",1,Unid,6,6
 10001,BNT162B2,114,Colesterol,1,Unid,6,6
-10001,BNT162B2,112,Cloruro de potasio,1,Unid,6,0
-10001,BNT162B2,119,Fosfato sódico dibásico dihidrato,1,Unid,6,0
+10001,BNT162B2,112,Cloruro de potasio,1,Unid,6,6
+10001,BNT162B2,119,Fosfato sódico dibásico dihidrato,1,Unid,6,6
 10001,BNT162B2,129,Sacarosa,2,Unid,6,12
 10001,BNT162B2,113,Cloruro de sodio,1,Unid,6,6
-10001,BNT162B2,118,Fosfato monobásico de potasio,1,Unid,6,0
+10001,BNT162B2,118,Fosfato monobásico de potasio,1,Unid,6,6
 10002,CORONAVAC,1001,Antígeno SARS-CoV-2 inactivado,1,Unid,8,8
-10002,CORONAVAC,121,Hidróxido de aluminio,1,Unid,8,0
-10002,CORONAVAC,120,Hidrogenofosfato de disodio,2,Unid,8,0
-10002,CORONAVAC,115,Dihidrogenofosfato de sodio,1,Unid,8,0
+10002,CORONAVAC,121,Hidróxido de aluminio,1,Unid,8,8
+10002,CORONAVAC,120,Hidrogenofosfato de disodio,2,Unid,8,16
+10002,CORONAVAC,115,Dihidrogenofosfato de sodio,1,Unid,8,8
 10002,CORONAVAC,113,Cloruro de sodio,2,Unid,8,16
 10005,mRNA-1273,1000,mRNA,3,Unid,4,12
-10005,mRNA-1273,126,Lípido SM-102,1,Unid,4,0
+10005,mRNA-1273,126,Lípido SM-102,1,Unid,4,4
 10005,mRNA-1273,114,Colesterol,1,Unid,4,4
 10005,mRNA-1273,100,"1,2-diestearol-sn-glicero-3-fosfocolina",1,Unid,4,4
-10005,mRNA-1273,127,Polietilenglicol,1,Unid,4,0
-10005,mRNA-1273,132,Trometamol,2,Unid,4,0
-10005,mRNA-1273,110,Clorhidrato de trometamol,1,Unid,4,0
-10005,mRNA-1273,103,Ácido acético,1,Unid,4,0
-10005,mRNA-1273,102,Acetato de sodio trihidrato,1,Unid,4,0
+10005,mRNA-1273,127,Polietilenglicol,1,Unid,4,4
+10005,mRNA-1273,132,Trometamol,2,Unid,4,8
+10005,mRNA-1273,110,Clorhidrato de trometamol,1,Unid,4,4
+10005,mRNA-1273,103,Ácido acético,1,Unid,4,4
+10005,mRNA-1273,102,Acetato de sodio trihidrato,1,Unid,4,4
 10005,mRNA-1273,129,Sacarosa,1,Unid,4,4

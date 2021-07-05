@@ -151,7 +151,8 @@ def fabricar_producto(params:dict):
         headers=headers
     )
     fabricar = response.json()
-    pedido = Pedido(id = fabricar["_id"], sku=fabricar["sku"], cantidad=params["cantidad"], fecha_disponible=parse_js_date(fabricar["disponible"]))
+    pedido = Pedido(id = fabricar["_id"], sku=fabricar["sku"], cantidad=params["cantidad"], \
+        fecha_disponible=parse_js_date(fabricar["disponible"]))
     pedido.save()
     return response
 
