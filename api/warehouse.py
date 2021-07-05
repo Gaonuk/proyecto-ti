@@ -48,11 +48,11 @@ def despachar_producto(params:dict):
         json=params,
         headers=headers
     )
-    # producto_bodega  = ProductoBodega.objects.get(id=params["productoId"]) 
-    # sku = producto_bodega.sku
-    # producto_bodega.delete()
-    # producto_despachado = ProductoDespachado(id = params["productoId"],sku = sku, cliente = params["direccion"], oc_cliente = params["oc"], precio = params["precio"] )
-    # producto_despachado.save()
+    producto_bodega  = ProductoBodega.objects.get(id=params["productoId"]) 
+    sku = producto_bodega.sku
+    producto_bodega.delete()
+    producto_despachado = ProductoDespachado(id = params["productoId"],sku = sku, cliente = params["direccion"], oc_cliente = params["oc"], precio = params["precio"] )
+    producto_despachado.save()
     return response
 
 def mover_entre_almacenes(params:dict):
@@ -68,9 +68,9 @@ def mover_entre_almacenes(params:dict):
         json=params,
         headers=headers
     )
-    # producto_bodega  = ProductoBodega.objects.get(id=params["productoId"]) 
-    # producto_bodega.almacen = params["almacenId"]
-    # producto_bodega.save()
+    producto_bodega  = ProductoBodega.objects.get(id=params["productoId"]) 
+    producto_bodega.almacen = params["almacenId"]
+    producto_bodega.save()
     return response
 
 def mover_entre_bodegas(params:dict):
@@ -86,11 +86,11 @@ def mover_entre_bodegas(params:dict):
         json=params,
         headers=headers
     )
-    # producto_bodega  = ProductoBodega.objects.get(id=params["productoId"]) 
-    # sku_prod = producto_bodega.sku
-    # producto_bodega.delete()
-    # producto_despachado = ProductoDespachado(id = params["productoId"], sku = sku_prod, cliente = params["almacenId_externo"], oc_cliente = params["oc"], precio = params["precio"] )
-    # producto_despachado.save()
+    producto_bodega  = ProductoBodega.objects.get(id=params["productoId"]) 
+    sku_prod = producto_bodega.sku
+    producto_bodega.delete()
+    producto_despachado = ProductoDespachado(id = params["productoId"], sku = sku_prod, cliente = params["almacenId_externo"], oc_cliente = params["oc"], precio = params["precio"] )
+    producto_despachado.save()
     return response
 
 def obtener_almacenes():
