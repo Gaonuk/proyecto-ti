@@ -68,10 +68,13 @@ def mover_entre_almacenes(params:dict):
         json=params,
         headers=headers
     )
-    producto_bodega  = ProductoBodega.objects.get(id=params["productoId"]) 
-    producto_bodega.almacen = params["almacenId"]
-    producto_bodega.save()
-    return response
+    try:
+        producto_bodega  = ProductoBodega.objects.get(id=params["productoId"]) 
+        producto_bodega.almacen = params["almacenId"]
+        producto_bodega.save()
+        return response
+    except:
+        return response
 
 def mover_entre_bodegas(params:dict):
     # params contiene productoId, almacenId, oc, precio
