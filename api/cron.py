@@ -249,7 +249,7 @@ def despachar():
     for almacen in almacenes:
         if almacen['despacho']:
             almacen_despacho = almacen
-    productos_para_despachar = ProductoBodega.objects.filter(almacen__in=ids_almacen).exclude(oc_reservada='')
+    productos_para_despachar = ProductoBodega.objects.filter(almacen__in=almacen_despacho['_id']).exclude(oc_reservada='')
     for producto in productos_para_despachar:
         oc = producto.oc_reservada
         oc_object = RecievedOC.objects.filter(id=oc)
