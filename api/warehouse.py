@@ -4,8 +4,9 @@ import requests
 from hashlib import sha1
 import hmac
 import base64
-from .models import Pedido, ProductoBodega, ProductoDespachado
+from .models import Log, Pedido, ProductoBodega, ProductoDespachado
 from .OC import parse_js_date
+import time
 
 #Only to define .env variables
 import os
@@ -156,3 +157,100 @@ def fabricar_producto(params:dict):
     pedido.save()
     return response
 
+def fabricar_vacuna(params:dict):
+    formulas = {
+        '10001': {
+            '1000': 12, 
+            '108': 6, 
+            '107': 6, 
+            '100': 6, 
+            '114': 6, 
+            '112': 6, 
+            '119': 6, 
+            '129': 12, 
+            '113': 6, 
+            '118': 6
+        }, 
+        '10002': {
+            '1001': 8, 
+            '121': 8, 
+            '120': 16, 
+            '115': 8, 
+            '113': 16
+        }, 
+        '10005': {
+            '1000': 12, 
+            '126': 4, 
+            '114': 4, 
+            '100': 4, 
+            '127': 4, 
+            '132': 8, 
+            '110': 4, 
+            '103': 4, 
+            '102': 4, 
+            '129': 4
+        }
+    }
+    productos_almacen = ProductoBodega.objects.exclude(oc_reservada='')
+    productos = {}
+    ids_sku = {}
+    almacenes = obtener_almacenes().json()
+    for almacen in almacenes:
+        if almacen['recepcion']:
+            almacen_recepcion = almacen
+        elif almacen['pulmon']:
+            almacen_pulmon = almacen
+        elif almacen['despacho']:
+            almacen_despacho = almacen
+        else:
+            almacen_central = almacen
+    ids_almacen = [almacen_recepcion['_id'], almacen_central['_id'], almacen_pulmon['_id'], almacen_despacho['_id']]
+    for prod in productos_almacen:
+        if prod.sku in productos:
+            productos[prod.sku] += 1
+        else:
+            productos[prod.sku] = 1
+        if not prod.sku in ids_sku:
+            ids_sku[prod.sku] = [prod.id]
+        else:
+            ids_sku[prod.sku].append(prod.id)
+    has_stock = True
+    print(ids_sku)
+    vacuna_sku = params['tipo']
+    lote_sku = {
+        '10001': 6,
+        "10002": 8,
+        "10005": 4
+    }
+    names = {
+        '10001': 'Pfizer',
+        '10002': 'Sinovac',
+        '10005': 'Moderna'
+    }
+    log_vacuna = Log(mensaje=f"Se esta intentando fabricar un lote de vacuna {names[vacuna_sku]}")
+    log_vacuna.save()
+    
+    keys = [key for key in formulas[vacuna_sku].keys()]
+    available_skus = [key for key in productos.keys()]
+    for sku in keys:
+        if not sku in available_skus:
+            log_no_sku = Log(mensaje=f'No tienes el sku {sku}, necesario para fabricar el lote de vacunas {names[vacuna_sku]}')
+            log_no_sku.save()
+            has_stock = False
+            break
+        else:
+            if productos[sku] != formulas[vacuna_sku][sku]:
+                has_stock = False
+    if not has_stock:
+        log_no_stock = Log(mensaje=f'No tienes stock suficiente para fabricar el lote de vacunas {names[vacuna_sku]}')
+        log_no_stock.save()
+    else:
+        log_stock = Log(mensaje='Tienes stock suficiente para fabricar esta vacuna, vamos a mover los elementos necesarios a despacho!')
+        log_stock.save()
+        for sku in keys: 
+            for id in ids_sku[sku]:
+                mover_entre_almacenes({ "productoId": id, "almacenId": almacen_despacho['_id']})
+                time.sleep(1)
+        fabricar_producto({"sku": vacuna_sku, "cantidad": lote_sku[vacuna_sku]})
+        log_success = Log(mensaje=f'Se ha mandado a fabricar exitosamente un lote de vacunas {names[vacuna_sku]}')
+        log_success.save()

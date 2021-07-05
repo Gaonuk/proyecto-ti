@@ -1,16 +1,15 @@
 from api.business_logic import factibildad
 from django.shortcuts import render
 from requests.api import post
-
 from rest_framework import status
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from django.http.response import JsonResponse
 from rest_framework.response import Response
-from .warehouse import despachar_producto, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto
+from .warehouse import despachar_producto, fabricar_vacuna, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto
 import datetime
 
-from .forms import FormCambiarAlmacen, FormCambiarBodega, FormCambiarAlmacenPorSKU, FormFabricar, FormCrearOC
+from .forms import FormCambiarAlmacen, FormCambiarBodega, FormCambiarAlmacenPorSKU, FormCrearVacuna, FormFabricar, FormCrearOC
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 
@@ -178,9 +177,10 @@ def manejo_oc(request, id):
             oc.save()
             url = orden_de_compra["urlNotificacion"]
 
-            oc_es_factible = factibildad(oc.sku, oc.cantidad, oc.fecha_entrega, oc.id)
+            oc_es_factible = factibildad(
+                oc.sku, oc.cantidad, oc.fecha_entrega, oc.id)
 
-            #if randint(0, 1) == 1:
+            # if randint(0, 1) == 1:
             if oc_es_factible:
                 recepcionar_oc(id)
                 params = json.dumps({"estado": "aceptada"})
@@ -328,7 +328,6 @@ def index(request):
     productos = ProductoDespachado.objects.all()
     productos_grupo = {}
     productos_sku = {}
-    
     for p in productos:
         if int(p.sku) == 10001:
             vacunas_fabricadas['Pfizer'] += 1
@@ -369,11 +368,11 @@ def index(request):
     prods_vacunas = [vacunas_fabricadas[i] for i in labels_vacunas]
 
     return render(request, 'index.html', {'params': {'labels_almacenes': labels_almacenes, 'ocupacion_almacenes': ocupacion_almacenes,
-                                                      'labels_stock': labels_stock, 'stock': stock, 
-                                                      'labels_grupo': labels_grupo, "prods_grupo": prods_grupo, 
-                                                      "labels_sku": labels_sku, 'prods_sku': prods_sku,
-                                                      "labels_vacunas": labels_vacunas, "prods_vacunas": prods_vacunas
-                                                      }})
+                                                     'labels_stock': labels_stock, 'stock': stock,
+                                                     'labels_grupo': labels_grupo, "prods_grupo": prods_grupo,
+                                                     "labels_sku": labels_sku, 'prods_sku': prods_sku,
+                                                     "labels_vacunas": labels_vacunas, "prods_vacunas": prods_vacunas
+                                                     }})
 
 
 def logs(request):
@@ -673,3 +672,94 @@ def backoffice(request):
         'ALMACENES_EXTERNOS': ALMACENES_RECEPCION_EXT,
         'form_crear_oc': form_crear_oc,
         'ALMACENES_EXTERNOS': RECEPCIONES_DEV})
+
+
+def vacunas(request):
+
+    if request.method == 'POST':
+        tipo_vacuna = request.POST.get('tipo')
+        fabricar_vacuna({ 'tipo': tipo_vacuna })
+
+    form_fabricar_vacuna = FormCrearVacuna()
+
+    # Información de los almacenes
+    almacenes = obtener_almacenes().json()
+    info_almacenes = {}
+    for almacen in almacenes:
+        id = almacen["_id"]
+        used = almacen["usedSpace"]
+        total = almacen["totalSpace"]
+        if almacen["recepcion"]:
+            info_almacenes['Recepción'] = [id, used, total]
+        if almacen["despacho"]:
+            info_almacenes['Despacho'] = [id, used, total]
+        if almacen["pulmon"]:
+            info_almacenes['Pulmón'] = [id, used, total]
+        if almacen["pulmon"] == False and almacen["despacho"] == False and almacen["recepcion"] == False:
+            info_almacenes['Central'] = [id, used, total]
+        almacen["almacenId"] = almacen["_id"]
+    labels_almacenes = ['Recepción', 'Despacho', 'Pulmón', 'Central']
+    ocupacion_almacenes = [info_almacenes[i][1] for i in labels_almacenes]
+    id_almacenes = [info_almacenes[i][0] for i in labels_almacenes]
+
+    # Información stock disponible de vacunas y compuestos
+    cantidad_sku = {}
+    for almacen in almacenes:
+        sku_almacen = obtener_stock(almacen).json()
+        for sku in sku_almacen:
+            if sku["_id"] in cantidad_sku:
+                cantidad_sku[sku["_id"]] += int(sku["total"])
+            else:
+                cantidad_sku[sku["_id"]] = int(sku["total"])
+    labels_stock = [key for key in cantidad_sku.keys()]
+    stock = [cantidad_sku[i] for i in labels_stock]
+
+    formulas = {
+        '10001': [
+            {'SKU Ingrediente': 1000, 'Nombre Ingrediente': 'mRNA', 'Cantidad': 2, 'Lote producción': 6, 'Cantidad para lote': 12}, 
+            {'SKU Ingrediente': 107, 'Nombre Ingrediente': 'ALC-0159', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}, 
+            {'SKU Ingrediente': 108, 'Nombre Ingrediente': 'ALC-0315', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}, 
+            {'SKU Ingrediente': 100, 'Nombre Ingrediente': '1,2-diestearol-sn-glicero-3-fosfocolina', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}, 
+            {'SKU Ingrediente': 114, 'Nombre Ingrediente': 'Colesterol', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}, 
+            {'SKU Ingrediente': 112, 'Nombre Ingrediente': 'Cloruro de potasio', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}, 
+            {'SKU Ingrediente': 119, 'Nombre Ingrediente': 'Fosfato sódico dibásico dihidrato', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}, 
+            {'SKU Ingrediente': 129, 'Nombre Ingrediente': 'Sacarosa', 'Cantidad': 2, 'Lote producción': 6, 'Cantidad para lote': 12}, 
+            {'SKU Ingrediente': 113, 'Nombre Ingrediente': 'Cloruro de sodio', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}, 
+            {'SKU Ingrediente': 118, 'Nombre Ingrediente': 'Fosfato monobásico de potasio', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}
+        ], 
+        '10002': [
+            {'SKU Ingrediente': 1001, 'Nombre Ingrediente': 'Antígeno SARS-CoV-2 inactivado', 'Cantidad': 1, 'Lote producción': 8, 'Cantidad para lote': 8}, 
+            {'SKU Ingrediente': 121, 'Nombre Ingrediente': 'Hidróxido de aluminio', 'Cantidad': 1, 'Lote producción': 8, 'Cantidad para lote': 8}, 
+            {'SKU Ingrediente': 120, 'Nombre Ingrediente': 'Hidrogenofosfato de disodio', 'Cantidad': 2, 'Lote producción': 8, 'Cantidad para lote': 16}, 
+            {'SKU Ingrediente': 115, 'Nombre Ingrediente': 'Dihidrogenofosfato de sodio', 'Cantidad': 1, 'Lote producción': 8, 'Cantidad para lote': 8}, 
+            {'SKU Ingrediente': 113, 'Nombre Ingrediente': 'Cloruro de sodio', 'Cantidad': 2, 'Lote producción': 8, 'Cantidad para lote': 16}
+        ], 
+        '10005': [
+            {'SKU Ingrediente': 1000, 'Nombre Ingrediente': 'mRNA', 'Cantidad': 3, 'Lote producción': 4, 'Cantidad para lote': 12}, 
+            {'SKU Ingrediente': 126, 'Nombre Ingrediente': 'Lípido SM-102', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}, 
+            {'SKU Ingrediente': 114, 'Nombre Ingrediente': 'Colesterol', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}, 
+            {'SKU Ingrediente': 100, 'Nombre Ingrediente': '1,2-diestearol-sn-glicero-3-fosfocolina', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}, 
+            {'SKU Ingrediente': 127, 'Nombre Ingrediente': 'Polietilenglicol', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}, 
+            {'SKU Ingrediente': 132, 'Nombre Ingrediente': 'Trometamol', 'Cantidad': 2, 'Lote producción': 4, 'Cantidad para lote': 8}, 
+            {'SKU Ingrediente': 110, 'Nombre Ingrediente': 'Clorhidrato de trometamol', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}, 
+            {'SKU Ingrediente': 103, 'Nombre Ingrediente': 'Ácido acético', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}, 
+            {'SKU Ingrediente': 102, 'Nombre Ingrediente': 'Acetato de sodio trihidrato', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}, 
+            {'SKU Ingrediente': 129, 'Nombre Ingrediente': 'Sacarosa', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}
+        ]
+    }
+
+    map_keys = {
+        '10005': "Moderna",
+        '10002': "Sinovac",
+        '10001': "Pfizer"
+    }
+    names = [map_keys[key] for key in formulas.keys()]
+    keys = [key for key in formulas.keys()]
+    for key in formulas.keys():
+        for ingrediente in formulas[key]:
+            sku_ingrediente = str(ingrediente['SKU Ingrediente'])
+            if sku_ingrediente in labels_stock:
+                ingrediente['Stock'] = cantidad_sku[sku_ingrediente]
+            else:
+                ingrediente['Stock'] = 0
+    return render(request, 'vacunas.html', {"formulas": formulas, "keys": keys, "map_keys": map_keys, "names": names, 'form_fabricar_vacuna': form_fabricar_vacuna})

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css"
+    />
+    <title>Backoffice Vacunas</title>
+    <script>
+      const keys = {{keys|safe}}
+      const formulas = {{formulas|safe}}
+      const map_keys = {{map_keys|safe}}
+      function gengrid() {
+        let element = document.getElementById('base')
+        console.log(element)
+        for (let key of keys) {
+          let newDiv = document.createElement('div')
+          newDiv.setAttribute('class', 'column card')
+          newDiv.setAttribute('style', 'margin: 1rem;')
+          let newP = document.createElement('p')
+          newP.innerText = `Formula ${map_keys[key]}`
+          newP.setAttribute('class', 'title has-text-black')
+          let newTable = document.createElement('table')
+          newTable.innerHTML = `
+              <thead>
+                <tr>
+                  <th><abbr title="SKU Ingrediente">SKU</abbr></th>
+                  <th>Nombre Ingrediente</th>
+                  <th><abbr title="Cantidad">Ctd</abbr></th>
+                  <th><abbr title="Lote produccion">LTE</abbr></th>
+                  <th><abbr title="Cantidad para Lote">C/Lte</abbr></th>
+                  <th><abbr title="Disponible en Stock">Stk</abbr></th>
+                </tr>
+              </thead>
+          `
+          newTable.setAttribute('class', 'table')
+          let newBody = document.createElement('tbody')
+          for (let ingrediente of formulas[key]) {
+            console.log(ingrediente)
+            let newRow = document.createElement('tr')
+            newRow.innerHTML = `
+              <td>${ ingrediente['SKU Ingrediente'] }</td>
+              <td>${ ingrediente['Nombre Ingrediente'] }</td>
+              <td>${ ingrediente['Cantidad'] }</td>
+              <td>${ ingrediente['Lote producción'] }</td>
+              <td>${ ingrediente['Cantidad para lote'] }</td>
+              <td>${ ingrediente['Stock'] }</td>
+            `
+            if (parseInt(ingrediente['Stock']) >= parseInt(ingrediente['Cantidad para lote']))
+              newRow.setAttribute('class', 'is-selected')
+            newBody.appendChild(newRow)
+          }
+          newTable.appendChild(newBody)
+          newDiv.appendChild(newP)
+          newDiv.appendChild(newTable)
+          element.appendChild(newDiv)
+        }
+      }
+      window.onload = function () {
+        gengrid();
+      }
+    </script>
+  </head>
+  <body>
+    <section class="hero is-link is-fullheight">
+      <div class="container">
+        <p class="title" style="margin-top: 1rem">Backoffice Vacunas</p>
+      </div>
+
+      <div class="hero-body">
+        <div class="">
+          <div id="base" class="columns has-text-black"></div>
+          
+        </div>
+      </div>
+      <div class="container has-text-centered">
+        <form action="/vacunas/" method="POST" class="card">
+          <div class="field">
+            {% csrf_token %}
+            {{ form_fabricar_vacuna }}
+          </div>
+          <div class="field">
+            <div class="control">
+              <input type="submit" value="Fabricar Vacuna" class="button is-link">
+            </div>
+          </div>
+      </form>
+      </div>
+    </section>
+  </body>
+</html>

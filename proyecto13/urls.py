@@ -23,4 +23,5 @@ urlpatterns = [
     path('index/', views.index, name='index'),
     path('backoffice/', views.backoffice, name='backoffice'),
     path('logs/', views.logs, name='logs'),
+    path('vacunas/', views.vacunas, name='vacunas')
 ]
