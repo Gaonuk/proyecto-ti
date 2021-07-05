@@ -196,6 +196,8 @@ def manejo_oc(request, id):
     elif request.method == 'PATCH':
         body = json.loads(request.body)
         estado = body["estado"]
+        log_oc = Log(mensaje=f'La OC de ID: {id} fue {estado}')
+        log_oc.save()
         if SentOC.objects.filter(id=id).exists():
             # Momento de recepción en un txt
             with open('registro_oc.txt', 'a') as registro:
