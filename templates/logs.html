@@ -2,6 +2,7 @@
 {% load tz %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,20 +10,22 @@
     <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
     <title>Logs API</title>
 </head>
+
 <body style="text-align:center;margin:0;padding: 0;font-family: 'Roboto', sans-serif;background-color: #E7ECEF;">
     <div style="color: white;background-color: #274C77;">
-    <h1 style="margin:0">Logs API</h1>
-    <h2 style="margin-bottom:0">Almacenes Bodega Grupo 13</h2>
-</div>
-
-    <div style="overflow-y: auto;height: 350px;margin: 5rem 10rem;text-align: left;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);background-color: whitesmoke;">
-    {% for log in logs %} 
-        <div style="border: 1px solid black;grid-auto-rows: dense;">
-        <div style="margin:auto 0;color:blue">{{log.created_at|timezone:"America/Santiago"}}</div>
-        <div style="padding: 0 3rem;margin:auto 0;">{{log.mensaje}}</div>
+        <h1 style="margin:0">Logs API</h1>
+        <h2 style="margin-bottom:0">Almacenes Bodega Grupo 13</h2>
     </div>
-    {% endfor %}
- 
+
+    <div
+        style="overflow-y: auto;height: 500px;margin: 5rem 10rem;text-align: left;box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);background-color: whitesmoke;">
+        {% for log in logs %}
+        <div style="border: 1px solid black;grid-auto-rows: dense;">
+            <div style="margin:auto 0;color:blue">{{log.created_at|timezone:"America/Santiago"}}</div>
+            <div style="padding: 0 3rem;margin:auto 0;">{{log.mensaje}}</div>
+        </div>
+        {% endfor %}
+
 
     </div>
 
@@ -31,4 +34,5 @@
 
 
 </body>
+
 </html>
