@@ -178,7 +178,7 @@ def manejo_oc(request, id):
                 headers = {'Content-type': 'application/json'}
                 requests.patch(url=url, data=params, headers=headers)
             else:
-                rechazar_oc(id, {"rechazo": "Rechazada por azar"})
+                rechazar_oc(id, {"rechazo": ""})
                 params = json.dumps({"estado": "rechazada"})
                 headers = {'Content-type': 'application/json'}
                 requests.patch(url=url, data=params, headers=headers)
