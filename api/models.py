@@ -53,24 +53,24 @@ class SentOC(models.Model):
 #     productos = ArrayField(models.CharField(max_length=256))
 
 class ProductoBodega(models.Model):
-    id = models.CharField(primary_key=True, max_length=22)
-    sku = models.CharField(max_length=10)
-    almacen = models.CharField(max_length=15)
+    id = models.CharField(primary_key=True, max_length=100)
+    sku = models.CharField(max_length=15)
+    almacen = models.CharField(max_length=50)
     fecha_vencimiento = models.DateTimeField()
     # lote = models.ForeignKey(Lote, on_delete=models.CASCADE,)
     oc_reservada = models.TextField(default=None) # Este atributo es el ID de la RecievedOC con la que se reservó el producto.
 
 class Pedido(models.Model):
-    id = models.CharField(primary_key=True, max_length=22)
-    sku = models.CharField(max_length=10)
+    id = models.CharField(primary_key=True, max_length=100)
+    sku = models.CharField(max_length=15)
     cantidad = models.IntegerField()
     fecha_disponible = models.DateTimeField()
     disponbile_para_uso = models.BooleanField(default=True)
 
 class ProductoDespachado(models.Model):
-    id = models.CharField(primary_key=True, max_length=22)
-    sku = models.CharField(max_length=10)
-    cliente = models.CharField(max_length=20)
-    oc_cliente = models.CharField(max_length=25)
+    id = models.CharField(primary_key=True, max_length=100)
+    sku = models.CharField(max_length=15)
+    cliente = models.CharField(max_length=30)
+    oc_cliente = models.CharField(max_length=40)
     precio = models.IntegerField()
 

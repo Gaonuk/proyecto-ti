@@ -6,7 +6,7 @@ import requests
 import os
 import environ
 from pathlib import Path
-from .models import SentOC, RecievedOC
+from .models import SentOC, RecievedOC, Pedido
 from datetime import datetime
 
 #BASE DIRECTORY
@@ -26,6 +26,9 @@ else:
 def parse_js_date(date):
     date_format = date[:-1]
     return datetime.fromisoformat(date_format)
+
+def parse_timestamp_date(date):
+    return datetime.fromtimestamp(date/1000)
 
 
 def anular_oc(id, params:dict):
@@ -70,6 +73,8 @@ def crear_oc(params:dict):
     sent_oc = SentOC(id=oc["_id"], cliente=oc["cliente"], proveedor=oc["proveedor"],sku=oc["sku"],fecha_entrega=parse_js_date(oc["fechaEntrega"]),
     cantidad=oc["cantidad"], cantidad_despachada=oc["cantidadDespachada"], precio_unitario=oc["precioUnitario"], canal=oc["canal"],
     estado=oc["estado"], created_at=parse_js_date(oc["created_at"]), updated_at=parse_js_date(oc["updated_at"]))
+    pedido = Pedido(id = oc["_id"], sku =oc["sku"], cantidad=oc["cantidad"], fecha_disponible=parse_js_date(oc["fechaEntrega"]))
+    pedido.save()
     if "notas" in oc.keys():
         sent_oc.notas = oc["notas"]
     if "rechazo" in oc.keys():

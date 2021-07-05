@@ -1,7 +1,20 @@
 # Create your tasks here
+from api.models import RecievedOC, ProductoBodega
 from .warehouse import despachar_producto, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto
-from .models import Log
+from .models import Log, Pedido, ProductoBodega
 import time
+
+from .OC import parse_js_date
+import os
+from .arrays_clients_ids_oc import IDS_DEV, IDS_PROD
+from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
+
+if os.environ.get('DJANGO_DEVELOPMENT'):
+    ids_grupos = IDS_DEV
+    ids_recepcion = RECEPCIONES_DEV
+else:
+    ids_grupos = IDS_PROD
+    ids_recepcion = RECEPCIONES_PROD
 
 def mover_recepcion_a_alm_central():
     almacen_recepcion= None
@@ -13,7 +26,7 @@ def mover_recepcion_a_alm_central():
         if almacen['recepcion']:
             almacen_recepcion = almacen
         elif almacen['pulmon']:
-            almancen_pulmon = almacen
+            almacen_pulmon = almacen
         elif almacen['despacho']:
             almacen_despacho = almacen
         else:
@@ -33,6 +46,26 @@ def mover_recepcion_a_alm_central():
                         {"almacenId": almacen_recepcion['_id'], "sku": sku["_id"]}).json()
                     for producto_almacen in productos_almacen_recepcion:
                         IDs_por_sku_alm_recepcion[sku['_id']].append(producto_almacen['_id'])
+                        ############### Instancia productoBodega
+                        ###Chequear antes si ya existe por caso que no pueda moverlo al primer intento y ya se haya creado
+                        if ProductoBodega.objects.filter(id=producto_almacen['_id']).exists():
+                            pass   ## listos
+                        else:  ### Bajar cantidad en pedido, borrar si llega a 0, crear productoBodega
+                            pedido = Pedido.objects.filter(sku=sku["_id"]).order_by('fecha_disponible').first()
+                            id_pedido = pedido.id
+                            if pedido.cantidad == 1:
+                                pedido.delete()
+                                log_pedido = Log(mensaje=f"Se borró el pedido {id_pedido}")
+                                log_pedido.save()
+                            else:
+                                pedido.cantidad -= 1
+                            producto_bodega = ProductoBodega(id = producto_almacen['_id'], sku=producto_almacen["sku"], almacen=almacen_recepcion['_id'],\
+                                fecha_vencimiento=parse_js_date(producto_almacen["vencimiento"]))
+                            log_producto = Log(mensaje=f"Llegó un producto del pedido {id_pedido} y se creó en bodega con id {producto_almacen['_id']}")
+                            log_producto.save()
+                            producto_bodega.save()
+                            pedido.save()
+                        #################
                 for SKU in IDs_por_sku_alm_recepcion:
                     print(f'Moviendo productos de SKU {SKU}')
                     contador=0
@@ -85,6 +118,27 @@ def mover_pulmon_a_alm_recepcion():
                         {"almacenId": almancen_pulmon['_id'], "sku": sku["_id"]}).json()
                     for producto_almacen in productos_almacen_pulmon:
                         IDs_por_sku_alm_pulmon[sku['_id']].append(producto_almacen['_id'])
+                        ############### Instancia productoBodega
+                        ###Chequear antes si ya existe por caso que no pueda moverlo al primer intento y se haya creado
+                        if ProductoBodega.objects.filter(id=producto_almacen['_id']).exists():
+                            pass   ## listos
+                        else:  ### Bajar cantidad en pedido, borrar si llega a 0, crear productoBodega
+                            pedido = Pedido.objects.filter(sku=sku["_id"]).order_by('fecha_disponible').first()
+                            id_pedido = pedido.id
+                            if pedido.cantidad == 1:
+                                pedido.delete()
+                                log_pedido = Log(mensaje=f"Se borró el pedido {id_pedido}")
+                                log_pedido.save()
+                            else:
+                                pedido.cantidad -= 1
+                            producto_bodega = ProductoBodega(id = producto_almacen['_id'], sku=producto_almacen["sku"], almacen=almancen_pulmon['_id'],\
+                                fecha_vencimiento=parse_js_date(producto_almacen["vencimiento"]))
+                            producto_bodega.save()
+                            pedido.save()
+                            log_producto = Log(mensaje=f"Llegó un producto del pedido {id_pedido} y se creó en bodega con id {producto_almacen['_id']}")
+                            log_producto.save()
+                        #################
+                        
                 for SKU in IDs_por_sku_alm_pulmon:
                     print(f'Moviendo productos de SKU {SKU}')
                     contador=0
@@ -103,7 +157,91 @@ def mover_pulmon_a_alm_recepcion():
                 log_2.save()
         else:
             print('No hay productos para mover desde el almacén de recepción')
-
     except Exception as err:
         log_3 = Log(mensaje=err)
         log_3.save()
+
+def revision_oc():
+    not_completed_oc = RecievedOC.objects.filter(estado="aceptada")
+    for orden in not_completed_oc:
+        print(f"Actualizando OC de id {orden.id}")
+        orden.cantidad_despachada = ProductoBodega.objects.filter(oc_reservada=orden.id).count()
+        orden.save()
+        sku = orden.sku
+        cantidad = orden.cantidad - orden.cantidad_despachada
+        if cantidad > 0:
+            productos_disponibles = ProductoBodega.objects.filter(sku=sku, oc_reservada=None)
+            cantidad_disponible = productos_disponibles.count()
+            if cantidad_disponible <= cantidad:
+                for producto in productos_disponibles:
+                    producto.oc_reservada = orden.id
+                    producto.save()
+                    print(f"Asignando producto de id {producto.id} a OC de id {orden.id}")
+                orden.cantidad_despachada = ProductoBodega.objects.filter(oc_reservada=orden.id).count()
+            else:
+                contador = 0
+                for producto in productos_disponibles:
+                    producto.oc_reservada = orden.id
+                    producto.save()
+                    print(f"Asignando producto de id {producto.id} a OC de id {orden.id}")
+                    contador += 1
+                    if contador == cantidad:
+                        break
+        if orden.cantidad_despachada >= orden.cantidad:
+            orden.estado = "finalizada"
+        orden.save()
+        print(f"OC de id {orden.id} actualizada")
+
+def mover_despacho():
+    almacenes = obtener_almacenes().json()
+    for almacen in almacenes:
+        if almacen['recepcion']:
+            almacen_recepcion = almacen
+        elif almacen['pulmon']:
+            almacen_pulmon = almacen
+        elif almacen['despacho']:
+            almacen_despacho = almacen
+        else:
+            almacen_central = almacen
+    ids_almacen = [almacen_recepcion['_id'], almacen_central['_id'], almacen_pulmon['_id']]
+    productos_despacho = ProductoBodega.objects.filter(oc_reservada__isnull=False, almacen__in=ids_almacen)
+    for producto in productos_despacho:
+        if producto.almacen != almacen_pulmon['_id']:
+            try:
+                mover_entre_almacenes({'productoId': producto.id, "almacenId": almacen_despacho['_id']})
+                print(f'Se han movido 1 producto del SKU {producto.sku} al almacén desapcho\n')
+                time.sleep(1)
+            except:
+                print(f'Alamacen Despacho se encuentra lleno')
+        else:
+            try:
+                mover_entre_almacenes({'productoId': producto.id, "almacenId": almacen_recepcion['_id']})
+                print(f'Se han movido 1 producto del SKU {producto.sku} al almacén recepción\n')
+                time.sleep(1)
+                try:
+                    mover_entre_almacenes({'productoId': producto.id, "almacenId": almacen_despacho['_id']})
+                    print(f'Se han movido 1 producto del SKU {producto.sku} al almacén desapcho\n')
+                    time.sleep(1)
+                except:
+                    print(f'Alamacen Despacho se encuentra lleno')
+            except:
+                print(f'Alamcen Recepción se encuentra lleno')
+
+
+def despachar():
+    almacenes = obtener_almacenes().json()
+    for almacen in almacenes:
+        if almacen['despacho']:
+            almacen_despacho = almacen
+    productos_para_despachar = ProductoBodega.objects.filter(oc_reservada__isnull=False, almacen__in=almacen_despacho['_id'])
+    for producto in productos_para_despachar:
+        oc = producto.oc_reservada
+        oc_object = RecievedOC.objects.filter(id=oc)
+        posicion = ids_grupos.index(oc.cliente)
+        almacen_id = ids_recepcion[posicion]
+        respuesta = mover_entre_bodegas({'productoId': producto.id, 'almacenId': almacen_id, 'oc': oc, 'precio': oc_object.precio_unitario}).json()
+        try:
+            print(respuesta["error"])
+        except:
+            print(f"El producto de id {producto.id} fue despachado al almacen {almacen_id}")
+        time.sleep(1)

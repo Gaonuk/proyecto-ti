@@ -18,7 +18,7 @@ for index, row in df_productos.iterrows():
             row['Lote producción'], 'Tiempo esperado producción (mins)': row['Tiempo esperado producción (mins)'],\
                 'Grupos Productores': [row['Grupos Productores']]}
 print(productos['100'], '\n', productos['10001'])
-print("#############################")
+print("#############################", productos.keys())
 
 ####### Sheet 2: Fórmulas producción
 formula  = {}

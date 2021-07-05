@@ -3,7 +3,7 @@ Id's para envíos entre grupos,Unnamed: 1,Unnamed: 2,Unnamed: 3,Unnamed: 4,Unnam
 DESARROLLO,,,,PRODUCCIÓN,,,,
 Grupo,Id Grupo (para OC's),Id almacén Recepción,,Grupo,Id Grupo (para OC's),Id almacén Recepción,URL obtener stock,URL recibir OC
 1,60bd2a763f1b6100049f1447,60bd3477f955380004eda9f4,,1,60caa3af31df040004e88de4,60ccc5559092f7000423929a,http://aysen1.ing.puc.cl/stocks,http://aysen1.ing.puc.cl/ordenes-compra/{ID}
-2,60bd2a763f1b6100049f1448,60bd3477f955380004eda9f8,,2,60caa3af31df040004e88de5,60ccc5559092f7000423929e,http://aysen2.ing.puc.cl/storage/stocks,https://aysen2.ing.puc.cl/storage/ordenes-compra/{ID}
+2,60bd2a763f1b6100049f1448,60bd3477f955380004eda9f8,,2,60caa3af31df040004e88de5,60ccc5559092f7000423929e,http://aysen2.ing.puc.cl/storage/stocks,http://aysen2.ing.puc.cl/storage/ordenes-compra/{ID}
 3,60bd2a763f1b6100049f1449,60bd3477f955380004eda9fc,,3,60caa3af31df040004e88de6,60ccc5559092f700042392a2,http://aysen3.ing.puc.cl/api/stocks,http://aysen3.ing.puc.cl/api/ordenes-compra/{ID}
 4,60bd2a763f1b6100049f144a,60bd3477f955380004edaa00,,4,60caa3af31df040004e88de7,60ccc5559092f700042392a6,http://aysen4.ing.puc.cl/stocks,http://aysen4.ing.puc.cl/ordenes-compra/{ID}
 5,60bd2a763f1b6100049f144b,60bd3477f955380004edaa04,,5,60caa3af31df040004e88de8,60ccc5559092f700042392aa,http://aysen5.ing.puc.cl/stocks,http://aysen5.ing.puc.cl/ordenes-compra/{ID}
@@ -15,7 +15,7 @@ Grupo,Id Grupo (para OC's),Id almacén Recepción,,Grupo,Id Grupo (para OC's),Id
 11,60bd2a763f1b6100049f1451,60bd3477f955380004edaa1c,,11,60caa3af31df040004e88dee,60ccc5559092f700042392c2,http://aysen11.ing.puc.cl/stocks,http://aysen11.ing.puc.cl/ordenes-compra/{ID}
 12,60bd2a763f1b6100049f1452,60bd3477f955380004edaa20,,12,60caa3af31df040004e88def,60ccc5559092f700042392c6,http://aysen12.ing.puc.cl/stocks,http://aysen12.ing.puc.cl/ordenes-compra/{ID}
 13,60bd2a763f1b6100049f1453,60bd3477f955380004edaa24,,13,60caa3af31df040004e88df0,60ccc5559092f700042392ca,http://aysen13.ing.puc.cl/stocks,http://aysen13.ing.puc.cl/ordenes-compra/{ID}
-14,60bd2a763f1b6100049f1454,60bd3477f955380004edaa28,,14,60caa3af31df040004e88df1,60ccc5559092f700042392ce,https://iic3103-g14.herokuapp.com/stocks/,https://iic3103-g14.herokuapp.com/ordenes-compra/{ID}
+14,60bd2a763f1b6100049f1454,60bd3477f955380004edaa28,,14,60caa3af31df040004e88df1,60ccc5559092f700042392ce,http://aysen14.ing.puc.cl/stocks/,http://aysen14.ing.puc.cl/ordenes-compra/{ID}
 15,60bd2a763f1b6100049f1455,60bd3477f955380004edaa2c,,15,60caa3af31df040004e88df2,60ccc5559092f700042392d2,aysen15.ing.puc.cl/stocks,http://aysen15.ing.puc.cl/ordenes-compra/{ID}
 16,60bd2a763f1b6100049f1456,60bd3477f955380004edaa30,,16,60caa3af31df040004e88df3,60ccc5559092f700042392d6,http://aysen16.ing.puc.cl/stock,http://aysen16.ing.puc.cl/recepcionar/{ID}
 17,60bd2a763f1b6100049f1457,60bd3477f955380004edaa34,,17,60caa3af31df040004e88df4,60ccc5559092f700042392da,http://aysen17.ing.puc.cl/stocks,http://aysen17.ing.puc.cl/ordenes-compra/{ID}
