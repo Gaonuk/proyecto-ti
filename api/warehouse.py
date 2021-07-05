@@ -158,7 +158,7 @@ def fabricar_producto(params:dict):
     # params contiene sku, cantidad
     print(params)
     sku = params["sku"]
-    cantidad = params["cantidad"]
+    cantidad = int(params["cantidad"])
     lote = SKU_LOTE[sku]
     if cantidad <= lote:
         params["cantidad"] = lote
