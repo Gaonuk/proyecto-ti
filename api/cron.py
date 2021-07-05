@@ -183,12 +183,16 @@ def revision_oc():
                     producto.oc_reservada = orden.id
                     producto.save()
                     print(f"Asignando producto de id {producto.id} a OC de id {orden.id}")
+                    log = Log(mensaje=f"Asignando producto de id {producto.id} a OC de id {orden.id}")
+                    log.save()
                 orden.cantidad_despachada = ProductoBodega.objects.filter(oc_reservada=orden.id).count()
             else:
                 contador = 0
                 for producto in productos_disponibles:
                     producto.oc_reservada = orden.id
                     producto.save()
+                    log = Log(mensaje=f"Asignando producto de id {producto.id} a OC de id {orden.id}")
+                    log.save()
                     print(f"Asignando producto de id {producto.id} a OC de id {orden.id}")
                     contador += 1
                     if contador == cantidad:
@@ -210,12 +214,14 @@ def mover_despacho():
         else:
             almacen_central = almacen
     ids_almacen = [almacen_recepcion['_id'], almacen_central['_id'], almacen_pulmon['_id']]
-    productos_despacho = ProductoBodega.objects.filter(oc_reservada__isnull=False, almacen__in=ids_almacen)
+    productos_despacho = ProductoBodega.objects.filter(almacen__in=ids_almacen).exclude(oc_reservada='')
     for producto in productos_despacho:
         if producto.almacen != almacen_pulmon['_id']:
             try:
                 mover_entre_almacenes({'productoId': producto.id, "almacenId": almacen_despacho['_id']})
                 print(f'Se han movido 1 producto del SKU {producto.sku} al almacén desapcho\n')
+                log = Log(mensaje=f'Se han movido 1 producto del SKU {producto.sku} al almacén desapcho\n')
+                log.save()
                 time.sleep(1)
             except:
                 print(f'Alamacen Despacho se encuentra lleno')
@@ -223,10 +229,14 @@ def mover_despacho():
             try:
                 mover_entre_almacenes({'productoId': producto.id, "almacenId": almacen_recepcion['_id']})
                 print(f'Se han movido 1 producto del SKU {producto.sku} al almacén recepción\n')
+                log = Log(mensaje=f'Se han movido 1 producto del SKU {producto.sku} al almacén recepción\n')
+                log.save()
                 time.sleep(1)
                 try:
                     mover_entre_almacenes({'productoId': producto.id, "almacenId": almacen_despacho['_id']})
                     print(f'Se han movido 1 producto del SKU {producto.sku} al almacén desapcho\n')
+                    log = Log(mensaje=f'Se han movido 1 producto del SKU {producto.sku} al almacén desapcho\n')
+                    log.save()
                     time.sleep(1)
                 except:
                     print(f'Alamacen Despacho se encuentra lleno')
@@ -239,7 +249,7 @@ def despachar():
     for almacen in almacenes:
         if almacen['despacho']:
             almacen_despacho = almacen
-    productos_para_despachar = ProductoBodega.objects.filter(oc_reservada__isnull=False, almacen__in=almacen_despacho['_id'])
+    productos_para_despachar = ProductoBodega.objects.filter(almacen__in=ids_almacen).exclude(oc_reservada='')
     for producto in productos_para_despachar:
         oc = producto.oc_reservada
         oc_object = RecievedOC.objects.filter(id=oc)
@@ -248,6 +258,10 @@ def despachar():
         respuesta = mover_entre_bodegas({'productoId': producto.id, 'almacenId': almacen_id, 'oc': oc, 'precio': oc_object.precio_unitario}).json()
         try:
             print(respuesta["error"])
+            log = Log(mensaje=respuesta["error"])
+            log.save()
         except:
             print(f"El producto de id {producto.id} fue despachado al almacen {almacen_id}")
+            log = Log(mensaje=f"El producto de id {producto.id} fue despachado al almacen {almacen_id}")
+            log.save()
         time.sleep(1)
