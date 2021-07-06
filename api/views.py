@@ -328,7 +328,7 @@ def index(request):
             vacunas_fabricadas['Sinovac'] += 1
         if int(p.sku) == 10005:
             vacunas_fabricadas['Moderna'] += 1
-        grupo = ids_oc.index(p.cliente) + 1
+        grupo = ALMACENES_RECEPCION_EXT.index(p.cliente) + 1
         if grupo in productos_grupo and p.sku in productos_sku:
             productos_grupo[grupo] += 1
             productos_sku[p.sku] += 1

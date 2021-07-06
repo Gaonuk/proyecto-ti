@@ -301,11 +301,12 @@ def fabricar_vacuna(params:dict):
                         break
                     elif almacen_prod_id[id] != almacen_despacho['_id']:
                         mover_entre_almacenes({ "productoId": id, "almacenId": almacen_despacho['_id']})
-                        time.sleep(1)
+                        time.sleep(2)
                         count += 1
                     else:
                         count += 1
-                        
+
+            time.sleep(3)     
             fabricar_producto({"sku": vacuna_sku, "cantidad": lote_sku[vacuna_sku]})
             log_success = Log(mensaje=f'Se ha mandado a fabricar exitosamente un lote de vacunas {names[vacuna_sku]}')
             log_success.save()
