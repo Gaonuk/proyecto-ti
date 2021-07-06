@@ -157,7 +157,8 @@ def recepcionar_oc(id):
     }
     response = requests.post(
         f'{api_url}/recepcionar/{id}',
-        headers=headers
+        headers=headers,
+        json={}
     )
     oc = RecievedOC.objects.get(id=id)
     oc.estado = "aceptada"
