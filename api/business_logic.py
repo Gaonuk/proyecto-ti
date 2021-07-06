@@ -25,15 +25,16 @@ def stock_no_reservado(sku, fecha_vencimiento, margen_tiempo=5):
         sku=str(sku),
         oc_reservada='',
     )  
-    stock_valido = []
-    for producto in all_stock:
-        fecha_producto_venc = utc.normalize(producto.fecha_vencimiento).astimezone(utc)
-        # fecha_producto_venc.replace(tzinfo=utc)
-        fecha_venc = utc.localize(fecha_vencimiento).astimezone(utc)
-        # fecha_venc.replace(tzinfo=utc)
-        if fecha_producto_venc + timedelta(minutes=margen_tiempo) < fecha_venc:
-            stock_valido.append(producto)
-    return stock_valido
+    # stock_valido = []
+    # for producto in all_stock:
+    #     fecha_producto_venc = utc.normalize(producto.fecha_vencimiento).astimezone(utc)
+    #     # fecha_producto_venc.replace(tzinfo=utc)
+    #     fecha_venc = utc.localize(fecha_vencimiento).astimezone(utc)
+    #     # fecha_venc.replace(tzinfo=utc)
+    #     if fecha_producto_venc + timedelta(minutes=margen_tiempo) < fecha_venc:
+    #         stock_valido.append(producto)
+    # return stock_valido
+    return all_stock
 
 def pedidos_no_reservados(sku, fecha_entrega, margen_tiempo=5):
     # print("A--------------------------------")
@@ -41,19 +42,20 @@ def pedidos_no_reservados(sku, fecha_entrega, margen_tiempo=5):
             sku=str(sku),
             disponible_para_uso=True
         )
-    # print("B--------------------------------")
-    pedidos_validos = []
-    for producto in pedidos:
-        # print("C--------------------------------")
-        fecha_disp = utc.normalize(producto.fecha_disponible).astimezone(utc)
-        # fecha_disp.replace(tzinfo=utc)
-        fecha_entr = utc.normalize(fecha_entrega).astimezone(utc)
-        # fecha_entr.replace(tzinfo=utc)
-        if fecha_disp + timedelta(minutes=margen_tiempo) < fecha_entr:
-            # print("D--------------------------------")
-            pedidos_validos.append(producto)
-        # print("E--------------------------------")
-    return pedidos_validos
+    # # print("B--------------------------------")
+    # pedidos_validos = []
+    # for producto in pedidos:
+    #     # print("C--------------------------------")
+    #     fecha_disp = utc.normalize(producto.fecha_disponible).astimezone(utc)
+    #     # fecha_disp.replace(tzinfo=utc)
+    #     fecha_entr = utc.normalize(fecha_entrega).astimezone(utc)
+    #     # fecha_entr.replace(tzinfo=utc)
+    #     if fecha_disp + timedelta(minutes=margen_tiempo) < fecha_entr:
+    #         # print("D--------------------------------")
+    #         pedidos_validos.append(producto)
+    #     # print("E--------------------------------")
+    # return pedidos_validos
+    return pedidos
 
 
 # Factibilidad
@@ -103,6 +105,19 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 # print(f'Usando stock disponible de SKU {sku}, se reservaron {reservados} de un total de {cantidad_solicitada} para OC {oc_id}.')
                 log_stock_alcanza = Log(mensaje=f'Factibilidad {oc_id}: Usando stock disponible de SKU {sku}, se reservaron {reservados} de un total de {cantidad_solicitada} para OC {oc_id}.')
                 log_stock_alcanza.save()
+
+                body_fabricar = {
+                        'sku': str(sku),
+                        'cantidad': reservados
+                    }
+                response = fabricar_producto(body_fabricar).json()
+                pedido = Pedido.objects.get(pk=response['_id'])
+                pedido.disponible_para_uso = True
+                pedido.save()
+
+                log = Log(mensaje= f'Factibilidad {oc_id}: Se enviaron a fabricar {reservados} SKU {sku}.')
+                log.save()
+
                 return True 
             elif cantidad_solicitada <= num_productos_pedidos + num_productos_stock:
                 # Hay que reservar los productos con la OC correspondiente.
@@ -132,22 +147,37 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 # print(f'En total se reservaron {pedidos_reservados + reservados} de un total de {cantidad_solicitada} de SKU {sku}.')
                 log_reservas = Log(mensaje= f'Factibilidad {oc_id}: En total se reservaron {pedidos_reservados + reservados} de un total de {cantidad_solicitada} de SKU {sku}.')
                 log_reservas.save()
+
+                body_fabricar = {
+                        'sku': str(sku),
+                        'cantidad': pedidos_reservados + reservados
+                    }
+                response = fabricar_producto(body_fabricar).json()
+                pedido = Pedido.objects.get(pk=response['_id'])
+                pedido.disponible_para_uso = True
+                pedido.save()
+                
+                log = Log(mensaje= f'Factibilidad {oc_id}: Se enviaron a fabricar {pedidos_reservados + reservados} SKU {sku}.')
+                log.save()
+
                 return True
 
             elif cantidad_solicitada > total_productos:
                 # Evalúo si alcanzo a producir lo que me falta
                 tiempo_prod = TIEMPOS_PRODUCCION_PROPIOS[str(sku)]
                 delta = 10
-                fecha_ent = utc.normalize(fecha_entrega).astimezone(utc)
-                # fecha_ent.replace(tzinfo=utc)
-                fecha_ahora = utc.normalize(datetime.now()).astimezone(utc)
-                # fecha_ahora.replace(tzinfo=utc)
-                if fecha_ent < fecha_ahora + timedelta(minutes=tiempo_prod + delta):
+                # fecha_ent = utc.normalize(fecha_entrega).astimezone(utc)
+                # # fecha_ent.replace(tzinfo=utc)
+                # fecha_ahora = utc.normalize(datetime.now()).astimezone(utc)
+                # # fecha_ahora.replace(tzinfo=utc)
+
+                # Este IF nunca ocurrirá
+                if fecha_ent < fecha_ahora + timedelta(minutes=tiempo_prod + delta) and False:
                     print(f'No alcanzo a entregar en esa fecha.')
                     log_rechazo = Log(mensaje=f'Factibilidad {oc_id}: No alcanzo a entregar en esa fecha. Rechazando OC {oc_id}')
                     log_rechazo.save()
                     return False
-                else:
+                elif True:
                     # Hay que reservar los productos con la OC correspondiente.
                     reservados = 0
                     for producto in stock_disponible:
@@ -179,16 +209,15 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                     
                     body_fabricar = {
                         'sku': str(sku),
-                        'cantidad': productos_a_pedir
+                        'cantidad': cantidad_solicitada
                     }
-                    print("ADAASAAS")
                     response = fabricar_producto(body_fabricar).json()
-                    print("JDISJIDSJIDS")
                     pedido = Pedido.objects.get(pk=response['_id'])
-                    print("DMSJDMSJDS")
                     pedido.disponible_para_uso = False
                     pedido.save()
 
+                    log = Log(mensaje= f'Factibilidad {oc_id}: Se enviaron a fabricar {cantidad_solicitada} SKU {sku}.')
+                    log.save()
 
                     return True
 
