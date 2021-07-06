@@ -123,7 +123,7 @@ def mover_entre_bodegas(params:dict):
     producto_bodega  = ProductoBodega.objects.get(id=params["productoId"]) 
     sku_prod = producto_bodega.sku
     producto_bodega.delete()
-    producto_despachado = ProductoDespachado(id = params["productoId"], sku = sku_prod, cliente = params["almacenId_externo"], oc_cliente = params["oc"], precio = params["precio"] )
+    producto_despachado = ProductoDespachado(id = params["productoId"], sku = sku_prod, cliente = params["almacenId"], oc_cliente = params["oc"], precio = params["precio"] )
     producto_despachado.save()
     return response
 
