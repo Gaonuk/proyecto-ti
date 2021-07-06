@@ -168,10 +168,10 @@ def manejo_oc(request, id):
             else:
                 url = orden_de_compra["urlNotificacion"]
 
-            oc_es_factible = factibildad(
-                oc.sku, oc.cantidad, oc.fecha_entrega, oc.id)
+            # oc_es_factible = factibildad(
+            #     oc.sku, oc.cantidad, oc.fecha_entrega, oc.id)
 
-            if uniform(0, 1) < 0.05 and oc_es_factible:
+            if False:
             # if oc_es_factible and False:
                 recepcionar_oc(id)
                 params = json.dumps({"estado": "aceptada"})
