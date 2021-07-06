@@ -1,6 +1,7 @@
 from .models import Pedido, ProductoBodega, ProductoDespachado, Log
 from datetime import datetime, timedelta
 from .warehouse import fabricar_producto
+import pytz
 
 SKU_VACUNAS = ['10001','10002','10005']
 
@@ -17,6 +18,7 @@ TIEMPOS_PRODUCCION_PROPIOS = {
     '10005': 40,
 }
 
+utc = pytz.UTC
 
 def stock_no_reservado(sku, fecha_vencimiento, margen_tiempo=5):
     all_stock = ProductoBodega.objects.filter(
@@ -25,24 +27,24 @@ def stock_no_reservado(sku, fecha_vencimiento, margen_tiempo=5):
     )  
     stock_valido = []
     for producto in all_stock:
-        if producto.fecha_vencimiento + timedelta(minutes=margen_tiempo) < fecha_vencimiento:
+        if utc.localize(producto.fecha_vencimiento) + timedelta(minutes=margen_tiempo) < utc.localize(fecha_vencimiento):
             stock_valido.append(producto)
     return stock_valido
 
 def pedidos_no_reservados(sku, fecha_entrega, margen_tiempo=5):
-    print("A--------------------------------")
+    # print("A--------------------------------")
     pedidos = Pedido.objects.filter(
             sku=str(sku),
             disponible_para_uso=True
         )
-    print("B--------------------------------")
+    # print("B--------------------------------")
     pedidos_validos = []
     for producto in pedidos:
-        print("C--------------------------------")
-        if producto.fecha_disponible + timedelta(minutes=margen_tiempo) < fecha_entrega:
-            print("D--------------------------------")
+        # print("C--------------------------------")
+        if utc.localize(producto.fecha_disponible) + timedelta(minutes=margen_tiempo) < utc.localize(fecha_entrega):
+            # print("D--------------------------------")
             pedidos_validos.append(producto)
-        print("E--------------------------------")
+        # print("E--------------------------------")
     return pedidos_validos
 
 
@@ -58,24 +60,24 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
     log_inicio.save()
     try: 
         if sku not in TIEMPOS_PRODUCCION_PROPIOS.keys():
-            print("3--------------------------------")
+            # print("3--------------------------------")
             return False
-        print("2--------------------------------")
+        # print("2--------------------------------")
         pedidos = pedidos_no_reservados(sku, fecha_entrega, 15)
-        print("1--------------------------------")
+        # print("1--------------------------------")
         num_productos_pedidos = 0
-        print("4--------------------------------")
+        # print("4--------------------------------")
         for pedido in pedidos:
-            print("5--------------------------------")
+            # print("5--------------------------------")
             num_productos_pedidos += pedido.cantidad
-        print("6--------------------------------")
+        # print("6--------------------------------")
         stock_disponible = stock_no_reservado(sku, fecha_entrega, 10)
-        print("7--------------------------------")
+        # print("7--------------------------------")
         num_productos_stock = len(stock_disponible)
-        print("8--------------------------------")
+        # print("8--------------------------------")
         if sku not in SKU_VACUNAS:
             # Es un producto normal
-            print("9--------------------------------")
+            # print("9--------------------------------")
             total_productos = num_productos_pedidos + num_productos_stock
             
             #print(f'Cantidad en almacenes: {num_productos_stock}\nCantidad en camino: {num_productos_pedidos}\nTotal: {total_productos}')
@@ -128,7 +130,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 # Evalúo si alcanzo a producir lo que me falta
                 tiempo_prod = TIEMPOS_PRODUCCION_PROPIOS[str(sku)]
                 delta = 10
-                if fecha_entrega < datetime.now() + timedelta(minutes=tiempo_prod + delta):
+                if utc.localize(fecha_entrega) < utc.localize(datetime.now())+ timedelta(minutes=tiempo_prod + delta):
                     print(f'No alcanzo a entregar en esa fecha.')
                     log_rechazo = Log(mensaje=f'Factibilidad {oc_id}: No alcanzo a entregar en esa fecha. Rechazando OC {oc_id}')
                     log_rechazo.save()
