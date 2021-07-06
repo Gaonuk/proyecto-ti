@@ -497,14 +497,9 @@ def backoffice(request):
                     messages.warning(request, '¡Este SKU NO existe!')
                     post_valido = False
                 if post_valido:
-                    if notas != "":
-                        response = crear_oc({"cliente": cliente, "proveedor": proveedor, "sku": SKU, "fechaEntrega": int(
-                            miliseconds.total_seconds() * 1000), "cantidad": cantidad, "precioUnitario": precio, "canal": canal, "notas": notas})
-                        data = response.json()
-                        messages.info(request, f"{data}")
                     if urlNotificacion != "":
                         response = crear_oc({"cliente": cliente, "proveedor": proveedor, "sku": SKU, "fechaEntrega": int(miliseconds.total_seconds(
-                        ) * 1000), "cantidad": cantidad, "precioUnitario": precio, "canal": canal, "urlNotificacion": urlNotificacion})
+                        ) * 1000), "cantidad": cantidad, "precioUnitario": precio, "canal": canal, "urlNotificacion": urlNotificacion, "notas": notas})
                         data = response.json()
                         messages.info(request, f"{data}")
                     else:
