@@ -27,10 +27,10 @@ def stock_no_reservado(sku, fecha_vencimiento, margen_tiempo=5):
     )  
     stock_valido = []
     for producto in all_stock:
-        fecha_producto_venc = utc.localize(producto.fecha_vencimiento)
-        fecha_producto_venc.replace(tzinfo=utc)
-        fecha_venc = utc.localize(fecha_vencimiento)
-        fecha_venc.replace(tzinfo=utc)
+        fecha_producto_venc = utc.normalize(producto.fecha_vencimiento).astimezone(utc)
+        # fecha_producto_venc.replace(tzinfo=utc)
+        fecha_venc = utc.localize(fecha_vencimiento).astimezone(utc)
+        # fecha_venc.replace(tzinfo=utc)
         if fecha_producto_venc + timedelta(minutes=margen_tiempo) < fecha_venc:
             stock_valido.append(producto)
     return stock_valido
@@ -45,10 +45,10 @@ def pedidos_no_reservados(sku, fecha_entrega, margen_tiempo=5):
     pedidos_validos = []
     for producto in pedidos:
         # print("C--------------------------------")
-        fecha_disp = utc.localize(producto.fecha_disponible)
-        fecha_disp.replace(tzinfo=utc)
-        fecha_entr = utc.localize(fecha_entrega)
-        fecha_entr.replace(tzinfo=utc)
+        fecha_disp = utc.normalize(producto.fecha_disponible).astimezone(utc)
+        # fecha_disp.replace(tzinfo=utc)
+        fecha_entr = utc.normalize(fecha_entrega).astimezone(utc)
+        # fecha_entr.replace(tzinfo=utc)
         if fecha_disp + timedelta(minutes=margen_tiempo) < fecha_entr:
             # print("D--------------------------------")
             pedidos_validos.append(producto)
@@ -138,10 +138,10 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 # Evalúo si alcanzo a producir lo que me falta
                 tiempo_prod = TIEMPOS_PRODUCCION_PROPIOS[str(sku)]
                 delta = 10
-                fecha_ent = utc.localize(fecha_entrega) 
-                fecha_ent.replace(tzinfo=utc)
-                fecha_ahora = utc.localize(datetime.now())
-                fecha_ahora.replace(tzinfo=utc)
+                fecha_ent = utc.normalize(fecha_entrega).astimezone(utc)
+                # fecha_ent.replace(tzinfo=utc)
+                fecha_ahora = utc.normalize(datetime.now()).astimezone(utc)
+                # fecha_ahora.replace(tzinfo=utc)
                 if fecha_ent < fecha_ahora + timedelta(minutes=tiempo_prod + delta):
                     print(f'No alcanzo a entregar en esa fecha.')
                     log_rechazo = Log(mensaje=f'Factibilidad {oc_id}: No alcanzo a entregar en esa fecha. Rechazando OC {oc_id}')
