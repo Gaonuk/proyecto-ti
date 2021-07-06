@@ -15,7 +15,7 @@ from django.contrib import messages
 
 from .OC import obtener_oc, recepcionar_oc, rechazar_oc, parse_js_date, crear_oc
 from .models import ProductoBodega, RecievedOC, SentOC, Log, ProductoDespachado
-from random import randint
+from random import randint, random, uniform
 import requests
 import json
 
@@ -171,21 +171,21 @@ def manejo_oc(request, id):
             oc_es_factible = factibildad(
                 oc.sku, oc.cantidad, oc.fecha_entrega, oc.id)
 
-            # if randint(0, 1) == 1:
-            if oc_es_factible:
+            if uniform(0, 1) < 0.05 and oc_es_factible:
+            # if oc_es_factible and False:
                 recepcionar_oc(id)
                 params = json.dumps({"estado": "aceptada"})
                 headers = {'Content-type': 'application/json'}
                 requests.patch(url=url, data=params, headers=headers)
                 
-                log_aceptacion = Log(f'Manejo OC {oc_id}: Es factible y fue aceptada')
+                log_aceptacion = Log(f'Manejo OC {id}: Fue aceptada dentro del 5% de probabilidad')
                 log_aceptacion.save()
             else:
                 rechazar_oc(id, {"rechazo": ""})
                 params = json.dumps({"estado": "rechazada"})
                 headers = {'Content-type': 'application/json'}
                 requests.patch(url=url, data=params, headers=headers)
-                log_rechazo = Log(f'Manejo OC {oc_id}: No es factible y fue rechazada')
+                log_rechazo = Log(f'Manejo OC {id}: Fue rechazada por nosotros')
                 log_rechazo.save()
             response = {"id": id,
                         "cliente": body["cliente"],
