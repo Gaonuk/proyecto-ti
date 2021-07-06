@@ -193,6 +193,8 @@ def fabricar_producto(params:dict):
     )
     fabricar = response.json()
     print(fabricar)
+    log_pedido = Log(mensaje=f'Tu pedido de {fabricar["cantidad"]} unidades del sku {fabricar["sku"]} estaran disponibles el {fabricar["disponible"]}')
+    log_pedido.save()
     pedido = Pedido(id = fabricar["_id"], sku=str(fabricar["sku"]), cantidad=params["cantidad"], \
         fecha_disponible=parse_js_date(fabricar["disponible"]))
     print("----------------------")
@@ -233,7 +235,7 @@ def fabricar_vacuna(params:dict):
             '129': 4
         }
     }
-    productos_almacen = ProductoBodega.objects.exclude(oc_reservada='')
+    productos_almacen = ProductoBodega.objects.filter(oc_reservada='')
     productos = {}
     ids_sku = {}
     almacenes = obtener_almacenes().json()
@@ -247,7 +249,9 @@ def fabricar_vacuna(params:dict):
         else:
             almacen_central = almacen
     ids_almacen = [almacen_recepcion['_id'], almacen_central['_id'], almacen_pulmon['_id'], almacen_despacho['_id']]
+    almacen_prod_id = {}
     for prod in productos_almacen:
+        almacen_prod_id[prod.id] = prod.almacen
         if prod.sku in productos:
             productos[prod.sku] += 1
         else:
@@ -257,7 +261,6 @@ def fabricar_vacuna(params:dict):
         else:
             ids_sku[prod.sku].append(prod.id)
     has_stock = True
-    print(ids_sku)
     vacuna_sku = params['tipo']
     lote_sku = {
         '10001': 6,
@@ -274,25 +277,38 @@ def fabricar_vacuna(params:dict):
     
     keys = [key for key in formulas[vacuna_sku].keys()]
     available_skus = [key for key in productos.keys()]
-    for sku in keys:
-        if not sku in available_skus:
-            log_no_sku = Log(mensaje=f'No tienes el sku {sku}, necesario para fabricar el lote de vacunas {names[vacuna_sku]}')
-            log_no_sku.save()
-            has_stock = False
-            break
-        else:
-            if productos[sku] != formulas[vacuna_sku][sku]:
+    try:
+        for sku in keys:
+            if not sku in available_skus:
+                log_no_sku = Log(mensaje=f'No tienes el sku {sku}, necesario para fabricar el lote de vacunas {names[vacuna_sku]}')
+                log_no_sku.save()
                 has_stock = False
-    if not has_stock:
-        log_no_stock = Log(mensaje=f'No tienes stock suficiente para fabricar el lote de vacunas {names[vacuna_sku]}')
-        log_no_stock.save()
-    else:
-        log_stock = Log(mensaje='Tienes stock suficiente para fabricar esta vacuna, vamos a mover los elementos necesarios a despacho!')
-        log_stock.save()
-        for sku in keys: 
-            for id in ids_sku[sku]:
-                mover_entre_almacenes({ "productoId": id, "almacenId": almacen_despacho['_id']})
-                time.sleep(1)
-        fabricar_producto({"sku": vacuna_sku, "cantidad": lote_sku[vacuna_sku]})
-        log_success = Log(mensaje=f'Se ha mandado a fabricar exitosamente un lote de vacunas {names[vacuna_sku]}')
-        log_success.save()
+                break
+            else:
+                if productos[sku] < formulas[vacuna_sku][sku]:
+                    log_no_stock = Log(mensaje=f'No tienes stock suficiente de sku {sku} para fabricar el lote de vacunas {names[vacuna_sku]}')
+                    log_no_stock.save()
+                    has_stock = False
+                    break
+        if has_stock:
+            log_stock = Log(mensaje='Tienes stock suficiente para fabricar esta vacuna, vamos a mover los elementos necesarios a despacho!')
+            log_stock.save()
+            for sku in keys: 
+                count = 0
+                limit = formulas[vacuna_sku][sku]
+                for id in ids_sku[sku]:
+                    if count == limit:
+                        break
+                    elif almacen_prod_id[id] != almacen_despacho['_id']:
+                        mover_entre_almacenes({ "productoId": id, "almacenId": almacen_despacho['_id']})
+                        time.sleep(1)
+                        count += 1
+                    else:
+                        count += 1
+                        
+            fabricar_producto({"sku": vacuna_sku, "cantidad": lote_sku[vacuna_sku]})
+            log_success = Log(mensaje=f'Se ha mandado a fabricar exitosamente un lote de vacunas {names[vacuna_sku]}')
+            log_success.save()
+    except Exception as err:
+        error_log = Log(mensaje=f"{err}")
+        error_log.save()
