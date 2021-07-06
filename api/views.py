@@ -177,12 +177,16 @@ def manejo_oc(request, id):
                 params = json.dumps({"estado": "aceptada"})
                 headers = {'Content-type': 'application/json'}
                 requests.patch(url=url, data=params, headers=headers)
+                
+                log_aceptacion = Log(f'Manejo OC {oc_id}: Es factible y fue aceptada')
+                log_aceptacion.save()
             else:
                 rechazar_oc(id, {"rechazo": ""})
                 params = json.dumps({"estado": "rechazada"})
                 headers = {'Content-type': 'application/json'}
                 requests.patch(url=url, data=params, headers=headers)
-
+                log_rechazo = Log(f'Manejo OC {oc_id}: No es factible y fue rechazada')
+                log_rechazo.save()
             response = {"id": id,
                         "cliente": body["cliente"],
                         "sku": body["sku"],
