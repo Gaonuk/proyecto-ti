@@ -250,17 +250,17 @@ def despachar():
         if almacen['despacho']:
             almacen_despacho = almacen
     try:
-        productos_para_despachar = ProductoBodega.objects.get(almacen=almacen_despacho['_id']).exclude(oc_reservada='')
+        productos_para_despachar = ProductoBodega.objects.filter(almacen=almacen_despacho['_id']).exclude(oc_reservada='')
         print(productos_para_despachar)
         for producto in productos_para_despachar:
             print('despachando...')
             oc = producto.oc_reservada
             oc_object = RecievedOC.objects.filter(id=oc)
-            posicion = ids_grupos.index(oc_object.cliente)
+            posicion = ids_grupos.index(oc_object[0].cliente)
             almacen_id = ids_recepcion[posicion]
-            respuesta = mover_entre_bodegas({'productoId': producto.id, 'almacenId': almacen_id, 'oc': oc, 'precio': oc_object.precio_unitario}).json()
+            respuesta = mover_entre_bodegas({'productoId': producto.id, 'almacenId': almacen_id, 'oc': oc, 'precio': oc_object[0].precio_unitario}).json()
             try:
-                print(f"El producto de id {producto.id} fue despachado al almacen {almacen_id}")
+                print(f"Despachar: El producto de id {producto.id} fue despachado al almacen {almacen_id}")
                 log = Log(mensaje=f"El producto de id {producto.id} fue despachado al almacen {almacen_id}")
                 log.save()
             except:
@@ -270,6 +270,6 @@ def despachar():
 
             time.sleep(1)
     except Exception as err:
-        log = Log(mensaje='Despachar: '+err)
+        log = Log(mensaje='Despachar: '+str(err))
         log.save()
 
