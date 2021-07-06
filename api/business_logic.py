@@ -185,6 +185,6 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
             log_vacuna.save()
             return False
     except Exception as err:
-        log = Log(mensaje='Error en Factibilidad {oc_id}: '+str(err)+'\nSe ')
+        log = Log(mensaje='Error en Factibilidad {oc_id}: '+str(err)+'\nSe rechazó la OC')
         log.save()
         return False
