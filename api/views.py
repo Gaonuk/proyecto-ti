@@ -173,6 +173,7 @@ def manejo_oc(request, id):
 
             if uniform(0,1) <= 0.3:
             # if oc_es_factible and False:
+                factibildad(oc.sku, oc.cantidad, oc.fecha_entrega, oc.id )
                 recepcionar_oc(id)
                 params = json.dumps({"estado": "aceptada"})
                 headers = {'Content-type': 'application/json'}
