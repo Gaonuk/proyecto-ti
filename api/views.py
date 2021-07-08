@@ -171,7 +171,7 @@ def manejo_oc(request, id):
             # oc_es_factible = factibildad(
             #     oc.sku, oc.cantidad, oc.fecha_entrega, oc.id)
 
-            if False:
+            if uniform(0,1) <= 0.3:
             # if oc_es_factible and False:
                 recepcionar_oc(id)
                 params = json.dumps({"estado": "aceptada"})
@@ -181,7 +181,7 @@ def manejo_oc(request, id):
                 log_aceptacion = Log(mensaje=f'Manejo OC {id}: Fue aceptada dentro del 5% de probabilidad')
                 log_aceptacion.save()
             else:
-                rechazar_oc(id, {"rechazo": ""})
+                rechazar_oc(id, {"rechazo": "No podemos despachar"})
                 params = json.dumps({"estado": "rechazada"})
                 headers = {'Content-type': 'application/json'}
                 requests.patch(url=url, data=params, headers=headers)
