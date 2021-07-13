@@ -1,13 +1,14 @@
 # Create your tasks here
-from api.models import RecievedOC, ProductoBodega
-from .warehouse import despachar_producto, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto
-from .models import Log, Pedido, ProductoBodega
+from .models import RecievedOC, ProductoBodega, Log, Pedido
+from .warehouse import despachar_producto, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto, fabricar_vacuna
 import time
+import math
 
-from .OC import parse_js_date
+from .OC import parse_js_date, crear_oc
 import os
 from .arrays_clients_ids_oc import IDS_DEV, IDS_PROD
 from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
+from ..INFO_SKU.info_sku import PRODUCTOS, FORMULA, NUESTRO_SKU
 
 if os.environ.get('DJANGO_DEVELOPMENT')=='true':
     ids_grupos = IDS_DEV
@@ -272,4 +273,22 @@ def despachar():
     except Exception as err:
         log = Log(mensaje='Despachar: '+str(err))
         log.save()
+
+def revison_stock_propio():
+    for sku in NUESTRO_SKU:
+        if ProductoBodega.objects.filter(sku=sku, oc_reservada = '').exists():
+            cantidad_productos_disponibles = ProductoBodega.objects.filter(sku=sku, oc_reservada = '').count()
+            if cantidad_productos_disponibles < 32:
+                lote = int(PRODUCTOS[sku]['Lote producción'])
+                por_pedir = math.ceil((32 - cantidad_productos_disponibles)/lote) * lote
+                fabricar_producto({'sku': sku, 'cantidad': por_pedir})
+
+def revision_stock_para_vacunas():
+    for vacuna in FORMULA.keys():
+        if ProductoBodega.objects.filter(sku=vacuna, oc_reservada = '').exists():
+            cantidad_vacunas_disponibles = ProductoBodega.objects.filter(sku=vacuna, oc_reservada = '').count()
+        if cantidad_vacunas_disponibles < 16:
+            lote = int(PRODUCTOS[vacuna]['Lote producción'])
+            por_pedir = math.ceil((16 - cantidad_vacunas_disponibles)/lote) * lote
+            fabricar_vacuna({"sku": vacuna, "cantidad": por_pedir})
 
