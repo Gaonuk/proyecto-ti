@@ -9,7 +9,7 @@ import pandas as pd
 
 ####### Sheet 1: Productos
 PRODUCTOS = {}
-df_productos = pd.read_csv('Productos.txt', sep=",",  index_col=False)
+df_productos = pd.read_csv('INFO_SKU/Productos.txt', sep=",",  index_col=False)
 df_productos.dropna(subset = ["SKU"], inplace=True)
 #print(df_productos)
 for index, row in df_productos.iterrows():
@@ -22,7 +22,7 @@ print(f'NUESTROS SKUS: {NUESTRO_SKU}')
 
 ####### Sheet 2: Fórmulas producción
 FORMULA = {}
-df_formula = pd.read_csv('Fórmulas producción.txt', sep=",",  index_col=False)
+df_formula = pd.read_csv('INFO_SKU/Fórmulas producción.txt', sep=",",  index_col=False)
 df_formula.dropna(subset = ["SKU Producto"], inplace=True)
 #print(df_formula )
 for index, row in df_formula .iterrows():
