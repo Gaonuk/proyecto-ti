@@ -39,3 +39,9 @@ class FormCrearOC(forms.Form):
 
 class FormCrearVacuna(forms.Form):
     tipo = forms.CharField(label='Selecciona un tipo de vacuna', widget=forms.Select(choices=OPCIONES_VACUNAS))
+
+class FormActualizarMaxOCIngredientes(forms.Form):
+    max_ing = forms.IntegerField(label= 'Max OC de ingredientes aceptadas al mismo tiempo')
+
+class FormActualizarMaxOCVacunas(forms.Form):
+    max_vac = forms.IntegerField(label= 'Max OC de vacunas aceptadas al mismo tiempo')

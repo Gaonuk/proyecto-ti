@@ -9,12 +9,12 @@ from rest_framework.response import Response
 from .warehouse import despachar_producto, fabricar_vacuna, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto
 import datetime
 
-from .forms import FormCambiarAlmacen, FormCambiarBodega, FormCambiarAlmacenPorSKU, FormCrearVacuna, FormFabricar, FormCrearOC
+from .forms import FormActualizarMaxOCIngredientes, FormCambiarAlmacen, FormCambiarBodega, FormCambiarAlmacenPorSKU, FormCrearVacuna, FormFabricar, FormCrearOC, FormActualizarMaxOCVacunas
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 
 from .OC import obtener_oc, recepcionar_oc, rechazar_oc, parse_js_date, crear_oc
-from .models import ProductoBodega, RecievedOC, SentOC, Log, ProductoDespachado
+from .models import CantidadMaxAceptada, ProductoBodega, RecievedOC, SentOC, Log, ProductoDespachado
 from random import randint, random, uniform
 import requests
 import json
@@ -421,14 +421,67 @@ def backoffice(request):
                 almacen['detalle_productos'][sku["_id"]] = productos_almacen
 
     if request.method == 'POST':
+        print('aqui estoy en post')
         # print(request.POST.get('cantidad'))
         # print(request.POST.get('SKU'))
-        if request.POST.get('oc', '') == '' and request.POST.get('SKU', '') == '' and request.POST.get('cantidad', '') == '':
+        if request.POST.get('max_ing', '') != '':
+            print('entrando a ingredientes')
+            form_cambiar_almacen = FormCambiarAlmacen()
+            form_cambiar_bodega = FormCambiarBodega()
+            form_fabricar = FormFabricar()
+            form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU()
+            form_crear_oc = FormCrearOC()
+            form_actualizar_oc_ingredientes = FormActualizarMaxOCIngredientes(request.POST)
+            form_actualizar_oc_vacunas = FormActualizarMaxOCVacunas()
+            try: 
+                max_ingredientes = CantidadMaxAceptada.objects.get(pk='ingredientes')
+                max_ingredientes.cantidad = request.POST.get('max_ing')
+                max_ingredientes.save()
+
+            except CantidadMaxAceptada.DoesNotExist: 
+                max_ingredientes = CantidadMaxAceptada(
+                    tipo_oc = 'ingredientes',
+                    cantidad = 10
+                )
+                max_ingredientes.save()
+
+            return HttpResponseRedirect('/backoffice')
+
+        elif request.POST.get('max_vac', '') != '':
+            print('entrando a vacunas')
+            form_cambiar_almacen = FormCambiarAlmacen()
+            form_cambiar_bodega = FormCambiarBodega()
+            form_fabricar = FormFabricar()
+            form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU()
+            form_crear_oc = FormCrearOC()
+            form_actualizar_oc_ingredientes = FormActualizarMaxOCIngredientes()
+            form_actualizar_oc_vacunas = FormActualizarMaxOCVacunas(request.POST)
+            try: 
+                max_vacunas = CantidadMaxAceptada.objects.get(pk='vacunas')
+                max_vacunas.cantidad = request.POST.get('max_vac')
+                max_vacunas.save()
+                print(f'try {request.POST.get("max_vac")}')
+
+                
+            except CantidadMaxAceptada.DoesNotExist: 
+                max_vacunas = CantidadMaxAceptada(
+                    tipo_oc = 'vacunas',
+                    cantidad = 10
+                )
+                max_vacunas.save()
+                print(f'except {request.POST.get("max_vac")}')
+
+            return HttpResponseRedirect('/backoffice')
+
+        elif request.POST.get('oc', '') == '' and request.POST.get('SKU', '') == '' and request.POST.get('cantidad', '') == '':
+            print('primer if')
             form_cambiar_bodega = FormCambiarBodega()
             form_cambiar_almacen = FormCambiarAlmacen(request.POST)
             form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU()
             form_fabricar = FormFabricar()
             form_crear_oc = FormCrearOC()
+            form_actualizar_oc_ingredientes = FormActualizarMaxOCIngredientes()
+            form_actualizar_oc_vacunas = FormActualizarMaxOCVacunas()
             # print(IDs_almacenes)
             # print(IDs_productos)
             ID_producto = request.POST.get('productoId', '')
@@ -449,6 +502,7 @@ def backoffice(request):
                     messages.info(
                         request, 'El producto ha sido cambiado de almacén')
                     return HttpResponseRedirect('/backoffice')
+
         elif request.POST.get('proveedor', '') != '':
             valid_SKUs = [
                 '100',
@@ -480,6 +534,8 @@ def backoffice(request):
             form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU()
             form_fabricar = FormFabricar()
             form_crear_oc = FormCrearOC(request.POST)
+            form_actualizar_oc_ingredientes = FormActualizarMaxOCIngredientes()
+            form_actualizar_oc_vacunas = FormActualizarMaxOCVacunas()
             proveedor = request.POST.get('proveedor')
             SKU = request.POST.get('SKU')
             fechaEntrega = request.POST.get('fechaEntrega')
@@ -519,6 +575,8 @@ def backoffice(request):
             form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU()
             form_fabricar = FormFabricar()
             form_crear_oc = FormCrearOC()
+            form_actualizar_oc_ingredientes = FormActualizarMaxOCIngredientes()
+            form_actualizar_oc_vacunas = FormActualizarMaxOCVacunas()
             ID_producto = request.POST.get('productoId', '')
             ID_almacen_externo = request.POST.get('almacenId_externo', '')
             ID_oc = request.POST.get('oc', '')
@@ -547,6 +605,8 @@ def backoffice(request):
             form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU(request.POST)
             almacen_origen = request.POST.get('almacen_origen', '')
             form_crear_oc = FormCrearOC()
+            form_actualizar_oc_ingredientes = FormActualizarMaxOCIngredientes()
+            form_actualizar_oc_vacunas = FormActualizarMaxOCVacunas()
             SKU = request.POST.get('SKU', '')
             ID_almacen = request.POST.get('almacenId', '')
             cant_SKU = int(request.POST.get('cant_SKU', ''))
@@ -606,6 +666,8 @@ def backoffice(request):
             form_fabricar = FormFabricar(request.POST)
             form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU()
             form_crear_oc = FormCrearOC()
+            form_actualizar_oc_ingredientes = FormActualizarMaxOCIngredientes()
+            form_actualizar_oc_vacunas = FormActualizarMaxOCVacunas()
             SKU = request.POST.get('SKU')
             cantidad = request.POST.get('cantidad')
             if form_fabricar.is_valid():
@@ -623,13 +685,55 @@ def backoffice(request):
                     messages.info(
                         request, f"Su producto estara disponible el {date}")
                     return HttpResponseRedirect('/backoffice')
+
+        
     else:
         form_cambiar_bodega = FormCambiarBodega()
         form_cambiar_almacen = FormCambiarAlmacen()
         form_cambiar_almacen_SKU = FormCambiarAlmacenPorSKU()
         form_fabricar = FormFabricar()
         form_crear_oc = FormCrearOC()
+        form_actualizar_oc_ingredientes = FormActualizarMaxOCIngredientes()
+        form_actualizar_oc_vacunas = FormActualizarMaxOCVacunas()
+        
+        # Si no existe el modelo lo creo previamente
+        try: 
+            max_ingredientes = CantidadMaxAceptada.objects.get(pk='ingredientes')
+        #except CantidadMaxAceptada.DoesNotExist: 
+        except:
+            max_ingredientes = CantidadMaxAceptada(
+                tipo_oc = 'ingredientes',
+                cantidad = 10
+            )
+            max_ingredientes.save()
+        # except:
+        #     print('programming error xd')
+        #     max_ingredientes = CantidadMaxAceptada(
+        #         tipo_oc = 'ingredientes',
+        #         cantidad = 10
+        #     )
+        #     max_ingredientes.save()
+        # Si no existe el modelo lo creo previamente
+        try: 
+            max_vacunas = CantidadMaxAceptada.objects.get(pk='vacunas')
+        # except CantidadMaxAceptada.DoesNotExist: 
+        except:
+            max_vacunas = CantidadMaxAceptada(
+                tipo_oc = 'vacunas',
+                cantidad = 10
+            )
+            max_vacunas.save()
+        # except:
+        #     print('programming error xd')
+        #     max_vacunas = CantidadMaxAceptada(
+        #         tipo_oc = 'vacunas',
+        #         cantidad = 10
+        #     )
+        #     max_vacunas.save()
 
+    max_vacunas = CantidadMaxAceptada.objects.get(pk='vacunas')
+    max_ingredientes = CantidadMaxAceptada.objects.get(pk='ingredientes')
+    print('asd rendering backoffice')
     # print(almacenes)
     return render(request, 'backoffice.html', {
         'almacenes': almacenes,
@@ -640,7 +744,11 @@ def backoffice(request):
         'TITULO_ALM_EXT': TITULO_RECEPCIONES,
         'ALMACENES_EXTERNOS': ALMACENES_RECEPCION_EXT,
         'form_crear_oc': form_crear_oc,
-        'ALMACENES_EXTERNOS': RECEPCIONES_DEV})
+        'ALMACENES_EXTERNOS': RECEPCIONES_DEV,
+        'form_actualizar_oc_ingredientes': form_actualizar_oc_ingredientes,
+        'form_actualizar_oc_vacunas': form_actualizar_oc_vacunas,
+        'curr_max_vac': max_vacunas.cantidad,
+        'curr_max_ing': max_ingredientes.cantidad})
 
 
 def vacunas(request):

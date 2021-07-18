@@ -1,7 +1,6 @@
-from .models import Pedido, ProductoBodega, ProductoDespachado, Log
+from .models import Pedido, ProductoBodega, ProductoDespachado, Log, RecievedOC
 from datetime import datetime, timedelta
 from .warehouse import fabricar_producto
-import pytz
 
 SKU_VACUNAS = ['10001','10002','10005']
 
@@ -18,43 +17,18 @@ TIEMPOS_PRODUCCION_PROPIOS = {
     '10005': 40,
 }
 
-utc = pytz.UTC
-
 def stock_no_reservado(sku, fecha_vencimiento, margen_tiempo=5):
     all_stock = ProductoBodega.objects.filter(
         sku=str(sku),
         oc_reservada='',
     )  
-    # stock_valido = []
-    # for producto in all_stock:
-    #     fecha_producto_venc = utc.normalize(producto.fecha_vencimiento).astimezone(utc)
-    #     # fecha_producto_venc.replace(tzinfo=utc)
-    #     fecha_venc = utc.localize(fecha_vencimiento).astimezone(utc)
-    #     # fecha_venc.replace(tzinfo=utc)
-    #     if fecha_producto_venc + timedelta(minutes=margen_tiempo) < fecha_venc:
-    #         stock_valido.append(producto)
-    # return stock_valido
     return all_stock
 
 def pedidos_no_reservados(sku, fecha_entrega, margen_tiempo=5):
-    # print("A--------------------------------")
     pedidos = Pedido.objects.filter(
             sku=str(sku),
             disponible_para_uso=True
         )
-    # # print("B--------------------------------")
-    # pedidos_validos = []
-    # for producto in pedidos:
-    #     # print("C--------------------------------")
-    #     fecha_disp = utc.normalize(producto.fecha_disponible).astimezone(utc)
-    #     # fecha_disp.replace(tzinfo=utc)
-    #     fecha_entr = utc.normalize(fecha_entrega).astimezone(utc)
-    #     # fecha_entr.replace(tzinfo=utc)
-    #     if fecha_disp + timedelta(minutes=margen_tiempo) < fecha_entr:
-    #         # print("D--------------------------------")
-    #         pedidos_validos.append(producto)
-    #     # print("E--------------------------------")
-    # return pedidos_validos
     return pedidos
 
 
@@ -77,9 +51,11 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
         stock_disponible = stock_no_reservado(sku, fecha_entrega, 10)
         num_productos_stock = len(stock_disponible)
         if sku not in SKU_VACUNAS:
+            # Revisar si aún puedo aceptar dado el máximo actual de OC para ingredientes
+            ordenes_aceptadas = RecievedOC.objects.filter(estado="aceptada").count()
+
             # Es un producto normal
             total_productos = num_productos_pedidos + num_productos_stock
-            
             log_message += f'Cantidad en almacenes: {num_productos_stock}\nCantidad en camino: {num_productos_pedidos}\nTotal: {total_productos}\n'
             if cantidad_solicitada <= num_productos_stock:
                 # Hay que reservar los productos con la OC correspondiente.
@@ -197,8 +173,11 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                     return True
 
         else:
+            
             # Es una vacuna y requiere fabricación entre medio
-            log_message += Log(mensaje=f'Este sku {sku} es una vacuna, y aún no está implementado su manejo')
+            log_message += Log(mensaje=f'Este sku {sku} es una vacuna.')
+
+            not_completed_oc = RecievedOC.objects.filter(estado="aceptada")
             
             log = Log(mensaje=log_message)
             log.save()
