@@ -1,8 +1,8 @@
-from .models import Pedido, ProductoBodega, ProductoDespachado, Log, RecievedOC
+from .models import CantidadMaxAceptada, Pedido, ProductoBodega, ProductoDespachado, Log, RecievedOC
 from datetime import datetime, timedelta
 from .warehouse import fabricar_producto
 
-SKU_VACUNAS = ['10001','10002','10005']
+SKU_VACUNAS = ['10001','10002','10003','10004','10005','10006']
 
 TIEMPOS_PRODUCCION_PROPIOS = {
     '108': 25,
@@ -42,7 +42,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
     #print(f'{datetime.now()}: Análisis de factibilidad\n{sku} - {cantidad_solicitada} - {fecha_entrega}')
     log_message = f'Factibilidad | OC {oc_id} | SKU {sku} | # {cantidad_solicitada} | Deadline {fecha_entrega}\n' 
     try:
-        if sku not in TIEMPOS_PRODUCCION_PROPIOS.keys():
+        if str(sku) not in TIEMPOS_PRODUCCION_PROPIOS.keys():
             return False
         pedidos = pedidos_no_reservados(sku, fecha_entrega, 15)
         num_productos_pedidos = 0
@@ -50,9 +50,18 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
             num_productos_pedidos += pedido.cantidad
         stock_disponible = stock_no_reservado(sku, fecha_entrega, 10)
         num_productos_stock = len(stock_disponible)
-        if sku not in SKU_VACUNAS:
+        if str(sku) not in SKU_VACUNAS:
             # Revisar si aún puedo aceptar dado el máximo actual de OC para ingredientes
-            ordenes_aceptadas = RecievedOC.objects.filter(estado="aceptada").count()
+            ordenes_aceptadas = RecievedOC.objects.filter(
+                estado="aceptada",
+                sku__in=TIEMPOS_PRODUCCION_PROPIOS.keys()
+            )
+            max_vacunas = CantidadMaxAceptada.objects.get(pk='ingredientes')
+            if ordenes_aceptadas.count() >= max_vacunas:
+                log_message += Log(mensaje=f'Se rechaza la OC por haber alcanzado el máximo permitido de OC de ingredientes aceptadas.')
+                log = Log(mensaje=log_message)
+                log.save()
+                return False
 
             # Es un producto normal
             total_productos = num_productos_pedidos + num_productos_stock
@@ -172,15 +181,27 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                     log.save()      
                     return True
 
-        else:
-            
-            # Es una vacuna y requiere fabricación entre medio
+        elif str(sku) in SKU_VACUNAS.keys():
             log_message += Log(mensaje=f'Este sku {sku} es una vacuna.')
+            # Revisar si aún puedo aceptar dado el máximo actual de OC para ingredientes
+            ordenes_aceptadas = RecievedOC.objects.filter(
+                estado="aceptada",
+                sku__in=SKU_VACUNAS
+            )
+            max_vacunas = CantidadMaxAceptada.objects.get(pk='vacunas')
+            if ordenes_aceptadas.count() >= max_vacunas:
+                log_message += Log(mensaje=f'Se rechaza la OC por haber alcanzado el máximo permitido de OC de vacunas aceptadas.')
+                log = Log(mensaje=log_message)
+                log.save()
+                return False
 
-            not_completed_oc = RecievedOC.objects.filter(estado="aceptada")
-            
+            # Es una vacuna y requiere fabricación entre medio
+            log_message += Log(mensaje=f'Al ser una OC para vacunas y no exceder el máximo permitido, se acepta.')
             log = Log(mensaje=log_message)
             log.save()
+            return True
+        
+        else:
             return False
     except Exception as err:
         log_message += f'Error en Factibilidad {oc_id}: '+str(err)+'\nSe rechazó la OC\n'
