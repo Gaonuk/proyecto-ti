@@ -1,5 +1,5 @@
 # Create your tasks here
-from .models import RecievedOC, ProductoBodega, Log, Pedido
+from .models import RecievedOC, ProductoBodega, Log, Pedido, EmbassyOC
 from .warehouse import despachar_producto, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto, fabricar_vacuna
 import time
 import math
@@ -169,6 +169,64 @@ def mover_pulmon_a_alm_recepcion():
         log_3.save()
 
 def revision_oc():
+    not_completed_embassy_oc = EmbassyOC.objects.filter(estado="aceptada")
+    for orden in not_completed_embassy_oc:
+        print(f"Actualizando Embassy OC de id {orden.id}")
+        if orden.cantidad_despachada < orden.cantidad:
+            falta = orden.cantidad - orden.cantidad_despachada
+            vacunas_disponible = ProductoBodega.objects.filter(oc_reservada='', sku = str(orden.sku)).count()
+            if falta <= vacunas_disponible:
+                for vacuna in vacunas_disponible:
+                    vacuna.oc_reservada = orden.id
+                    vacuna.save()
+            else:
+                contador = 0
+                for vacuna in vacunas_disponible:
+                    vacuna.oc_reservada = orden.id
+                    vacuna.save()
+                    contador += 1
+                    if contador == falta:
+                        break
+                orden.estado = "finalizada"
+                orden.save()
+            orden.cantidad_despachada = ProductoBodega.objects.filter(oc_reservada=orden.id).count()
+        else:
+            orden.estado = "finalizada"
+            orden.save()
+        if orden.estado == "aceptada":
+            ingredientes = FORMULA[str(orden.sku)]
+            for ingrediente in ingredientes.keys():
+                guardado = ProductoBodega.objects.filter(oc_reservada=orden.id, sku=ingrediente).count()
+                if guardado < ingredientes[ingrediente]:
+                    productos_disponibles = ProductoBodega.objects.filter(sku=ingrediente, oc_reservada='')
+                    cantidad_disponible = productos_disponibles.count()
+                    cantidad = int(ingredientes[ingrediente]) - int(guardado)
+                    if cantidad_disponible <= cantidad:
+                        for producto in productos_disponibles:
+                            producto.oc_reservada = orden.id
+                            producto.save()
+                            print(f"Asignando producto de id {producto.id} a OC de id {orden.id}")
+                            log = Log(mensaje=f"Revision Embassy OC: Asignando producto de id {producto.id} a OC de id {orden.id}")
+                            log.save()
+                    else:
+                        contador = 0
+                        for producto in productos_disponibles:
+                            producto.oc_reservada = orden.id
+                            producto.save()
+                            log = Log(mensaje=f"Revision Embassy OC: Asignando producto de id {producto.id} a OC de id {orden.id}")
+                            log.save()
+                            print(f"Asignando producto de id {producto.id} a OC de id {orden.id}")
+                            contador += 1
+                            if contador == cantidad:
+                                break
+            ready = True
+            for ingrediente in ingredientes.keys():
+                disponible = ProductoBodega.objects.filter(sku=ingrediente, oc_reservada=orden.id)
+                if int(disponible) < int(ingredientes[ingrediente]):
+                    ready = False
+            if ready:
+                fabricar_vacuna({'sku': orden.sku, 'cantidad': orden.cantidad})
+
     not_completed_oc = RecievedOC.objects.filter(estado="aceptada")
     for orden in not_completed_oc:
         print(f"Actualizando OC de id {orden.id}")
@@ -198,6 +256,7 @@ def revision_oc():
                     contador += 1
                     if contador == cantidad:
                         break
+                orden.cantidad_despachada = ProductoBodega.objects.filter(oc_reservada=orden.id).count()
         if orden.cantidad_despachada >= orden.cantidad:
             orden.estado = "finalizada"
         orden.save()
@@ -256,20 +315,22 @@ def despachar():
         for producto in productos_para_despachar:
             print('despachando...')
             oc = producto.oc_reservada
-            oc_object = RecievedOC.objects.filter(id=oc)
-            posicion = ids_grupos.index(oc_object[0].cliente)
-            almacen_id = ids_recepcion[posicion]
-            respuesta = mover_entre_bodegas({'productoId': producto.id, 'almacenId': almacen_id, 'oc': oc, 'precio': oc_object[0].precio_unitario}).json()
             try:
-                print(f"Despachar: El producto de id {producto.id} fue despachado al almacen {almacen_id}")
-                log = Log(mensaje=f"El producto de id {producto.id} fue despachado al almacen {almacen_id}")
-                log.save()
+                oc_object = RecievedOC.objects.filter(id=oc)
+                posicion = ids_grupos.index(oc_object[0].cliente)
+                almacen_id = ids_recepcion[posicion]
+                respuesta = mover_entre_bodegas({'productoId': producto.id, 'almacenId': almacen_id, 'oc': oc, 'precio': oc_object[0].precio_unitario}).json()
+                try:
+                    print(f"Despachar: El producto de id {producto.id} fue despachado al almacen {almacen_id}")
+                    log = Log(mensaje=f"El producto de id {producto.id} fue despachado al almacen {almacen_id}")
+                    log.save()
+                except:
+                    print(respuesta["error"])
+                    log = Log(mensaje=respuesta["error"])
+                    log.save()
+                time.sleep(1)
             except:
-                print(respuesta["error"])
-                log = Log(mensaje=respuesta["error"])
-                log.save()
-
-            time.sleep(1)
+                pass
     except Exception as err:
         log = Log(mensaje='Despachar: '+str(err))
         log.save()
