@@ -363,16 +363,16 @@ def revison_stock_propio():
     for sku in NUESTRO_SKU:
         if ProductoBodega.objects.filter(sku=sku, oc_reservada = '').exists():
             cantidad_productos_disponibles = ProductoBodega.objects.filter(sku=sku, oc_reservada = '').count()
-            if cantidad_productos_disponibles < 32:
+            if cantidad_productos_disponibles < 24:
                 lote = int(PRODUCTOS[sku]['Lote producción'])
-                por_pedir = math.ceil((32 - cantidad_productos_disponibles)/lote) * lote
+                por_pedir = math.ceil((24 - cantidad_productos_disponibles)/lote) * lote
                 fabricar_producto({'sku': sku, 'cantidad': por_pedir})
 
 def revision_stock_para_vacunas():
     for vacuna in FORMULA.keys():
         if ProductoBodega.objects.filter(sku=vacuna, oc_reservada = '').exists():
             cantidad_vacunas_disponibles = ProductoBodega.objects.filter(sku=vacuna, oc_reservada = '').count()
-        if cantidad_vacunas_disponibles < 16:
+        if cantidad_vacunas_disponibles < int(PRODUCTOS[vacuna]['Lote producción']):
             lote = int(PRODUCTOS[vacuna]['Lote producción'])
             por_pedir = math.ceil((16 - cantidad_vacunas_disponibles)/lote) * lote
             fabricar_vacuna({"sku": str(vacuna), "cantidad": por_pedir})

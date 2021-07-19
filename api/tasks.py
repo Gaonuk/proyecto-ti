@@ -38,3 +38,28 @@ Schedule.objects.create(
     minutes=10,
     schedule_type='I'
 )
+
+Schedule.objects.create(
+    func="api.cron.revision_stock_para_vacunas",
+    name="Revision stock para vacunas",
+    minutes=60,
+    repeats=-1,
+    schedule_type='I'
+)
+
+Schedule.objects.create(
+    func="api.cron.revison_stock_propio",
+    name="Revision stock skus propios",
+    minutes=45,
+    repeats=-1,
+    schedule_type='I'
+)
+
+Schedule.objects.create(
+    func="api.cron.despachar_vacunas",
+    name="Despachar Vacunas",
+    minutes=2,
+    repeats=-1,
+    schedule_type='I'
+)
+
