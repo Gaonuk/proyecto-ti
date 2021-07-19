@@ -9,7 +9,7 @@ Grupo,Id Grupo (para OC's),Id almacén Recepción,,Grupo,Id Grupo (para OC's),Id
 5,60bd2a763f1b6100049f144b,60bd3477f955380004edaa04,,5,60caa3af31df040004e88de8,60ccc5559092f700042392aa,http://aysen5.ing.puc.cl/stocks,http://aysen5.ing.puc.cl/ordenes-compra/{ID}
 6,60bd2a763f1b6100049f144c,60bd3477f955380004edaa08,,6,60caa3af31df040004e88de9,60ccc5559092f700042392ae,http://aysen6.ing.puc.cl/stocks,http://aysen6.ing.puc.cl/ordenes-compra/{ID}
 7,60bd2a763f1b6100049f144d,60bd3477f955380004edaa0c,,7,60caa3af31df040004e88dea,60ccc5559092f700042392b2,http://aysen7.ing.puc.cl/stocks,http://aysen7.ing.puc.cl/ordenes-compra/{ID}
-8,60bd2a763f1b6100049f144e,60bd3477f955380004edaa10,,8,60caa3af31df040004e88deb,60ccc5559092f700042392b6,http://aysen8.ing.puc.cl/stocks,http://aysen8.ing.puc.cl/ordenes-compra/{ID}
+8,60bd2a763f1b6100049f144e,60bd3477f955380004edaa10,,8,60caa3af31df040004e88deb,60ccc5559092f700042392b6,,
 9,60bd2a763f1b6100049f144f,60bd3477f955380004edaa14,,9,60caa3af31df040004e88dec,60ccc5559092f700042392ba,aysen9.ing.puc.cl/stocks,http://aysen9.ing.puc.cl/ordenes-compra/{ID}
 10,60bd2a763f1b6100049f1450,60bd3477f955380004edaa18,,10,60caa3af31df040004e88ded,60ccc5559092f700042392be,aysen10.ing.puc.cl/stocks,http://aysen10.ing.puc.cl/ordenes-compra/{ID}
 11,60bd2a763f1b6100049f1451,60bd3477f955380004edaa1c,,11,60caa3af31df040004e88dee,60ccc5559092f700042392c2,http://aysen11.ing.puc.cl/stocks,http://aysen11.ing.puc.cl/ordenes-compra/{ID}
