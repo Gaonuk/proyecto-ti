@@ -294,7 +294,6 @@ def mover_despacho():
                 time.sleep(1)
                 try:
                     mover_entre_almacenes({'productoId': producto.id, "almacenId": almacen_despacho['_id']})
-                    print(f'Se han movido 1 producto del SKU {producto.sku} al almacén despacho\n')
                     log = Log(mensaje=f'Mover despacho: Se han movido 1 producto del SKU {producto.sku} al almacén despacho\n')
                     log.save()
                     time.sleep(1)
@@ -303,6 +302,25 @@ def mover_despacho():
             except:
                 print(f'Alamcen Recepción se encuentra lleno')
 
+def despachar_vacunas():
+    almacenes = obtener_almacenes().json()
+    for almacen in almacenes:
+        if almacen['despacho']:
+            almacen_despacho = almacen
+    skus_vacunas = list(FORMULA.keys())
+    vacunas_para_despachar = ProductoBodega.objects.filter(almacen=almacen_despacho['_id'], sku__in=skus_vacunas).exclude(oc_reservada='')
+    for vacuna in vacunas_para_despachar:
+        params = {
+            "productId": vacuna.id,
+            "oc": vacuna.oc_reservada,
+            "direccion": "embajada",
+            "precio": 1
+        }
+        try:
+            despachar_producto(params)
+        except:
+            log = Log(mensaje=f'No se pudo despachar vacuna de id {vacuna.id} asociada a la OC {vacuna.oc_reservada}')
+            log.save()
 
 def despachar():
     almacenes = obtener_almacenes().json()
