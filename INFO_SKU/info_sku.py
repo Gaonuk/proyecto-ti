@@ -8,38 +8,28 @@ import pandas as pd
 
 
 ####### Sheet 1: Productos
-productos = {}
-df_productos = pd.read_csv('2021-1-proyecto-grupo-13\INFO_SKU\Productos.txt', sep=",",  index_col=False)
+PRODUCTOS = {}
+df_productos = pd.read_csv('INFO_SKU/Productos.txt', sep=",",  index_col=False)
 df_productos.dropna(subset = ["SKU"], inplace=True)
 #print(df_productos)
 for index, row in df_productos.iterrows():
-    productos[str(int(row['SKU']))] = {'Nombre': row['Nombre'], 'Descripción': row['Descripción'], 'Costo producción lote': \
-        row['Costo producción lote'], 'Duración esperada (hrs)': row['Duración esperada (hrs)'],'Lote producción': \
+    PRODUCTOS[str(int(row['SKU']))] = { 'Duración esperada (hrs)': row['Duración esperada (hrs)'],'Lote producción': \
             row['Lote producción'], 'Tiempo esperado producción (mins)': row['Tiempo esperado producción (mins)'],\
-                'Grupos Productores': [row['Grupos Productores']]}
-print(productos['100'], '\n', productos['10001'])
-print("#############################", productos.keys())
+                'Grupos Productores': row['Grupos Productores'].split(",")}
+print(PRODUCTOS['100'], '\n', PRODUCTOS['10001']) 
+NUESTRO_SKU = [i for i in PRODUCTOS.keys() if "13" in PRODUCTOS[i]['Grupos Productores']]
+print(f'NUESTROS SKUS: {NUESTRO_SKU}')
 
 ####### Sheet 2: Fórmulas producción
-formula  = {}
-df_formula  = pd.read_csv('2021-1-proyecto-grupo-13\INFO_SKU\Fórmulas producción.txt', sep=",",  index_col=False)
-df_formula .dropna(subset = ["SKU Producto"], inplace=True)
+FORMULA = {}
+df_formula = pd.read_csv('INFO_SKU/Fórmulas producción.txt', sep=",",  index_col=False)
+df_formula.dropna(subset = ["SKU Producto"], inplace=True)
 #print(df_formula )
 for index, row in df_formula .iterrows():
-    if str(int(row['SKU Producto'])) not in formula: 
-        formula [str(int(row['SKU Producto']))] = [{'SKU Ingrediente': row['SKU Ingrediente'], 'Nombre Ingrediente': row['Nombre Ingrediente'],\
-             'Cantidad': row['Cantidad'], 'Lote producción': row['Lote producción'],'Cantidad para lote': row['Cantidad para lote']}]
+    if str(int(row['SKU Producto'])) not in FORMULA: 
+        FORMULA[str(int(row['SKU Producto']))] = {str(row['SKU Ingrediente']): row['Cantidad para lote']}
+            
     else:
-        formula [str(int(row['SKU Producto']))].append({'SKU Ingrediente': row['SKU Ingrediente'], 'Nombre Ingrediente': row['Nombre Ingrediente'],\
-             'Cantidad': row['Cantidad'], 'Lote producción': row['Lote producción'],'Cantidad para lote': row['Cantidad para lote']})
-print(formula)
+        FORMULA[str(int(row['SKU Producto']))][str(row['SKU Ingrediente'])]= row['Cantidad para lote']
+print(FORMULA)
 print("#############################")
-
-####### Sheet 3: Resumen fórmulas
-resumen = {}
-df_resumen = pd.read_csv('2021-1-proyecto-grupo-13\INFO_SKU\Resumen fórmulas.txt', sep=",",  index_col=False)
-df_resumen.dropna(subset = ["SKU"], inplace=True)
-for index, row in df_resumen.iterrows():
-    resumen[str(int(row['SKU']))] = {'Productos para producir': row['Productos para producir'],\
-         'Espacio para recibir producción': row['Espacio para recibir producción']}
-print(resumen['100'], '\n', resumen['10001'])
