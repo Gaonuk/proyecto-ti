@@ -171,7 +171,8 @@ def mover_pulmon_a_alm_recepcion():
 def revision_oc():
     not_completed_embassy_oc = EmbassyOC.objects.filter(estado="aceptada")
     for orden in not_completed_embassy_oc:
-        print(f"Actualizando Embassy OC de id {orden.id}")
+        log = Log(mensaje = f"Actualizando Embassy OC de id {orden.id}")
+        log.save()
         if orden.cantidad_despachada < orden.cantidad:
             falta = orden.cantidad - orden.cantidad_despachada
             vacunas_disponible = ProductoBodega.objects.filter(oc_reservada='', sku = str(orden.sku)).count()
@@ -189,18 +190,21 @@ def revision_oc():
                         break
                 orden.estado = "finalizada"
                 orden.save()
-            orden.cantidad_despachada = ProductoBodega.objects.filter(oc_reservada=orden.id).count()
+            orden.cantidad_despachada = ProductoBodega.objects.filter(oc_reservada=orden.id, sku = str(orden.sku)).count()
         else:
             orden.estado = "finalizada"
             orden.save()
         if orden.estado == "aceptada":
             ingredientes = FORMULA[str(orden.sku)]
+            cantidad_faltante = int(orden.cantidad) - int(orden.cantidad_despachada)
+            lote = int(PRODUCTOS[str(orden.sku)]['Lote producción'])
+            lotes_por_pedir = math.ceil(cantidad_faltante/lote)
             for ingrediente in ingredientes.keys():
                 guardado = ProductoBodega.objects.filter(oc_reservada=orden.id, sku=ingrediente).count()
-                if guardado < ingredientes[ingrediente]:
+                if guardado < (int(ingredientes[ingrediente]) * lotes_por_pedir):
                     productos_disponibles = ProductoBodega.objects.filter(sku=ingrediente, oc_reservada='')
                     cantidad_disponible = productos_disponibles.count()
-                    cantidad = int(ingredientes[ingrediente]) - int(guardado)
+                    cantidad = (int(ingredientes[ingrediente]) * lotes_por_pedir) - int(guardado)
                     if cantidad_disponible <= cantidad:
                         for producto in productos_disponibles:
                             producto.oc_reservada = orden.id
@@ -222,10 +226,12 @@ def revision_oc():
             ready = True
             for ingrediente in ingredientes.keys():
                 disponible = ProductoBodega.objects.filter(sku=ingrediente, oc_reservada=orden.id)
-                if int(disponible) < int(ingredientes[ingrediente]):
+                if int(disponible) < (int(ingredientes[ingrediente]) * lotes_por_pedir):
                     ready = False
             if ready:
-                fabricar_vacuna({'sku': orden.sku, 'cantidad': orden.cantidad})
+                lote = int(PRODUCTOS[str(orden.sku)]['Lote producción'])
+                por_pedir = math.ceil(orden.cantidad/lote) * lote
+                fabricar_vacuna({'sku': str(orden.sku), 'cantidad': por_pedir})
 
     not_completed_oc = RecievedOC.objects.filter(estado="aceptada")
     for orden in not_completed_oc:
@@ -357,17 +363,17 @@ def revison_stock_propio():
     for sku in NUESTRO_SKU:
         if ProductoBodega.objects.filter(sku=sku, oc_reservada = '').exists():
             cantidad_productos_disponibles = ProductoBodega.objects.filter(sku=sku, oc_reservada = '').count()
-            if cantidad_productos_disponibles < 32:
+            if cantidad_productos_disponibles < 24:
                 lote = int(PRODUCTOS[sku]['Lote producción'])
-                por_pedir = math.ceil((32 - cantidad_productos_disponibles)/lote) * lote
+                por_pedir = math.ceil((24 - cantidad_productos_disponibles)/lote) * lote
                 fabricar_producto({'sku': sku, 'cantidad': por_pedir})
 
 def revision_stock_para_vacunas():
     for vacuna in FORMULA.keys():
         if ProductoBodega.objects.filter(sku=vacuna, oc_reservada = '').exists():
             cantidad_vacunas_disponibles = ProductoBodega.objects.filter(sku=vacuna, oc_reservada = '').count()
-        if cantidad_vacunas_disponibles < 16:
+        if cantidad_vacunas_disponibles < int(PRODUCTOS[vacuna]['Lote producción']):
             lote = int(PRODUCTOS[vacuna]['Lote producción'])
             por_pedir = math.ceil((16 - cantidad_vacunas_disponibles)/lote) * lote
-            fabricar_vacuna({"sku": vacuna, "cantidad": por_pedir})
+            fabricar_vacuna({"sku": str(vacuna), "cantidad": por_pedir})
 
