@@ -1,7 +1,6 @@
 from rest_framework.parsers import JSONParser
 from rest_framework import status
 import requests
-from datetime import datetime, timedelta
 
 #Only to define .env variables
 import os
@@ -9,12 +8,6 @@ import environ
 from pathlib import Path
 from .models import SentOC, RecievedOC, Pedido, Log
 from datetime import datetime
-from .arrays_clients_ids_oc import IDS_DEV, IDS_PROD
-
-if os.environ.get('DJANGO_DEVELOPMENT')=='true':
-    ids_grupos = IDS_DEV
-else:
-    ids_grupos = IDS_PROD
 
 #BASE DIRECTORY
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -100,7 +93,7 @@ def pedir_producto(oc,tiempo):
 
     return response
 
-def crear_oc(grupo, sku, cantidad):
+def crear_oc(params:dict):
     # Parámetros recibidos:
     # Ejemplo de datos enviados en json
 #     {
@@ -114,22 +107,6 @@ def crear_oc(grupo, sku, cantidad):
 #     "notas": "SegundaCreacion",
 #     "urlNotificacion": "http://example.com/{_id}/notification"
 # }
-    ahora = datetime.now()
-    startDate = datetime(1970, 1, 1)
-    miliseconds = ahora - startDate + timedelta(hours=6)
-    fecha_entrega = int(miliseconds.total_seconds() * 1000)
-    params = {
-        'cliente': ids_grupos[12],
-        'proveedor': ids_grupos[int(grupo)-1],
-        'sku': sku,
-        'fechaEntrega': fecha_entrega, ####completar fecha
-        'cantidad': cantidad,
-        'precioUnitario': 1,
-        'canal': 'b2b',
-        'notas': 'dame dame',
-        'urlNotificacion': 'http://aysen13.ing.puc.cl/ordenes-compra/{_id}'
-    }
-
     headers = {
         'Content-type': 'application/json',
     }

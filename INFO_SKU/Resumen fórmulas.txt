@@ -2,37 +2,23 @@ SKU,Nombre,Descripción,# Ingredientes,Ingrediente 1,Ingrediente 2,Ingrediente 3
 100,"1,2-diestearol-sn-glicero-3-fosfocolina",Excipiente,0,,,,,,,,,,,0,5
 102,Acetato de sodio trihidrato,Excipiente,0,,,,,,,,,,,0,8
 103,Ácido acético,Excipiente,0,,,,,,,,,,,0,9
-104,Ácido cítrico monohidrato,Excipiente,0,,,,,,,,,,,0,6
 107,ALC-0159,Excipiente,0,,,,,,,,,,,0,7
 108,ALC-0315,Excipiente,0,,,,,,,,,,,0,18
-109,Citrato trisódico dihidrato,Excipiente,0,,,,,,,,,,,0,2
 110,Clorhidrato de trometamol,Excipiente,0,,,,,,,,,,,0,6
-111,Cloruro de magnesio hexahidrato,Excipiente,0,,,,,,,,,,,0,18
 112,Cloruro de potasio,Excipiente,0,,,,,,,,,,,0,5
 113,Cloruro de sodio,Excipiente,0,,,,,,,,,,,0,12
 114,Colesterol,Excipiente,0,,,,,,,,,,,0,14
 115,Dihidrogenofosfato de sodio,Excipiente,0,,,,,,,,,,,0,20
-116,EDTA disódico dihidrato,Excipiente,0,,,,,,,,,,,0,10
-117,Etanol,Excipiente,0,,,,,,,,,,,0,20
 118,Fosfato monobásico de potasio,Excipiente,0,,,,,,,,,,,0,4
 119,Fosfato sódico dibásico dihidrato,Excipiente,0,,,,,,,,,,,0,14
 120,Hidrogenofosfato de disodio,Excipiente,0,,,,,,,,,,,0,5
 121,Hidróxido de aluminio,Excipiente,0,,,,,,,,,,,0,3
-122,Hidróxido de sodio,Excipiente,0,,,,,,,,,,,0,10
-124,L-Histidine,Excipiente,0,,,,,,,,,,,0,5
-125,L-Histidine hydrochloride monohydrate,Excipiente,0,,,,,,,,,,,0,4
 126,Lípido SM-102,Excipiente,0,,,,,,,,,,,0,10
 127,Polietilenglicol,Excipiente,0,,,,,,,,,,,0,5
-128,Polisorbato 80,Excipiente,0,,,,,,,,,,,0,3
 129,Sacarosa,Excipiente,0,,,,,,,,,,,0,10
 132,Trometamol,Excipiente,0,,,,,,,,,,,0,14
 1000,mRNA,Ingrediente activo RNA mensajero,0,,,,,,,,,,,0,8
 1001,Antígeno SARS-CoV-2 inactivado,Antígeno virus inactivado,0,,,,,,,,,,,0,5
-1002,Partículas virales de ChAdOx1-S,Antígeno virus inactivado,0,,,,,,,,,,,0,3
-1003,Adenovirus tipo 26 (Ad26),,0,,,,,,,,,,,0,5
 10001,BNT162B2,Vacuna Pfizer-Biontech,10,mRNA,ALC-0159,ALC-0315,"1,2-diestearol-sn-glicero-3-fosfocolina",Colesterol,Cloruro de potasio,Fosfato sódico dibásico dihidrato,Sacarosa,Cloruro de sodio,Fosfato monobásico de potasio,72,6
 10002,CORONAVAC,Vacuna Sinovac,5,Antígeno SARS-CoV-2 inactivado,Hidróxido de aluminio,Hidrogenofosfato de disodio,Dihidrogenofosfato de sodio,Cloruro de sodio,,,,,,56,8
-10003,AZD1222,Vacuna Astrazeneca,10,Partículas virales de ChAdOx1-S,Hidróxido de aluminio,L-Histidine,L-Histidine hydrochloride monohydrate,Cloruro de magnesio hexahidrato,Polisorbato 80,Etanol,Sacarosa,Cloruro de sodio,EDTA disódico dihidrato,60,5
-10004,JNJ-78436735,Vacuna Janssen (Johnson & Johnson),7,Adenovirus tipo 26 (Ad26),Ácido cítrico monohidrato,Citrato trisódico dihidrato,Etanol,Polisorbato 80,Cloruro de sodio,Hidróxido de sodio,,,,50,5
 10005,mRNA-1273,Vacuna Moderna,10,mRNA,Lípido SM-102,Colesterol,"1,2-diestearol-sn-glicero-3-fosfocolina",Polietilenglicol,Trometamol,Clorhidrato de trometamol,Ácido acético,Acetato de sodio trihidrato,Sacarosa,52,4
-10006,Sputnik V,Vacuna Sputnik,7,Adenovirus tipo 26 (Ad26),Cloruro de sodio,Sacarosa,Cloruro de magnesio hexahidrato,EDTA disódico dihidrato,Polisorbato 80,Etanol,,,,72,9

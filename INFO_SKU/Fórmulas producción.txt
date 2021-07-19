@@ -24,27 +24,3 @@ SKU Producto,Nombre Producto,SKU Ingrediente,Nombre Ingrediente,Cantidad,Unidad,
 10005,mRNA-1273,103,Ácido acético,1,Unid,4,4
 10005,mRNA-1273,102,Acetato de sodio trihidrato,1,Unid,4,4
 10005,mRNA-1273,129,Sacarosa,1,Unid,4,4
-10003,AZD1222,1002,Partículas virales de ChAdOx1-S,1,Unid,5,5
-10003,AZD1222,121,Hidróxido de aluminio,1,Unid,5,5
-10003,AZD1222,124,L-Histidine,2,Unid,5,10
-10003,AZD1222,125,L-Histidine hydrochloride monohydrate,1,Unid,5,5
-10003,AZD1222,111,Cloruro de magnesio hexahidrato,1,Unid,5,5
-10003,AZD1222,128,Polisorbato 80,1,Unid,5,5
-10003,AZD1222,117,Etanol,1,Unid,5,5
-10003,AZD1222,129,Sacarosa,1,Unid,5,5
-10003,AZD1222,113,Cloruro de sodio,1,Unid,5,5
-10003,AZD1222,116,EDTA disódico dihidrato,2,Unid,5,10
-10004,JNJ-78436735,1003,Adenovirus tipo 26 (Ad26),2,Unid,5,10
-10004,JNJ-78436735,104,Ácido cítrico monohidrato,2,Unid,5,10
-10004,JNJ-78436735,109,Citrato trisódico dihidrato,1,Unid,5,5
-10004,JNJ-78436735,117,Etanol,1,Unid,5,5
-10004,JNJ-78436735,128,Polisorbato 80,1,Unid,5,5
-10004,JNJ-78436735,113,Cloruro de sodio,1,Unid,5,5
-10004,JNJ-78436735,122,Hidróxido de sodio,2,Unid,5,10
-10006,Sputnik V,1003,Adenovirus tipo 26 (Ad26),1,Unid,9,9
-10006,Sputnik V,113,Cloruro de sodio,1,Unid,9,9
-10006,Sputnik V,129,Sacarosa,1,Unid,9,9
-10006,Sputnik V,111,Cloruro de magnesio hexahidrato,1,Unid,9,9
-10006,Sputnik V,116,EDTA disódico dihidrato,1,Unid,9,9
-10006,Sputnik V,128,Polisorbato 80,1,Unid,9,9
-10006,Sputnik V,117,Etanol,2,Unid,9,18
