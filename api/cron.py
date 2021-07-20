@@ -386,10 +386,10 @@ def revision_stock_para_vacunas():
     for vacuna in FORMULA.keys():
         if ProductoBodega.objects.filter(sku=vacuna, oc_reservada = '').exists():
             cantidad_vacunas_disponibles = ProductoBodega.objects.filter(sku=vacuna, oc_reservada = '').count()
-        if cantidad_vacunas_disponibles < int(PRODUCTOS[vacuna]['Lote producción']):
-            lote = int(PRODUCTOS[vacuna]['Lote producción'])
-            por_pedir = math.ceil((16 - cantidad_vacunas_disponibles)/lote) * lote
-            fabricar_vacuna({"sku": str(vacuna), "cantidad": por_pedir})
+            if cantidad_vacunas_disponibles < int(PRODUCTOS[vacuna]['Lote producción']):
+                lote = int(PRODUCTOS[vacuna]['Lote producción'])
+                por_pedir = math.ceil((16 - cantidad_vacunas_disponibles)/lote) * lote
+                fabricar_vacuna({"sku": str(vacuna), "cantidad": por_pedir})
 
 import pysftp
 import paramiko
