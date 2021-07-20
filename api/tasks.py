@@ -1,6 +1,14 @@
 from django.utils import timezone
 from django_q.models import Schedule
-from .cron import mover_recepcion_a_alm_central, revision_oc, mover_despacho, despachar
+from .cron import obtener_oc_embajadas,mover_recepcion_a_alm_central, revision_oc, mover_despacho, despachar
+
+Schedule.objects.create(
+    func="api.cron.obtener_oc_embajadas",
+    name="Obtener OCs embajadas",
+    minutes=3,
+    repeats=-1,
+    schedule_type='I'
+)
 
 Schedule.objects.create(
     func="api.cron.revision_oc",

@@ -1,21 +1,35 @@
 # Create your tasks here
-from .models import RecievedOC, ProductoBodega, Log, Pedido, EmbassyOC
+from .models import RecievedOC, ProductoBodega, Log, Pedido, EmbassyOC, EmbassyXML
 from .warehouse import despachar_producto, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto, fabricar_vacuna
 import time
 import math
 
-from .OC import parse_js_date, crear_oc
+from .OC import parse_js_date, crear_oc, obtener_oc
 import os
 from .arrays_clients_ids_oc import IDS_DEV, IDS_PROD
 from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
-from ..INFO_SKU.info_sku import PRODUCTOS, FORMULA, NUESTRO_SKU
+from .INFO_SKU.info_sku import PRODUCTOS, FORMULA, NUESTRO_SKU
+
+import os
+from pathlib import Path
+import environ
+
+# Initialise environment variables
+
+env = environ.Env()
+BASE_DIR = Path(__file__).resolve().parent.parent
+environ.Env.read_env(env_file=os.path.join(BASE_DIR, 'proyecto13/.env'))
 
 if os.environ.get('DJANGO_DEVELOPMENT')=='true':
     ids_grupos = IDS_DEV
     ids_recepcion = RECEPCIONES_DEV
+    user_ftp  = env('USER_FTP_DEV')
+    pass_ftp  = env('PASS_FTP_DEV')
 else:
     ids_grupos = IDS_PROD
     ids_recepcion = RECEPCIONES_PROD
+    user_ftp  = env('USER_FTP_PROD')
+    pass_ftp  = env('PASS_FTP_PROD')
 
 def mover_recepcion_a_alm_central():
     almacen_recepcion= None
@@ -377,3 +391,73 @@ def revision_stock_para_vacunas():
             por_pedir = math.ceil((16 - cantidad_vacunas_disponibles)/lote) * lote
             fabricar_vacuna({"sku": str(vacuna), "cantidad": por_pedir})
 
+import pysftp
+import paramiko
+import fnmatch
+import xml.etree.ElementTree as ET
+
+class My_Connection(pysftp.Connection):
+    def __init__(self, *args, **kwargs):
+        try:
+            if kwargs.get('cnopts') is None:
+                kwargs['cnopts'] = pysftp.CnOpts()
+        except pysftp.HostKeysException as e:
+            self._init_error = True
+            raise paramiko.ssh_exception.SSHException(str(e))
+        else:
+            self._init_error = False
+
+        self._sftp_live = False
+        self._transport = None
+        super().__init__(*args, **kwargs)
+
+    def __del__(self):
+        if not self._init_error:
+            self.close()
+
+
+cnopts = pysftp.CnOpts()
+cnopts.hostkeys = None
+
+def obtener_oc_embajadas():
+    try:
+        with My_Connection('beirut.ing.puc.cl', username=user_ftp, password=pass_ftp, cnopts=cnopts) as sftp:
+            for filename in sftp.listdir('/pedidos/'):
+                if fnmatch.fnmatch(filename, "*.xml"):
+                    try:
+                        EXML = EmbassyXML(name=filename)
+                        EXML.save()
+                        sftp.get("/pedidos/" + filename, os.path.join(BASE_DIR, 'api/embajadas/'+ filename) )
+                        root = ET.parse(os.path.join(BASE_DIR, 'api/embajadas/'+ filename))
+                        tree_root = root.getroot()
+                        for elem in tree_root:
+                            if str(elem.tag)=='id':
+                                id = str(elem.text)
+                                orden_de_compra = obtener_oc(id).json()[0]
+                                embassyOc = EmbassyOC(id=id,
+                                cliente=orden_de_compra["cliente"],
+                                proveedor=orden_de_compra["proveedor"],
+                                sku=orden_de_compra["sku"],
+                                fecha_entrega=parse_js_date(
+                                    orden_de_compra["fechaEntrega"]),
+                                cantidad=orden_de_compra["cantidad"],
+                                cantidad_despachada=orden_de_compra["cantidadDespachada"],
+                                precio_unitario=orden_de_compra["precioUnitario"],
+                                canal=orden_de_compra["canal"],
+                                estado=orden_de_compra["estado"],
+                                created_at=parse_js_date(
+                                    orden_de_compra["created_at"]),
+                                updated_at=parse_js_date(
+                                    orden_de_compra["updated_at"])
+                                )
+                                embassyOc.save()
+                                print('Creando OC de embajada...')
+                                # TODO: Aceptar la OC de la embajada
+                    except Exception as e:
+                            print(str(e))
+                            
+                    
+
+
+    except paramiko.ssh_exception.SSHException as e:
+        print('SSH error, you need to add the public key of your remote in your local known_hosts file first.', e)

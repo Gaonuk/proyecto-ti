@@ -6,7 +6,7 @@ import hmac
 import base64
 from .models import Log, Pedido, ProductoBodega, ProductoDespachado
 from .OC import parse_js_date
-from INFO_SKU.info_sku import PRODUCTOS, FORMULA, NUESTRO_SKU
+from .INFO_SKU.info_sku import PRODUCTOS, FORMULA, NUESTRO_SKU
 import time
 import math
 

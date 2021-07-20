@@ -8,6 +8,9 @@ class Log(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     mensaje = models.TextField()
 
+class EmbassyXML(models.Model):
+    name = models.TextField(unique=True)
+
 class RecievedOC(models.Model):
     id = models.TextField(primary_key=True)
     cliente = models.TextField()
