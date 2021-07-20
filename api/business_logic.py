@@ -1,4 +1,4 @@
-from .models import CantidadMaxAceptada, Pedido, ProductoBodega, ProductoDespachado, Log, RecievedOC
+from .models import CantidadMaxAceptada, EmbassyOC, Pedido, ProductoBodega, ProductoDespachado, Log, RecievedOC
 from datetime import datetime, timedelta
 from .warehouse import fabricar_producto
 
@@ -17,14 +17,14 @@ TIEMPOS_PRODUCCION_PROPIOS = {
     '10005': 40,
 }
 
-def stock_no_reservado(sku, fecha_vencimiento, margen_tiempo=5):
+def stock_no_reservado(sku):
     all_stock = ProductoBodega.objects.filter(
         sku=str(sku),
         oc_reservada='',
     )  
     return all_stock
 
-def pedidos_no_reservados(sku, fecha_entrega, margen_tiempo=5):
+def pedidos_no_reservados(sku):
     pedidos = Pedido.objects.filter(
             sku=str(sku),
             disponible_para_uso=True
@@ -44,11 +44,11 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
     try:
         if str(sku) not in TIEMPOS_PRODUCCION_PROPIOS.keys():
             return False
-        pedidos = pedidos_no_reservados(sku, fecha_entrega, 15)
+        pedidos = pedidos_no_reservados(sku)
         num_productos_pedidos = 0
         for pedido in pedidos:
             num_productos_pedidos += pedido.cantidad
-        stock_disponible = stock_no_reservado(sku, fecha_entrega, 10)
+        stock_disponible = stock_no_reservado(sku)
         num_productos_stock = len(stock_disponible)
         if str(sku) not in SKU_VACUNAS:
             # Revisar si aún puedo aceptar dado el máximo actual de OC para ingredientes
@@ -181,10 +181,10 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                     log.save()      
                     return True
 
-        elif str(sku) in SKU_VACUNAS.keys():
+        elif str(sku) in SKU_VACUNAS:
             log_message += Log(mensaje=f'Este sku {sku} es una vacuna.')
             # Revisar si aún puedo aceptar dado el máximo actual de OC para ingredientes
-            ordenes_aceptadas = RecievedOC.objects.filter(
+            ordenes_aceptadas = EmbassyOC.objects.filter(
                 estado="aceptada",
                 sku__in=SKU_VACUNAS
             )
@@ -194,6 +194,9 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 log = Log(mensaje=log_message)
                 log.save()
                 return False
+
+            # No se envía a fabricar nada de momento pq falta actualizar las vacunas e ingredientes posibles, y ahí recién cachar
+            # cómo pedir todo
 
             # Es una vacuna y requiere fabricación entre medio
             log_message += Log(mensaje=f'Al ser una OC para vacunas y no exceder el máximo permitido, se acepta.')

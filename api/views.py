@@ -13,7 +13,7 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 
 from .OC import obtener_oc, recepcionar_oc, rechazar_oc, parse_js_date, crear_oc
-from .models import CantidadMaxAceptada, ProductoBodega, RecievedOC, SentOC, Log, ProductoDespachado
+from .models import CantidadMaxAceptada, ProductoBodega, RecievedOC, SentOC, Log, ProductoDespachado, EmbassyOC
 from random import randint, random, uniform
 import requests
 import json
@@ -165,11 +165,10 @@ def manejo_oc(request, id):
             else:
                 url = orden_de_compra["urlNotificacion"]
 
-            # oc_es_factible = factibildad(
-            #     oc.sku, oc.cantidad, oc.fecha_entrega, oc.id)
+            oc_es_factible = factibildad(oc.sku, oc.cantidad, oc.fecha_entrega, oc.id)
 
-            if uniform(0,1) <= 0.3:
-            # if oc_es_factible and False:
+            # if uniform(0,1) <= 0.3:
+            if oc_es_factible:
                 factibildad(oc.sku, oc.cantidad, oc.fecha_entrega, oc.id )
                 recepcionar_oc(id)
                 params = json.dumps({"estado": "aceptada"})
@@ -710,7 +709,7 @@ def backoffice(request):
 
     SKU_VACUNAS = ['10001','10002','10003','10004','10005','10006']
 
-    ordenes_vacunas = RecievedOC.objects.filter(
+    ordenes_vacunas = EmbassyOC.objects.filter(
         estado="aceptada",
         sku__in=SKU_VACUNAS
     )
@@ -724,8 +723,7 @@ def backoffice(request):
 
     max_vacunas = CantidadMaxAceptada.objects.get(pk='vacunas')
     max_ingredientes = CantidadMaxAceptada.objects.get(pk='ingredientes')
-    print('asd rendering backoffice')
-    # print(almacenes)
+
     return render(request, 'backoffice.html', {
         'almacenes': almacenes,
         'form_cambiar_almacen': form_cambiar_almacen,
