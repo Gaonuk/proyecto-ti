@@ -17,6 +17,9 @@ from .arrays_clients_ids_oc import IDS_DEV, IDS_PROD
 import os
 import environ
 from pathlib import Path
+import pytz
+
+utc=pytz.UTC
 
 # BASE DIRECTORY
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -244,7 +247,15 @@ def fabricar_vacuna(params: dict):
     ids_almacen = [almacen_recepcion['_id'], almacen_central['_id'],
                    almacen_pulmon['_id'], almacen_despacho['_id']]
     almacen_prod_id = {}
+    ahora = utc.localize(datetime.now())
+    vacuna_sku = params['tipo']
+    keys = [key for key in formulas[vacuna_sku].keys()]
+    for sku in keys:
+        productos[sku] = 0
+
     for prod in productos_almacen:
+        if ahora > prod.fecha_vencimiento:
+            continue
         almacen_prod_id[prod.id] = prod.almacen
         if prod.sku in productos:
             productos[prod.sku] += 1
@@ -255,82 +266,75 @@ def fabricar_vacuna(params: dict):
         else:
             ids_sku[prod.sku].append(prod.id)
     has_stock = True
-    vacuna_sku = params['tipo']
-    lote_sku = {
-        '10001': 6,
-        "10002": 8,
-        "10005": 4
-    }
     names = {
         '10001': 'Pfizer',
         '10002': 'Sinovac',
-        '10005': 'Moderna'
+        '10003': 'Astrazeneca',
+        '10004': 'Janssen',
+        '10005': 'Moderna',
+        '10006': 'Sputnik'
     }
-    log_vacuna = Log(
-        mensaje=f"Se esta intentando fabricar un lote de vacuna {names[vacuna_sku]}")
-    log_vacuna.save()
 
-    keys = [key for key in formulas[vacuna_sku].keys()]
     available_skus = [key for key in productos.keys()]
-    obtener_ingredientes(params['tipo'])
-    # try:
-    #     for sku in keys:
-    #         if not sku in available_skus:
-    #             log_no_sku = Log(mensaje=f'No tienes el sku {sku}, necesario para fabricar el lote de vacunas {names[vacuna_sku]}')
-    #             log_no_sku.save()
-    #             has_stock = False
-    #             break
-    #         else:
-    #             if productos[sku] < formulas[vacuna_sku][sku]:
-    #                 log_no_stock = Log(mensaje=f'No tienes stock suficiente de sku {sku} para fabricar el lote de vacunas {names[vacuna_sku]}')
-    #                 log_no_stock.save()
-    #                 has_stock = False
-    #                 break
-    #     if has_stock:
-    #         log_stock = Log(mensaje='Tienes stock suficiente para fabricar esta vacuna, vamos a mover los elementos necesarios a despacho!')
-    #         log_stock.save()
-    #         for sku in keys:
-    #             count = 0
-    #             limit = formulas[vacuna_sku][sku]
-    #             for id in ids_sku[sku]:
-    #                 if count == limit:
-    #                     break
-    #                 elif almacen_prod_id[id] != almacen_despacho['_id']:
-    #                     mover_entre_almacenes({ "productoId": id, "almacenId": almacen_despacho['_id']})
-    #                     time.sleep(2)
-    #                     count += 1
-    #                 else:
-    #                     count += 1
+    print(available_skus)
+    try:
+        has_stock = obtener_ingredientes(params['tipo'], productos)
+        if not has_stock:
+            log_no_sku = Log(mensaje=f'No tienes los ingredientes necesarios para fabricar el lote de vacunas {names[vacuna_sku]}')
+            log_no_sku.save()
+            return
+        else:
+            log_stock = Log(mensaje='Tienes stock suficiente para fabricar esta vacuna, vamos a mover los elementos necesarios a despacho!')
+            log_stock.save()
+            for sku in keys:
+                count = 0
+                limit = formulas[vacuna_sku][sku]
+                for id in ids_sku[sku]:
+                    if count == limit:
+                        break
+                    elif almacen_prod_id[id] != almacen_despacho['_id']:
+                        mover_entre_almacenes({ "productoId": id, "almacenId": almacen_despacho['_id']})
+                        time.sleep(2)
+                        count += 1
+                    else:
+                        count += 1
 
-    #         time.sleep(3)
-    #         fabricar_producto({"sku": vacuna_sku, "cantidad": lote_sku[vacuna_sku]})
-    #         log_success = Log(mensaje=f'Se ha mandado a fabricar exitosamente un lote de vacunas {names[vacuna_sku]}')
-    #         log_success.save()
-    # except Exception as err:
-    #     error_log = Log(mensaje=f"{err}")
-    #     error_log.save()
+            time.sleep(3)
+            fabricar_producto({"sku": vacuna_sku, "cantidad": lote_sku[vacuna_sku]})
+            log_success = Log(mensaje=f'Se ha mandado a fabricar exitosamente un lote de vacunas {names[vacuna_sku]}')
+            log_success.save()
+    except Exception as err:
+        error_log = Log(mensaje=f"{err}")
+        error_log.save()
 
 
-def obtener_ingredientes(sku):
+def obtener_ingredientes(sku, productos):
+    has_stock = True
+    available_skus = [key for key in productos.keys()]
+    print(productos)
     for ingrediente in FORMULA[sku]:
         time.sleep(2)
-        if not ingrediente in NUESTRO_SKU:
-            print('hay que pedir ' + ingrediente)
-            index = randint(
-                0, len(PRODUCTOS[ingrediente]['Grupos Productores']) - 1)
-            index_alt = randint(
-                0, len(PRODUCTOS[ingrediente]['Grupos Productores']) - 1)
-            grupo = PRODUCTOS[ingrediente]['Grupos Productores'][index]
-            grupo_alt = PRODUCTOS[ingrediente]['Grupos Productores'][index_alt]
-            print('se lo pediremos a los grupos: ' + grupo + ' ' + grupo_alt)
-            response = crear_oc(grupo, ingrediente, FORMULA[sku][ingrediente])
-            response_alt = crear_oc(grupo_alt, ingrediente, FORMULA[sku][ingrediente])
-            data = response.json()
-            data_alt = response_alt.json()
-            print(data)
-            print(data_alt)
-        else:
-            print('podemos fabricarlo ' + ingrediente)
-            response = fabricar_producto({'sku': ingrediente, 'cantidad': SKU_LOTE[ingrediente]*3})
-            data = response.json()
-            print(data)
+        print(f"{ingrediente}: tenemos disponible {productos[ingrediente]} y necesitamos {FORMULA[sku][ingrediente]}")
+        if not (ingrediente in available_skus) or (productos[ingrediente] < FORMULA[sku][ingrediente]):
+            has_stock = False
+            if not ingrediente in NUESTRO_SKU:
+                print('hay que pedir ' + ingrediente)
+                index = randint(
+                    0, len(PRODUCTOS[ingrediente]['Grupos Productores']) - 1)
+                index_alt = randint(
+                    0, len(PRODUCTOS[ingrediente]['Grupos Productores']) - 1)
+                grupo = PRODUCTOS[ingrediente]['Grupos Productores'][index]
+                grupo_alt = PRODUCTOS[ingrediente]['Grupos Productores'][index_alt]
+                print('se lo pediremos a los grupos: ' + grupo + ' ' + grupo_alt)
+                response = crear_oc(grupo, ingrediente, FORMULA[sku][ingrediente])
+                response_alt = crear_oc(grupo_alt, ingrediente, FORMULA[sku][ingrediente])
+                data = response.json()
+                data_alt = response_alt.json()
+                log_request = Log(mensaje=f'Acabas de hacer ordenes por el sku {ingrediente} a los grupos {grupo} y {grupo_alt}')
+                log_request.save()
+            else:
+                response = fabricar_producto({'sku': ingrediente, 'cantidad': SKU_LOTE[ingrediente]*3})
+                data = response.json()
+        else: 
+            continue
+    return has_stock

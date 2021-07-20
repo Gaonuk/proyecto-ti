@@ -151,7 +151,7 @@ def crear_oc(grupo, sku, cantidad):
         'cantidad': cantidad,
         'precioUnitario': 1,
         'canal': 'b2b',
-        'notas': 'dame dame',
+        'notas': 'dame',
         'urlNotificacion': 'http://aysen13.ing.puc.cl/ordenes-compra/{_id}'
     }
 
@@ -170,6 +170,7 @@ def crear_oc(grupo, sku, cantidad):
     respuesta = pedir_producto(oc, params["fechaEntrega"])
     if respuesta.status_code == 201:
         answer = respuesta.json()
+        print(answer)
         log_respuesta = Log(mensaje=f'OC de ID {answer["id"]} fue recibida')
         log_respuesta.save()
     pedido = Pedido(id = oc["_id"], sku =str(oc["sku"]), cantidad=oc["cantidad"], fecha_disponible=parse_js_date(oc["fechaEntrega"]))
