@@ -1,0 +1,135 @@
+schema
+;
+\d
+q
+;
+\@
+\q
+CREATE DATABASE localt2;
+\d
+CREATE USER admin WITH PASSWORD 'admin';
+GRANT ALL PRIVILEGES ON DATABASE localt2 TO admin;
+\q
+\d
+\h
+\r
+\schema
+schema
+localt2
+;
+localt2;
+\d localt2;
+\l
+SELECT * FROM localt2;
+SELECT * FROM localt2;
+\l+
+SELECT *
+;
+SELECT * FROM localt2
+;
+SELECT * FROM pg_database;
+DESCRIBE TABLE localt2;
+\d localt2;
+\c localt2;
+\dt
+\h
+\d
+\s
+\schema
+\d
+\d espotifai_api_track
+\d espotifai_api_album
+q
+\q
+\c localt2;
+\d
+\d espotifai_api_artist
+\d espotifai_api_album
+\q
+DROP TABLE localt2;
+\d
+\h
+\d
+\c localt2;
+DROP TABLE;
+DROP TABLE
+;
+DELETE;
+\d
+q
+;
+\q
+DELETE * FROM localt2;
+DROP DATABASE localt2;
+CREATE DATABASE localt2;
+GRANT ALL PRIVILEGES ON DATABASE localt2 TO admin;
+\q
+\c localt2;
+\d
+q
+;;
+q;
+\q
+DROP DATABASE localt2;
+CREATE DATABASE localt2;
+GRANT ALL PRIVILEGES ON DATABASE localt2 TO admin;
+\q
+CREATE DATABASE generate_pdf
+;
+CREATE DATABASE generate_pdf;
+CREATE USER admin WITH PASSWORD 'admin';
+GRANT ALL PRIVILEGES ON DATABASE generate_pdf TO admin;
+\q
+CREATE DATABASE proyectogrupo13;
+CREATE USER grupo13 WITH ENCRYPTED PASSWORD ‘clavegrupo13’;
+CREATE USER grupo13 WITH ENCRYPTED PASSWORD ‘clavegrupo13’;
+CREATE USER grupo13 WITH ENCRYPTED PASSWORD "clavegrupo13";
+CREATE USER grupo13 WITH ENCRYPTED PASSWORD clavegrupo13;
+CREATE USER grupo13 WITH ENCRYPTED PASSWORD 'clavegrupo13';
+GRANT ALL PRIVILEGES ON DATABASE proyectogrupo13 TO grupo13;
+/l
+\l
+\q
+create database proyectogrupo13_prod
+;
+create user grupo13 with encrypted password 'clavegrupo13';
+grant all privileges on database proyectogrupo13_prod to grupo 13;
+grant all privileges on database proyectogrupo13_prod to grupo13;
+\q
+create user grupo13_prod with encrypted password 'clavegrupo13_prod'
+;
+grant all privileges on database proyectogrupo13_prod to grupo13_prod;
+\q
+\d
+\schema
+schema;:
+schema;
+schema
+sa
+;
+\s
+\l
+\d proyectogrupo13
+\l proyectogrupo13
+\s proyectogrupo13
+select * from proyectogrupo13
+;
+\s historial
+\r
+\h
+\l+
+describe table proyectogrupo13
+;
+describe table proyectogrupo13;
+DESCRIBE TABLE proyectogrupo13;
+DESCRIBE TABLE proyectogrupo13;
+\d
+\l
+\d proyectogrupo13
+q
+\q
+DROP DATABASE proyectogrupo13
+;
+CREATE DATABASE proyectogrupo13
+;
+\s hist
