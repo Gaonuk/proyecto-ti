@@ -7,7 +7,6 @@ from rest_framework.decorators import api_view
 from django.http.response import JsonResponse
 from rest_framework.response import Response
 from .warehouse import despachar_producto, fabricar_vacuna, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto
-import datetime
 
 from .forms import FormActualizarMaxOCIngredientes, FormCambiarAlmacen, FormCambiarBodega, FormCambiarAlmacenPorSKU, FormCrearVacuna, FormFabricar, FormCrearOC, FormActualizarMaxOCVacunas
 from django.http import HttpResponseRedirect
@@ -23,9 +22,7 @@ from .business_logic import factibildad
 
 # Create your views here.
 from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
-
 from datetime import datetime, timedelta
-
 from .arrays_clients_ids_oc import IDS_DEV, IDS_PROD
 
 # Endpoints que exponemos para otros grupos

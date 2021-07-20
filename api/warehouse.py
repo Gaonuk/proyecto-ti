@@ -6,7 +6,7 @@ import hmac
 import base64
 from .models import Log, Pedido, ProductoBodega, ProductoDespachado
 from .OC import parse_js_date
-
+from .INFO_SKU.info_sku import PRODUCTOS, FORMULA, NUESTRO_SKU
 import time
 import math
 
@@ -202,39 +202,7 @@ def fabricar_producto(params:dict):
     return response
 
 def fabricar_vacuna(params:dict):
-    formulas = {
-        '10001': {
-            '1000': 12, 
-            '108': 6, 
-            '107': 6, 
-            '100': 6, 
-            '114': 6, 
-            '112': 6, 
-            '119': 6, 
-            '129': 12, 
-            '113': 6, 
-            '118': 6
-        }, 
-        '10002': {
-            '1001': 8, 
-            '121': 8, 
-            '120': 16, 
-            '115': 8, 
-            '113': 16
-        }, 
-        '10005': {
-            '1000': 12, 
-            '126': 4, 
-            '114': 4, 
-            '100': 4, 
-            '127': 4, 
-            '132': 8, 
-            '110': 4, 
-            '103': 4, 
-            '102': 4, 
-            '129': 4
-        }
-    }
+    formulas = FORMULA
     productos_almacen = ProductoBodega.objects.filter(oc_reservada='')
     productos = {}
     ids_sku = {}
