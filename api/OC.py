@@ -24,31 +24,56 @@ env = environ.Env()
 environ.Env.read_env(env_file= os.path.join(BASE_DIR, 'proyecto13/.env'))
 
 URLS_GRUPOS = {
-"60caa3af31df040004e88de4":    "http://aysen1.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88de5":    "http://aysen2.ing.puc.cl/storage/ordenes-compra/",
-"60caa3af31df040004e88de6":    "http://aysen3.ing.puc.cl/api/ordenes-compra/",
-"60caa3af31df040004e88de7":    "http://aysen4.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88de8":    "http://aysen5.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88de9":    "http://aysen6.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88dea":    "http://aysen7.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88deb":    "http://aysen8.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88dec":    "http://aysen9.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88ded":    "http://aysen10.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88dee":    "http://aysen11.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88def":    "http://aysen12.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88df0":    "http://aysen13.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88df1":    "http://aysen14.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88df2":    "http://aysen15.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88df3":    "http://aysen16.ing.puc.cl/recepcionar/",
-"60caa3af31df040004e88df4":    "http://aysen17.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88df5":    "http://aysen18.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88df6":    "http://aysen19.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88df7":    "http://aysen20.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88df8":    "http://aysen21.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88df9":    "http://aysen22.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88dfa":    "http://aysen23.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88dfb":    "http://aysen24.ing.puc.cl/ordenes-compra/",
-"60caa3af31df040004e88dfc":    "http://aysen25.ing.puc.cl/ordenes-compra/"
+    "60caa3af31df040004e88de4":    "http://aysen1.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88de5":    "http://aysen2.ing.puc.cl/storage/ordenes-compra/",
+    "60caa3af31df040004e88de6":    "http://aysen3.ing.puc.cl/api/ordenes-compra/",
+    "60caa3af31df040004e88de7":    "http://aysen4.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88de8":    "http://aysen5.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88de9":    "http://aysen6.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88dea":    "http://aysen7.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88deb":    "http://aysen8.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88dec":    "http://aysen9.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88ded":    "http://aysen10.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88dee":    "http://aysen11.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88def":    "http://aysen12.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88df0":    "http://aysen13.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88df1":    "http://aysen14.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88df2":    "http://aysen15.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88df3":    "http://aysen16.ing.puc.cl/recepcionar/",
+    "60caa3af31df040004e88df4":    "http://aysen17.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88df5":    "http://aysen18.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88df6":    "http://aysen19.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88df7":    "http://aysen20.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88df8":    "http://aysen21.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88df9":    "http://aysen22.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88dfa":    "http://aysen23.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88dfb":    "http://aysen24.ing.puc.cl/ordenes-compra/",
+    "60caa3af31df040004e88dfc":    "http://aysen25.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f1447":    "http://aysen1.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f1448":    "http://aysen2.ing.puc.cl/storage/ordenes-compra/",
+    "60bd2a763f1b6100049f1449":    "http://aysen3.ing.puc.cl/api/ordenes-compra/",
+    "60bd2a763f1b6100049f144a":    "http://aysen4.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f144b":    "http://aysen5.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f144c":    "http://aysen6.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f144d":    "http://aysen7.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f144e":    "http://aysen8.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f144f":    "http://aysen9.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f1450":    "http://aysen10.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f1451":    "http://aysen11.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f1452":    "http://aysen12.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f1453":    "http://aysen13.ing.puc.cl/ordenes-compra/",  # NUESTRO ID
+    "60bd2a763f1b6100049f1454":    "http://aysen14.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f1455":    "http://aysen15.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f1456":    "http://aysen16.ing.puc.cl/recepcionar/",
+    "60bd2a763f1b6100049f1457":    "http://aysen17.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f1458":    "http://aysen18.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f1459":    "http://aysen19.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f145a":    "http://aysen20.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f145b":    "http://aysen21.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f145c":    "http://aysen22.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f145d":    "http://aysen23.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f145e":    "http://aysen24.ing.puc.cl/ordenes-compra/",
+    "60bd2a763f1b6100049f145f":    "http://aysen25.ing.puc.cl/ordenes-compra/"
 }
 
 # URL de la API de órdenes de compra
@@ -126,7 +151,7 @@ def crear_oc(grupo, sku, cantidad):
         'cantidad': cantidad,
         'precioUnitario': 1,
         'canal': 'b2b',
-        'notas': 'dame dame',
+        'notas': 'dame',
         'urlNotificacion': 'http://aysen13.ing.puc.cl/ordenes-compra/{_id}'
     }
 
@@ -145,7 +170,7 @@ def crear_oc(grupo, sku, cantidad):
     respuesta = pedir_producto(oc, params["fechaEntrega"])
     if respuesta.status_code == 201:
         answer = respuesta.json()
-        log_respuesta = Log(mensaje=f'OC de ID {answer["id"]} fue recibida')
+        log_respuesta = Log(mensaje=f'OC de ID {oc["_id"]} fue recibida')
         log_respuesta.save()
     pedido = Pedido(id = oc["_id"], sku =str(oc["sku"]), cantidad=oc["cantidad"], fecha_disponible=parse_js_date(oc["fechaEntrega"]))
     pedido.save()

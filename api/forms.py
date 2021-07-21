@@ -4,7 +4,10 @@ from requests.api import options
 OPCIONES_VACUNAS = [
     ('10001', 'Pfizer'),
     ('10002', 'Sinovac'),
-    ('10005', 'Moderna')
+    ('10005', 'Moderna'),
+    ('10003', 'Astrazeneca'),
+    ('10004', 'Janssen'),
+    ('10006', 'Sputnik')
 ]
 
 class FormCambiarAlmacen(forms.Form):

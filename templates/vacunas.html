@@ -13,6 +13,7 @@
       const keys = {{keys|safe}}
       const formulas = {{formulas|safe}}
       const map_keys = {{map_keys|safe}}
+      const formulas_completas = {{formulas_completas|safe}}
       function gengrid() {
         let element = document.getElementById('base')
         console.log(element)
@@ -38,18 +39,18 @@
           `
           newTable.setAttribute('class', 'table')
           let newBody = document.createElement('tbody')
-          for (let ingrediente of formulas[key]) {
+          for (let ingrediente of Object.keys(formulas_completas[key])) {
             console.log(ingrediente)
             let newRow = document.createElement('tr')
             newRow.innerHTML = `
-              <td>${ ingrediente['SKU Ingrediente'] }</td>
-              <td>${ ingrediente['Nombre Ingrediente'] }</td>
-              <td>${ ingrediente['Cantidad'] }</td>
-              <td>${ ingrediente['Lote producción'] }</td>
-              <td>${ ingrediente['Cantidad para lote'] }</td>
-              <td>${ ingrediente['Stock'] }</td>
+              <td>${ formulas_completas[key][ingrediente]['SKU Ingrediente'] }</td>
+              <td>${ formulas_completas[key][ingrediente]['Nombre Ingrediente'] }</td>
+              <td>${ formulas_completas[key][ingrediente]['Cantidad'] }</td>
+              <td>${ formulas_completas[key][ingrediente]['Lote producción'] }</td>
+              <td>${ formulas_completas[key][ingrediente]['Cantidad para lote'] }</td>
+              <td>${ formulas_completas[key][ingrediente]['Stock'] }</td>
             `
-            if (parseInt(ingrediente['Stock']) >= parseInt(ingrediente['Cantidad para lote']))
+            if (parseInt(formulas_completas[key][ingrediente]['Stock']) >= parseInt(formulas_completas[key][ingrediente]['Cantidad para lote']))
               newRow.setAttribute('class', 'is-selected')
             newBody.appendChild(newRow)
           }
@@ -57,6 +58,9 @@
           newDiv.appendChild(newP)
           newDiv.appendChild(newTable)
           element.appendChild(newDiv)
+
+          let select = document.getElementById('id_tipo')
+          select.setAttribute('class', 'select')
         }
       }
       window.onload = function () {
@@ -72,12 +76,12 @@
 
       <div class="hero-body">
         <div class="">
-          <div id="base" class="columns has-text-black"></div>
+          <div id="base" class="columns has-text-black is-multiline"></div>
           
         </div>
       </div>
       <div class="container has-text-centered">
-        <form action="/vacunas/" method="POST" class="card">
+        <form action="/vacunas/" method="POST" class="card" style="padding: 15px;">
           <div class="field">
             {% csrf_token %}
             {{ form_fabricar_vacuna }}
