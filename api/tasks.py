@@ -79,3 +79,10 @@ Schedule.objects.create(
     schedule_type='I'
 )
 
+Schedule.objects.create(
+    func="api.cron.eliminar",
+    name="Eliminar Productos vencidos",
+    minutes=2,
+    repeats=-1,
+    schedule_type='I'
+)

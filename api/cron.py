@@ -1,4 +1,5 @@
 # Create your tasks here
+from datetime import datetime
 from .models import RecievedOC, ProductoBodega, Log, Pedido, EmbassyOC, EmbassyXML
 from .warehouse import despachar_producto, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto, fabricar_vacuna
 import time
@@ -400,6 +401,9 @@ def revision_stock_para_vacunas():
             lote = int(PRODUCTOS[vacuna]['Lote producción'])
             fabricar_vacuna({"sku": str(vacuna), "cantidad": lote})
 
+def eliminar():
+    for producto in ProductoBodega.objects.filter(fecha_vencimiento__lte=datetime.now()):
+        producto.delete()
 
 import pysftp
 import paramiko
