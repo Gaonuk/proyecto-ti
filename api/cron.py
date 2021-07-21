@@ -338,6 +338,7 @@ def despachar_vacunas():
         }
         try:
             despachar_producto(params)
+            vacuna.delete()
         except:
             log = Log(mensaje=f'No se pudo despachar vacuna de id {vacuna.id} asociada a la OC {vacuna.oc_reservada}')
             log.save()
@@ -362,6 +363,7 @@ def despachar():
                     print(f"Despachar: El producto de id {producto.id} fue despachado al almacen {almacen_id}")
                     log = Log(mensaje=f"El producto de id {producto.id} fue despachado al almacen {almacen_id}")
                     log.save()
+                    producto.delete()
                 except:
                     print(respuesta["error"])
                     log = Log(mensaje=respuesta["error"])
@@ -397,6 +399,7 @@ def revision_stock_para_vacunas():
         else:
             lote = int(PRODUCTOS[vacuna]['Lote producción'])
             fabricar_vacuna({"sku": str(vacuna), "cantidad": lote})
+
 
 import pysftp
 import paramiko
