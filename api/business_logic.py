@@ -1,4 +1,3 @@
-from api.views import index
 from .models import CantidadMaxAceptada, EmbassyOC, Pedido, ProductoBodega, ProductoDespachado, Log, RecievedOC
 from datetime import datetime, timedelta
 from .warehouse import fabricar_producto, fabricar_vacuna
