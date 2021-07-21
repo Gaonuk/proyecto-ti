@@ -192,7 +192,7 @@ def revision_oc():
             falta = orden.cantidad - orden.cantidad_despachada
             lista_vacunas = ProductoBodega.objects.filter(oc_reservada='', sku = str(orden.sku))
             vacunas_disponible = ProductoBodega.objects.filter(oc_reservada='', sku = str(orden.sku)).count()
-            if falta <= vacunas_disponible:
+            if vacunas_disponible <= falta  :
                 for vacuna in lista_vacunas:
                     vacuna.oc_reservada = orden.id
                     vacuna.save()
