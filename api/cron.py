@@ -374,7 +374,7 @@ def despachar():
         log.save()
 
 def revison_stock_propio():
-    for sku in NUESTRO_SKU:
+    for sku in NUESTRO_SKU[:-6]:
         if ProductoBodega.objects.filter(sku=sku, oc_reservada = '').exists():
             cantidad_productos_disponibles = ProductoBodega.objects.filter(sku=sku, oc_reservada = '').count()
             if cantidad_productos_disponibles < 24:
