@@ -24,6 +24,7 @@ from .business_logic import factibildad
 from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
 from datetime import datetime, timedelta
 from .arrays_clients_ids_oc import IDS_DEV, IDS_PROD
+from .INFO_SKU.info_sku import PRODUCTOS, FORMULA, NUESTRO_SKU, FORMULA_COMPLETA
 
 # Endpoints que exponemos para otros grupos
 import environ
@@ -32,6 +33,36 @@ from pathlib import Path
 
 # BASE DIRECTORY
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+SKU_LOTE = {
+    '107': 7,
+    '100': 5,
+    '108': 18,
+    '112': 5,
+    '113': 12,
+    '114': 14,
+    '118': 4,
+    '119': 14,
+    '129': 10,
+    '115': 20,
+    '120': 5,
+    '121': 3,
+    '126': 10,
+    '127': 5,
+    '132': 14,
+    '110': 6,
+    '103': 9,
+    '102': 8,
+    '1000': 8,
+    '1001': 5,
+    '10001': 6,
+    '10002': 8,
+    '10005': 4,
+    '10003': 5,
+    '10004': 5,
+    '10006': 9,
+
+}
 
 # Initialise environment variables
 env = environ.Env()
@@ -746,7 +777,7 @@ def vacunas(request):
 
     if request.method == 'POST':
         tipo_vacuna = request.POST.get('tipo')
-        fabricar_vacuna({ 'tipo': tipo_vacuna })
+        fabricar_vacuna({ 'tipo': tipo_vacuna, 'cantidad': SKU_LOTE[tipo_vacuna] })
 
     form_fabricar_vacuna = FormCrearVacuna()
 
@@ -782,52 +813,22 @@ def vacunas(request):
     labels_stock = [key for key in cantidad_sku.keys()]
     stock = [cantidad_sku[i] for i in labels_stock]
 
-    formulas = {
-        '10001': [
-            {'SKU Ingrediente': 1000, 'Nombre Ingrediente': 'mRNA', 'Cantidad': 2, 'Lote producción': 6, 'Cantidad para lote': 12}, 
-            {'SKU Ingrediente': 107, 'Nombre Ingrediente': 'ALC-0159', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}, 
-            {'SKU Ingrediente': 108, 'Nombre Ingrediente': 'ALC-0315', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}, 
-            {'SKU Ingrediente': 100, 'Nombre Ingrediente': '1,2-diestearol-sn-glicero-3-fosfocolina', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}, 
-            {'SKU Ingrediente': 114, 'Nombre Ingrediente': 'Colesterol', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}, 
-            {'SKU Ingrediente': 112, 'Nombre Ingrediente': 'Cloruro de potasio', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}, 
-            {'SKU Ingrediente': 119, 'Nombre Ingrediente': 'Fosfato sódico dibásico dihidrato', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}, 
-            {'SKU Ingrediente': 129, 'Nombre Ingrediente': 'Sacarosa', 'Cantidad': 2, 'Lote producción': 6, 'Cantidad para lote': 12}, 
-            {'SKU Ingrediente': 113, 'Nombre Ingrediente': 'Cloruro de sodio', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}, 
-            {'SKU Ingrediente': 118, 'Nombre Ingrediente': 'Fosfato monobásico de potasio', 'Cantidad': 1, 'Lote producción': 6, 'Cantidad para lote': 6}
-        ], 
-        '10002': [
-            {'SKU Ingrediente': 1001, 'Nombre Ingrediente': 'Antígeno SARS-CoV-2 inactivado', 'Cantidad': 1, 'Lote producción': 8, 'Cantidad para lote': 8}, 
-            {'SKU Ingrediente': 121, 'Nombre Ingrediente': 'Hidróxido de aluminio', 'Cantidad': 1, 'Lote producción': 8, 'Cantidad para lote': 8}, 
-            {'SKU Ingrediente': 120, 'Nombre Ingrediente': 'Hidrogenofosfato de disodio', 'Cantidad': 2, 'Lote producción': 8, 'Cantidad para lote': 16}, 
-            {'SKU Ingrediente': 115, 'Nombre Ingrediente': 'Dihidrogenofosfato de sodio', 'Cantidad': 1, 'Lote producción': 8, 'Cantidad para lote': 8}, 
-            {'SKU Ingrediente': 113, 'Nombre Ingrediente': 'Cloruro de sodio', 'Cantidad': 2, 'Lote producción': 8, 'Cantidad para lote': 16}
-        ], 
-        '10005': [
-            {'SKU Ingrediente': 1000, 'Nombre Ingrediente': 'mRNA', 'Cantidad': 3, 'Lote producción': 4, 'Cantidad para lote': 12}, 
-            {'SKU Ingrediente': 126, 'Nombre Ingrediente': 'Lípido SM-102', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}, 
-            {'SKU Ingrediente': 114, 'Nombre Ingrediente': 'Colesterol', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}, 
-            {'SKU Ingrediente': 100, 'Nombre Ingrediente': '1,2-diestearol-sn-glicero-3-fosfocolina', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}, 
-            {'SKU Ingrediente': 127, 'Nombre Ingrediente': 'Polietilenglicol', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}, 
-            {'SKU Ingrediente': 132, 'Nombre Ingrediente': 'Trometamol', 'Cantidad': 2, 'Lote producción': 4, 'Cantidad para lote': 8}, 
-            {'SKU Ingrediente': 110, 'Nombre Ingrediente': 'Clorhidrato de trometamol', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}, 
-            {'SKU Ingrediente': 103, 'Nombre Ingrediente': 'Ácido acético', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}, 
-            {'SKU Ingrediente': 102, 'Nombre Ingrediente': 'Acetato de sodio trihidrato', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}, 
-            {'SKU Ingrediente': 129, 'Nombre Ingrediente': 'Sacarosa', 'Cantidad': 1, 'Lote producción': 4, 'Cantidad para lote': 4}
-        ]
-    }
+    formulas = FORMULA
 
     map_keys = {
         '10005': "Moderna",
         '10002': "Sinovac",
-        '10001': "Pfizer"
+        '10001': "Pfizer",
+        '10003': 'Astrazeneca',
+        '10004': 'Janssen',
+        '10006': 'Sputnik'
     }
     names = [map_keys[key] for key in formulas.keys()]
     keys = [key for key in formulas.keys()]
-    for key in formulas.keys():
+    for key in keys:
         for ingrediente in formulas[key]:
-            sku_ingrediente = str(ingrediente['SKU Ingrediente'])
-            if sku_ingrediente in labels_stock:
-                ingrediente['Stock'] = cantidad_sku[sku_ingrediente]
+            if ingrediente in labels_stock:
+                FORMULA_COMPLETA[int(key)][int(ingrediente)]['Stock'] = cantidad_sku[ingrediente]
             else:
-                ingrediente['Stock'] = 0
-    return render(request, 'vacunas.html', {"formulas": formulas, "keys": keys, "map_keys": map_keys, "names": names, 'form_fabricar_vacuna': form_fabricar_vacuna})
+                FORMULA_COMPLETA[int(key)][int(ingrediente)]['Stock'] = 0
+    return render(request, 'vacunas.html', {"formulas": formulas, "keys": keys, "map_keys": map_keys, "names": names, 'form_fabricar_vacuna': form_fabricar_vacuna, "formulas_completas": FORMULA_COMPLETA})

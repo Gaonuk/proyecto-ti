@@ -170,8 +170,7 @@ def crear_oc(grupo, sku, cantidad):
     respuesta = pedir_producto(oc, params["fechaEntrega"])
     if respuesta.status_code == 201:
         answer = respuesta.json()
-        print(answer)
-        log_respuesta = Log(mensaje=f'OC de ID {answer["id"]} fue recibida')
+        log_respuesta = Log(mensaje=f'OC de ID {oc["_id"]} fue recibida')
         log_respuesta.save()
     pedido = Pedido(id = oc["_id"], sku =str(oc["sku"]), cantidad=oc["cantidad"], fecha_disponible=parse_js_date(oc["fechaEntrega"]))
     pedido.save()
