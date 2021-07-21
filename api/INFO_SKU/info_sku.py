@@ -1,4 +1,4 @@
-import pandas as pd
+ import pandas as pd
 import os
 ##### Para cambiar los datos
 # xl = pd.ExcelFile('Productos alumnos.xlsx')
@@ -25,7 +25,7 @@ FORMULA = {}
 df_formula = pd.read_csv(os.path.join(os.path.dirname(__file__),'../INFO_SKU/Fórmulas producción.txt'), sep=",",  index_col=False)
 df_formula.dropna(subset = ["SKU Producto"], inplace=True)
 #print(df_formula )
-for index, row in df_formula .iterrows():
+for index, row in df_formula.iterrows():
     if str(int(row['SKU Producto'])) not in FORMULA: 
         FORMULA[str(int(row['SKU Producto']))] = {str(row['SKU Ingrediente']): row['Cantidad para lote']}
             

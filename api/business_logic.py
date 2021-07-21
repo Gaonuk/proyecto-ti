@@ -1,6 +1,11 @@
 from .models import CantidadMaxAceptada, EmbassyOC, Pedido, ProductoBodega, ProductoDespachado, Log, RecievedOC
 from datetime import datetime, timedelta
-from .warehouse import fabricar_producto
+from .warehouse import fabricar_producto, fabricar_vacuna
+from .OC import crear_oc
+import random
+
+from .INFO_SKU.info_sku import PRODUCTOS, FORMULA, NUESTRO_SKU
+import math
 
 SKU_VACUNAS = ['10001','10002','10003','10004','10005','10006']
 
@@ -184,22 +189,75 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
         elif str(sku) in SKU_VACUNAS:
             log_message += Log(mensaje=f'Este sku {sku} es una vacuna.')
             # Revisar si aún puedo aceptar dado el máximo actual de OC para ingredientes
+            ordenes = EmbassyOC.objects.all()
             ordenes_aceptadas = EmbassyOC.objects.filter(
-                estado="aceptada",
-                sku__in=SKU_VACUNAS
+                estado="aceptada"
             )
-            max_vacunas = CantidadMaxAceptada.objects.get(pk='vacunas')
-            if ordenes_aceptadas.count() >= max_vacunas:
-                log_message += Log(mensaje=f'Se rechaza la OC por haber alcanzado el máximo permitido de OC de vacunas aceptadas.')
+            ordenes_finalizadas = EmbassyOC.objects.filter(
+                estado="finalizada"
+            )  
+
+            porcentaje_aceptacion_rechazando = (ordenes_aceptadas.count() + ordenes_finalizadas.count())/ (ordenes.count()+1)
+            # Porcentaje en caso de RECHAZAR la OC actual
+
+            if porcentaje_aceptacion_rechazando > 0.85:
+                log_message += Log(mensaje=f'Se rechaza la OC para vacunas. El porcentaje de aceptación actual es: {porcentaje_aceptacion_rechazando*100}%')
                 log = Log(mensaje=log_message)
                 log.save()
                 return False
 
-            # No se envía a fabricar nada de momento pq falta actualizar las vacunas e ingredientes posibles, y ahí recién cachar
-            # cómo pedir todo
+            # max_vacunas = CantidadMaxAceptada.objects.get(pk='vacunas')
+            # if ordenes_aceptadas.count() >= max_vacunas:
+            #     log_message += Log(mensaje=f'Se rechaza la OC por haber alcanzado el máximo permitido de OC de vacunas aceptadas.')
+            #     log = Log(mensaje=log_message)
+            #     log.save()
+            #     return False
 
+            sku_vacuna = str(sku)
+            tamano_lote_vacuna = int(PRODUCTOS[sku_vacuna]['Lote producción'])
+            lotes_vacuna_solicitados = math.ceil(cantidad_solicitada/tamano_lote_vacuna)
+            for sku_ingrediente in FORMULA[sku_vacuna]:
+                tamano_lote_ingrediente = int(FORMULA[sku_vacuna][sku_ingrediente])
+                unidades_ing_necesarias = tamano_lote_ingrediente*lotes_vacuna_solicitados
+                if sku_ingrediente in NUESTRO_SKU:
+                    body_fabricar = {
+                        'sku': str(sku_ingrediente),
+                        'cantidad': unidades_ing_necesarias
+                    }
+                    response = fabricar_producto(body_fabricar).json()
+                    pedido = Pedido.objects.get(pk=response['_id'])
+                    pedido.disponible_para_uso = False
+                    pedido.save()   
+                    log_message += Log(mensaje=f'Se mandó a fabricar {unidades_ing_necesarias} de {sku_ingrediente}.')
+                else:
+                    
+                    
+                    # Elijo dos grupos al azar para pedir
+                    proveedores = PRODUCTOS[sku_ingrediente]['Grupos Productores']
+                    index_1 = random.randint(0, len(proveedores)-1)
+                    proveedores.pop(index_1)
+                    index_2 = random.randint(0, len(proveedores-1))
+                    grupo_proveedor_1 = PRODUCTOS[sku_ingrediente]['Grupos Productores'][index_1]
+                    grupo_proveedor_2 = PRODUCTOS[sku_ingrediente]['Grupos Productores'][index_2]
+
+
+                    # Esta sección es para dosificar las ordenes de compra en caso de que superen las 80 unidades
+                    unidades_restantes_por_pedir = unidades_ing_necesarias
+                    while unidades_restantes_por_pedir > 0:
+                        if unidades_restantes_por_pedir > 80:
+                            crear_oc(grupo_proveedor_1, sku_ingrediente, 80)
+                            crear_oc(grupo_proveedor_2, sku_ingrediente, 80)
+                            unidades_restantes_por_pedir -= 80
+                        else:
+                            crear_oc(grupo_proveedor_1, sku_ingrediente, unidades_ing_necesarias)
+                            crear_oc(grupo_proveedor_2, sku_ingrediente, unidades_ing_necesarias)
+                            break
+                        
+                    log_message += Log(mensaje=f'Se mandó a pedir {unidades_ing_necesarias} de {sku_ingrediente} tanto al grupo {grupo_proveedor_1} como al grupo {grupo_proveedor_2}.')  
+
+            porcentaje_aceptacion_aceptando = (ordenes_aceptadas.count() + ordenes_finalizadas.count()+1)/ (ordenes.count()+1)
             # Es una vacuna y requiere fabricación entre medio
-            log_message += Log(mensaje=f'Al ser una OC para vacunas y no exceder el máximo permitido, se acepta.')
+            log_message += Log(mensaje=f'Se acepta la OC para vacunas. El porcentaje de aceptación actual es: {porcentaje_aceptacion_aceptando*100}%')
             log = Log(mensaje=log_message)
             log.save()
             return True
