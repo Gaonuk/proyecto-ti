@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import os
 import environ
 from pathlib import Path
-from .models import SentOC, RecievedOC, Pedido, Log
+from .models import EmbassyOC, SentOC, RecievedOC, Pedido, Log
 from datetime import datetime
 from .arrays_clients_ids_oc import IDS_DEV, IDS_PROD
 
@@ -197,7 +197,7 @@ def obtener_oc(id):
     )
     return response
 
-def recepcionar_oc(id):
+def recepcionar_oc(id, embassy= False):
     # Recibe solo el ID de la OC
     #No es necesario pasar params aunque
     #La documentación lo diga
@@ -209,12 +209,17 @@ def recepcionar_oc(id):
         headers=headers,
         json={}
     )
-    oc = RecievedOC.objects.get(id=id)
-    oc.estado = "aceptada"
-    oc.save()
+    if embassy:
+        oc = EmbassyOC.objects.get(id=id)
+        oc.estado = "aceptada"
+        oc.save()
+    else:
+        oc = RecievedOC.objects.get(id=id)
+        oc.estado = "aceptada"
+        oc.save()
     return response
 
-def rechazar_oc(id,params:dict):
+def rechazar_oc(id,params:dict, embassy=False):
     # Se recibe un id de rechazo
     #Se recibe un mensaje de la razón de rechazon en el json, ejemplo:
 #     {
@@ -228,7 +233,12 @@ def rechazar_oc(id,params:dict):
         headers=headers,
         json=params
     )
-    oc = RecievedOC.objects.get(id=id)
-    oc.estado = "rechazada"
-    oc.save()
+    if embassy:
+        oc = EmbassyOC.objects.get(id=id)
+        oc.estado = "rechazada"
+        oc.save()
+    else:
+        oc = RecievedOC.objects.get(id=id)
+        oc.estado = "rechazada"
+        oc.save()
     return response

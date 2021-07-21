@@ -67,13 +67,6 @@ class SentOC(models.Model):
     created_at = models.DateTimeField()
     updated_at =  models.DateTimeField()
 
-# class Lote(models.Model):
-#     sku_numlote = models.CharField(primary_key=True, max_length=256)
-#     sku = models.CharField(max_length=10)
-#     fecha_vencimiento = models.DateTimeField()
-#     cantidad_disponible = models.IntegerField()
-#     productos = ArrayField(models.CharField(max_length=256))
-
 class ProductoBodega(models.Model):
     id = models.CharField(primary_key=True, max_length=100)
     sku = models.CharField(max_length=15)
@@ -95,3 +88,6 @@ class ProductoDespachado(models.Model):
     oc_cliente = models.CharField(max_length=40)
     precio = models.IntegerField()
 
+class CantidadMaxAceptada(models.Model):
+    tipo_oc = models.CharField(primary_key=True, max_length=100)
+    cantidad = models.IntegerField()

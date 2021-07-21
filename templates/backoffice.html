@@ -116,6 +116,26 @@
         <input type="submit" value="Fabricar Producto">
     </form>
     </div>
+
+    <div style="margin:0 auto;">
+        <h4 style="margin-top: 0;">Actualizar Max OC Ingredientes</h4>
+        <h4 style="margin-top: 0;">Máximo Actual:{{curr_max_ing}} | Aceptadas Actualmente: {{aceptadas_ingredientes}}</h4>
+        <form action="/backoffice/" method="POST" style="display: grid;">
+            {% csrf_token %}
+            {{ form_actualizar_oc_ingredientes }}
+            <input type="submit" value="Actualizar Max OC Ingredientes">
+        </form>
+    </div>
+
+    <!-- <div style="margin:0 auto;">
+        <h4 style="margin-top: 0;">Actualizar Max OC Vacunas</h4>
+        <h4 style="margin-top: 0;">Máximo Actual: {{curr_max_vac}} | Aceptadas Actualmente: {{aceptadas_vacunas}}</h4>
+        <form action="/backoffice/" method="POST" style="display: grid;">
+            {% csrf_token %}
+            {{ form_actualizar_oc_vacunas }}
+            <input type="submit" value="Actualizar Max OC Vacunas">
+        </form>
+    </div> -->
 </div>
 
 
