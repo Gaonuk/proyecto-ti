@@ -399,7 +399,7 @@ def revision_stock_para_vacunas():
                 fabricar_vacuna({"sku": str(vacuna), "cantidad": por_pedir})
         else:
             lote = int(PRODUCTOS[vacuna]['Lote producción'])
-            fabricar_vacuna({"sku": str(vacuna), "cantidad": lote})
+            fabricar_vacuna({"tipo": str(vacuna), "cantidad": lote})
 
 def eliminar():
     for producto in ProductoBodega.objects.filter(fecha_vencimiento__lte=datetime.now()):
