@@ -1,3 +1,4 @@
+from api.views import index
 from .models import CantidadMaxAceptada, EmbassyOC, Pedido, ProductoBodega, ProductoDespachado, Log, RecievedOC
 from datetime import datetime, timedelta
 from .warehouse import fabricar_producto, fabricar_vacuna
@@ -228,8 +229,9 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                     # Elijo dos grupos al azar para pedir
                     proveedores = PRODUCTOS[sku_ingrediente]['Grupos Productores']
                     index_1 = random.randint(0, len(proveedores)-1)
-                    proveedores.pop(index_1)
-                    index_2 = random.randint(0, len(proveedores)-1)
+                    index_2 = index_1 + 1
+                    if index_2 == len(proveedores):
+                        index_2 = 0
                     grupo_proveedor_1 = PRODUCTOS[sku_ingrediente]['Grupos Productores'][index_1]
                     grupo_proveedor_2 = PRODUCTOS[sku_ingrediente]['Grupos Productores'][index_2]
 
