@@ -62,7 +62,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 sku__in=TIEMPOS_PRODUCCION_PROPIOS.keys()
             )
             max_vacunas = CantidadMaxAceptada.objects.get(pk='ingredientes')
-            if ordenes_aceptadas.count() >= max_vacunas:
+            if ordenes_aceptadas.count() >= max_vacunas.cantidad:
                 log_message += Log(mensaje=f'Se rechaza la OC por haber alcanzado el máximo permitido de OC de ingredientes aceptadas.')
                 log = Log(mensaje=log_message)
                 log.save()
@@ -207,7 +207,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 return False
 
             # max_vacunas = CantidadMaxAceptada.objects.get(pk='vacunas')
-            # if ordenes_aceptadas.count() >= max_vacunas:
+            # if ordenes_aceptadas.count() >= max_vacunas.cantidad:
             #     log_message += Log(mensaje=f'Se rechaza la OC por haber alcanzado el máximo permitido de OC de vacunas aceptadas.')
             #     log = Log(mensaje=log_message)
             #     log.save()
