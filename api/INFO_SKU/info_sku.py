@@ -1,4 +1,4 @@
- import pandas as pd
+import pandas as pd
 import os
 ##### Para cambiar los datos
 # xl = pd.ExcelFile('Productos alumnos.xlsx')

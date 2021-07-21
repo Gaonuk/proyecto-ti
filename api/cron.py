@@ -416,10 +416,11 @@ class My_Connection(pysftp.Connection):
             self.close()
 
 
-cnopts = pysftp.CnOpts()
-cnopts.hostkeys = None
+
 
 def obtener_oc_embajadas():
+    cnopts = pysftp.CnOpts()
+    cnopts.hostkeys = None
     try:
         with My_Connection('beirut.ing.puc.cl', username=user_ftp, password=pass_ftp, cnopts=cnopts) as sftp:
             for filename in sftp.listdir('/pedidos/'):
