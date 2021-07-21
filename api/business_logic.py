@@ -180,7 +180,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                     return True
 
         elif str(sku) in SKU_VACUNAS:
-            log_message += f'Este sku {sku} es una vacuna.'
+            log_message += f'Este sku {sku} es una vacuna.\n'
             # Revisar si aún puedo aceptar dado el máximo actual de OC para ingredientes
             ordenes = EmbassyOC.objects.all()
             ordenes_aceptadas = EmbassyOC.objects.filter(
@@ -194,7 +194,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
             # Porcentaje en caso de RECHAZAR la OC actual
 
             if porcentaje_aceptacion_rechazando > 0.85:
-                log_message += 'Se rechaza la OC para vacunas. El porcentaje de aceptación actual es: {porcentaje_aceptacion_rechazando*100}%'
+                log_message += f'Se rechaza la OC para vacunas. El porcentaje de aceptación actual es: {porcentaje_aceptacion_rechazando*100}%\n'
                 log = Log(mensaje=log_message)
                 log.save()
                 return False
@@ -208,10 +208,10 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
 
             sku_vacuna = str(sku)
             tamano_lote_vacuna = int(PRODUCTOS[sku_vacuna]['Lote producción'])
-            lotes_vacuna_solicitados = math.ceil(cantidad_solicitada/tamano_lote_vacuna)
+            lotes_vacuna_solicitados = int(math.ceil(cantidad_solicitada/tamano_lote_vacuna))
             for sku_ingrediente in FORMULA[sku_vacuna]:
                 tamano_lote_ingrediente = int(FORMULA[sku_vacuna][sku_ingrediente])
-                unidades_ing_necesarias = tamano_lote_ingrediente*lotes_vacuna_solicitados
+                unidades_ing_necesarias = int(tamano_lote_ingrediente*lotes_vacuna_solicitados)
                 if sku_ingrediente in NUESTRO_SKU:
                     body_fabricar = {
                         'sku': str(sku_ingrediente),
@@ -221,21 +221,21 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                     pedido = Pedido.objects.get(pk=response['_id'])
                     pedido.disponible_para_uso = False
                     pedido.save()   
-                    log_message += f'Se mandó a fabricar {unidades_ing_necesarias} de {sku_ingrediente}.'
+                    log_message += f'Se mandó a fabricar {unidades_ing_necesarias} de {sku_ingrediente}.\n'
                 else:
                     
-                    
+                    log_message += f'Es necesario pedir el SKU {sku_ingrediente} a otro grupo.\n'
                     # Elijo dos grupos al azar para pedir
                     proveedores = PRODUCTOS[sku_ingrediente]['Grupos Productores']
                     index_1 = random.randint(0, len(proveedores)-1)
                     proveedores.pop(index_1)
-                    index_2 = random.randint(0, len(proveedores-1))
+                    index_2 = random.randint(0, len(proveedores)-1)
                     grupo_proveedor_1 = PRODUCTOS[sku_ingrediente]['Grupos Productores'][index_1]
                     grupo_proveedor_2 = PRODUCTOS[sku_ingrediente]['Grupos Productores'][index_2]
 
 
                     # Esta sección es para dosificar las ordenes de compra en caso de que superen las 80 unidades
-                    unidades_restantes_por_pedir = unidades_ing_necesarias
+                    unidades_restantes_por_pedir = int(unidades_ing_necesarias)
                     while unidades_restantes_por_pedir > 0:
                         if unidades_restantes_por_pedir > 80:
                             crear_oc(grupo_proveedor_1, sku_ingrediente, 80)
@@ -246,7 +246,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                             crear_oc(grupo_proveedor_2, sku_ingrediente, unidades_ing_necesarias)
                             break
                         
-                    log_message += f'Se mandó a pedir {unidades_ing_necesarias} de {sku_ingrediente} tanto al grupo {grupo_proveedor_1} como al grupo {grupo_proveedor_2}.'
+                    log_message += f'Se mandó a pedir {unidades_ing_necesarias} de {sku_ingrediente} tanto al grupo {grupo_proveedor_1} como al grupo {grupo_proveedor_2}\n.'
 
             porcentaje_aceptacion_aceptando = (ordenes_aceptadas.count() + ordenes_finalizadas.count()+1)/ (ordenes.count()+1)
             # Es una vacuna y requiere fabricación entre medio
