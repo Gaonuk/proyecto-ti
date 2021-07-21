@@ -47,7 +47,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
     #print(f'{datetime.now()}: Análisis de factibilidad\n{sku} - {cantidad_solicitada} - {fecha_entrega}')
     log_message = f'Factibilidad | OC {oc_id} | SKU {sku} | # {cantidad_solicitada} | Deadline {fecha_entrega}\n' 
     try:
-        if str(sku) not in TIEMPOS_PRODUCCION_PROPIOS.keys():
+        if str(sku) not in NUESTRO_SKU:
             return False
         pedidos = pedidos_no_reservados(sku)
         num_productos_pedidos = 0
@@ -59,7 +59,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
             # Revisar si aún puedo aceptar dado el máximo actual de OC para ingredientes
             ordenes_aceptadas = RecievedOC.objects.filter(
                 estado="aceptada",
-                sku__in=TIEMPOS_PRODUCCION_PROPIOS.keys()
+                sku__in=NUESTRO_SKU
             )
             max_vacunas = CantidadMaxAceptada.objects.get(pk='ingredientes')
             if ordenes_aceptadas.count() >= max_vacunas.cantidad:
@@ -135,13 +135,6 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 return True
 
             elif cantidad_solicitada > total_productos:
-                # Evalúo si alcanzo a producir lo que me falta
-                tiempo_prod = TIEMPOS_PRODUCCION_PROPIOS[str(sku)]
-                delta = 10
-                # fecha_ent = utc.normalize(fecha_entrega).astimezone(utc)
-                # # fecha_ent.replace(tzinfo=utc)
-                # fecha_ahora = utc.normalize(datetime.now()).astimezone(utc)
-                # # fecha_ahora.replace(tzinfo=utc)
 
                 # Este IF nunca ocurrirá
                 if False:
