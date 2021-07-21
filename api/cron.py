@@ -481,13 +481,15 @@ def obtener_oc_embajadas():
 
 def factibilidad_oc_embajada():
     try:
-        ordenes = EmbassyOC.objects.all()
-        for oc in ordenes:
+        ordenes_creadas = EmbassyOC.objects.filter(
+                estado="creada"
+            )
+        for oc in ordenes_creadas:
             factible =factibildad(oc.sku,oc.cantidad,oc.fecha_entrega,oc.id)
             if factible:
                 recepcionar_oc(oc.id, True)
             else:
                 rechazar_oc(oc.id, True)
-    except Exception:
-        log_error = Log(mensaje=f"Problemas con la factibilidad OC embajada")
+    except Exception as err:
+        log_error = Log(mensaje=f"Problemas con la factibilidad OC embajada: {err}")
         log_error.save()
