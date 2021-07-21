@@ -3,8 +3,8 @@ from .models import RecievedOC, ProductoBodega, Log, Pedido, EmbassyOC, EmbassyX
 from .warehouse import despachar_producto, mover_entre_almacenes, mover_entre_bodegas, obtener_almacenes, obtener_productos_almacen, obtener_stock, fabricar_producto, fabricar_vacuna
 import time
 import math
-
-from .OC import parse_js_date, crear_oc, obtener_oc
+from .business_logic import factibildad
+from .OC import parse_js_date, crear_oc, obtener_oc, recepcionar_oc, rechazar_oc
 import os
 from .arrays_clients_ids_oc import IDS_DEV, IDS_PROD
 from .arrays_almacenes_recep import RECEPCIONES_DEV, RECEPCIONES_PROD
@@ -460,4 +460,19 @@ def obtener_oc_embajadas():
 
 
     except paramiko.ssh_exception.SSHException as e:
+        log_error = Log(mensaje=f"Problemas de conexión a la casilla")
+        log_error.save()
         print('SSH error, you need to add the public key of your remote in your local known_hosts file first.', e)
+
+def factibilidad_oc_embajada():
+    try:
+        ordenes = EmbassyOC.objects.all()
+        for oc in ordenes:
+            factible =factibildad(oc.sku,oc.cantidad,oc.fecha_entrega,oc.id)
+            if factible:
+                recepcionar_oc(oc.id, True)
+            else:
+                rechazar_oc(oc.id, True)
+    except Exception:
+        log_error = Log(mensaje=f"Problemas con la factibilidad OC embajada")
+        log_error.save()
