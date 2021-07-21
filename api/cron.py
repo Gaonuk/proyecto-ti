@@ -399,7 +399,7 @@ def revision_stock_para_vacunas():
                 fabricar_vacuna({"sku": str(vacuna), "cantidad": por_pedir})
         else:
             lote = int(PRODUCTOS[vacuna]['Lote producción'])
-            fabricar_vacuna({"sku": str(vacuna), "cantidad": lote})
+            fabricar_vacuna({"tipo": str(vacuna), "cantidad": lote})
 
 def eliminar():
     for producto in ProductoBodega.objects.filter(fecha_vencimiento__lte=datetime.now()):
@@ -483,7 +483,7 @@ def factibilidad_oc_embajada():
     try:
         ordenes = EmbassyOC.objects.all()
         for oc in ordenes:
-            factible =factibildad(oc.sku,oc.cantidad,oc.fecha_entrega,oc.id)
+            factible = factibildad(oc.sku,oc.cantidad,oc.fecha_entrega,oc.id)
             if factible:
                 recepcionar_oc(oc.id, True)
             else:
