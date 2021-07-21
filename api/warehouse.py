@@ -339,7 +339,9 @@ def obtener_ingredientes(sku, productos, multiplicador):
                 grupo = PRODUCTOS[ingrediente]['Grupos Productores'][index]
                 grupo_alt = PRODUCTOS[ingrediente]['Grupos Productores'][index_alt]
                 print('se lo pediremos a los grupos: ' + grupo + ' ' + grupo_alt)
+                time.sleep(1)
                 response = crear_oc(grupo, ingrediente, FORMULA[sku][ingrediente]*multiplicador)
+                time.sleep(1)
                 response_alt = crear_oc(grupo_alt, ingrediente, FORMULA[sku][ingrediente]*multiplicador)
                 data = response.json()
                 data_alt = response_alt.json()
