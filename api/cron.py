@@ -190,14 +190,15 @@ def revision_oc():
         log.save()
         if orden.cantidad_despachada < orden.cantidad:
             falta = orden.cantidad - orden.cantidad_despachada
+            lista_vacunas = ProductoBodega.objects.filter(oc_reservada='', sku = str(orden.sku))
             vacunas_disponible = ProductoBodega.objects.filter(oc_reservada='', sku = str(orden.sku)).count()
             if falta <= vacunas_disponible:
-                for vacuna in ProductoBodega.objects.filter(oc_reservada='', sku = str(orden.sku)):
+                for vacuna in lista_vacunas:
                     vacuna.oc_reservada = orden.id
                     vacuna.save()
             else:
                 contador = 0
-                for vacuna in ProductoBodega.objects.filter(oc_reservada='', sku = str(orden.sku)):
+                for vacuna in lista_vacunas:
                     vacuna.oc_reservada = orden.id
                     vacuna.save()
                     contador += 1
