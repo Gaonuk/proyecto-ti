@@ -8,7 +8,7 @@ from .INFO_SKU.info_sku import PRODUCTOS, FORMULA, NUESTRO_SKU
 import math
 
 SKU_VACUNAS = ['10001','10002','10003','10004','10005','10006']
-
+ 
 TIEMPOS_PRODUCCION_PROPIOS = {
     '108': 25,
     '119': 45,
@@ -92,9 +92,12 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
 
                 log_message += f'Usando stock disponible de SKU {sku}, se reservaron {reservados} de un total de {cantidad_solicitada} para OC {oc_id}.\n'
 
+                lote = int(PRODUCTOS[str(sku)]['Lote producción'])
+                por_pedir = math.ceil(reservados/lote)*lote
+
                 body_fabricar = {
                         'sku': str(sku),
-                        'cantidad': reservados
+                        'cantidad': por_pedir
                     }
                 response = fabricar_producto(body_fabricar).json()
                 pedido = Pedido.objects.get(pk=response['_id'])
@@ -130,9 +133,12 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                     log_message += f'Usando pedidos en camino de SKU {sku}, se reservaron {pedidos_reservados} de un total de {cantidad_solicitada} para OC {oc_id}.\n'
                 log_message += f'En total se reservaron {pedidos_reservados + reservados} de un total de {cantidad_solicitada} de SKU {sku}.\n'
 
+                lote = int(PRODUCTOS[str(sku)]['Lote producción'])
+                por_pedir = math.ceil((pedidos_reservados + reservados)/lote)*lote
+
                 body_fabricar = {
                         'sku': str(sku),
-                        'cantidad': pedidos_reservados + reservados
+                        'cantidad': por_pedir
                     }
                 response = fabricar_producto(body_fabricar).json()
                 pedido = Pedido.objects.get(pk=response['_id'])
@@ -175,10 +181,12 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 log_message += f'Debo pedir {productos_a_pedir} de {sku} para satisfacer la OC.\n'
 
                 # Hay que hacer un pedido de la diferencia
-                
+                lote = int(PRODUCTOS[str(sku)]['Lote producción'])
+                por_pedir = math.ceil((cantidad_solicitada)/lote)*lote
+
                 body_fabricar = {
                     'sku': str(sku),
-                    'cantidad': cantidad_solicitada
+                    'cantidad': por_pedir
                 }
                 response = fabricar_producto(body_fabricar).json()
                 pedido = Pedido.objects.get(pk=response['_id'])
@@ -231,9 +239,13 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                     log_message4 = f'Factibilidad está fabricando de nuestros propios SKUs'
                     log4 = Log(mensaje=log_message4)
                     log4.save()
+
+                    lote = int(PRODUCTOS[str(sku)]['Lote producción'])
+                    por_pedir = math.ceil((unidades_ing_necesarias)/lote)*lote
+
                     body_fabricar = {
                         'sku': str(sku_ingrediente),
-                        'cantidad': unidades_ing_necesarias
+                        'cantidad': por_pedir
                     }
                     response = fabricar_producto(body_fabricar).json()
                     pedido = Pedido.objects.get(pk=response['_id'])
