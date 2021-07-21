@@ -461,7 +461,7 @@ def obtener_oc_embajadas():
 
 
     except paramiko.ssh_exception.SSHException as e:
-        log_error = Log(mensaje=f"Problemas de conexión a la casilla")
+        log_error = Log(mensaje=f"Problemas de conexión a la casilla FTP")
         log_error.save()
         print('SSH error, you need to add the public key of your remote in your local known_hosts file first.', e)
 
