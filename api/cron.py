@@ -72,8 +72,8 @@ def mover_recepcion_a_alm_central():
                                 id_pedido = pedido.id
                                 if pedido.cantidad == 1:
                                     pedido.delete()
-                                    log_pedido = Log(mensaje=f"Recepción a Central: Se borró el pedido {id_pedido}")
-                                    log_pedido.save()
+                                    # log_pedido = Log(mensaje=f"Recepción a Central: Se borró el pedido {id_pedido}")
+                                    # log_pedido.save()
                                 else:
                                     pedido.cantidad -= 1
                                 producto_bodega = ProductoBodega(id = producto_almacen['_id'], sku=str(producto_almacen["sku"]), almacen=almacen_recepcion['_id'],\
@@ -95,8 +95,8 @@ def mover_recepcion_a_alm_central():
                         contador+=1
                     mensaje+= f'Recepción a Central: Se han movido {contador} productos del SKU {SKU} al almacén central\n'
                 print(mensaje)
-                log_1 = Log(mensaje=mensaje)
-                log_1.save()
+                # log_1 = Log(mensaje=mensaje)
+                # log_1.save()
             else:
                 print('El almacen central está lleno')
                 log_2 = Log(mensaje='Recepción a Central: El almacen central está lleno')
@@ -147,8 +147,8 @@ def mover_pulmon_a_alm_recepcion():
                                 id_pedido = pedido.id
                                 if pedido.cantidad == 1:
                                     pedido.delete()
-                                    log_pedido = Log(mensaje=f"Pulmón a Recepción: Se borró el pedido {id_pedido}")
-                                    log_pedido.save()
+                                    # log_pedido = Log(mensaje=f"Pulmón a Recepción: Se borró el pedido {id_pedido}")
+                                    # log_pedido.save()
                                 else:
                                     pedido.cantidad -= 1
                                 producto_bodega = ProductoBodega(id = producto_almacen['_id'], sku=str(producto_almacen["sku"]), almacen=almancen_pulmon['_id'],\
@@ -171,8 +171,8 @@ def mover_pulmon_a_alm_recepcion():
                         contador+=1
                     mensaje+= f'Pulmón a Recepción: Se han movido {contador} productos del SKU {SKU} al almacén de recepción\n'
                 print(mensaje)
-                log_1 = Log(mensaje=mensaje)
-                log_1.save()
+                # log_1 = Log(mensaje=mensaje)
+                # log_1.save()
             else:
                 print('El almacen de recepción está lleno')
                 log_2 = Log(mensaje='Pulmón a Recepción: El almacen de recepción está lleno')
@@ -362,8 +362,8 @@ def despachar():
                 respuesta = mover_entre_bodegas({'productoId': producto.id, 'almacenId': almacen_id, 'oc': oc, 'precio': oc_object[0].precio_unitario}).json()
                 try:
                     print(f"Despachar: El producto de id {producto.id} fue despachado al almacen {almacen_id}")
-                    log = Log(mensaje=f"El producto de id {producto.id} fue despachado al almacen {almacen_id}")
-                    log.save()
+                    # log = Log(mensaje=f"El producto de id {producto.id} fue despachado al almacen {almacen_id}")
+                    # log.save()
                     producto.delete()
                 except:
                     print(respuesta["error"])
