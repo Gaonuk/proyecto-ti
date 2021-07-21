@@ -381,6 +381,10 @@ def revison_stock_propio():
                 lote = int(PRODUCTOS[sku]['Lote producción'])
                 por_pedir = math.ceil((24 - cantidad_productos_disponibles)/lote) * lote
                 fabricar_producto({'sku': sku, 'cantidad': por_pedir})
+        else:
+            lote = int(PRODUCTOS[sku]['Lote producción'])
+            por_pedir = math.ceil((24/lote) * lote)
+            fabricar_producto({'sku': sku, 'cantidad': por_pedir})
 
 def revision_stock_para_vacunas():
     for vacuna in FORMULA.keys():
@@ -390,6 +394,9 @@ def revision_stock_para_vacunas():
                 lote = int(PRODUCTOS[vacuna]['Lote producción'])
                 por_pedir = math.ceil((16 - cantidad_vacunas_disponibles)/lote) * lote
                 fabricar_vacuna({"sku": str(vacuna), "cantidad": por_pedir})
+        else:
+            lote = int(PRODUCTOS[vacuna]['Lote producción'])
+            fabricar_vacuna({"sku": str(vacuna), "cantidad": lote})
 
 import pysftp
 import paramiko
