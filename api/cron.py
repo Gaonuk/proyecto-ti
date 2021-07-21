@@ -392,7 +392,7 @@ def revision_stock_para_vacunas():
             cantidad_vacunas_disponibles = ProductoBodega.objects.filter(sku=vacuna, oc_reservada = '').count()
             if cantidad_vacunas_disponibles < int(PRODUCTOS[vacuna]['Lote producción']):
                 lote = int(PRODUCTOS[vacuna]['Lote producción'])
-                por_pedir = math.ceil((16 - cantidad_vacunas_disponibles)/lote) * lote
+                por_pedir = math.ceil((int(PRODUCTOS[vacuna]['Lote producción']) - cantidad_vacunas_disponibles)/lote) * lote
                 fabricar_vacuna({"sku": str(vacuna), "cantidad": por_pedir})
         else:
             lote = int(PRODUCTOS[vacuna]['Lote producción'])
