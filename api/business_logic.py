@@ -45,10 +45,16 @@ def pedidos_no_reservados(sku):
 
 
 def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
+    log_message1 = f'Se comenzó a ejecutar la funcion factibilidad'
+    log1 = Log(mensaje=log_message1)
+    log1.save()
     #print(f'{datetime.now()}: Análisis de factibilidad\n{sku} - {cantidad_solicitada} - {fecha_entrega}')
     log_message = f'Factibilidad | OC {oc_id} | SKU {sku} | # {cantidad_solicitada} | Deadline {fecha_entrega}\n' 
     try:
         if str(sku) not in NUESTRO_SKU:
+            log_message += f'El SKU {str(sku)} no pertenece a nuestros SKU producidos.'
+            log = Log(mensaje=log_message)
+            log.save()
             return False
         pedidos = pedidos_no_reservados(sku)
         num_productos_pedidos = 0
@@ -258,6 +264,9 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
             return True
         
         else:
+            log_message += f'El SKU {str(sku)} no pertenece a nuestros SKU producidos.'
+            log = Log(mensaje=log_message)
+            log.save()
             return False
     except Exception as err:
         log_message += f'Error en Factibilidad {oc_id}: '+str(err)+'\nSe rechazó la OC\n'
