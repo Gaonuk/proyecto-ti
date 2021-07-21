@@ -486,17 +486,20 @@ def factibilidad_oc_embajada():
                 estado="creada"
             )
         for oc in ordenes_creadas:
-            log = Log(mensaje=f"Viendo factibilidad OC embajada {oc.id}")
+            # log = Log(mensaje=f"Viendo factibilidad OC embajada {oc.id}")
+            # log.save()
+            log = Log(mensaje=f"Aceptando OC embajada {oc.id}")
             log.save()
-            factible =factibildad(oc.sku,oc.cantidad,oc.fecha_entrega,oc.id)
-            if factible:
-                log = Log(mensaje=f"Aceptando OC embajada {oc.id}")
-                log.save()
-                recepcionar_oc(oc.id, True)
-            else:
-                log = Log(mensaje=f"Rechazando OC embajada {oc.id}")
-                log.save()
-                rechazar_oc(oc.id, {"rechazo": "No podemos despachar"},True)
+            recepcionar_oc(oc.id, True)
+            # factible =factibildad(oc.sku,oc.cantidad,oc.fecha_entrega,oc.id)
+            # if factible:
+            #     log = Log(mensaje=f"Aceptando OC embajada {oc.id}")
+            #     log.save()
+            #     recepcionar_oc(oc.id, True)
+            # else:
+            #     log = Log(mensaje=f"Rechazando OC embajada {oc.id}")
+            #     log.save()
+            #     rechazar_oc(oc.id, {"rechazo": "No podemos despachar"},True)
 
     except Exception as err:
         log_error = Log(mensaje=f"Problemas con la factibilidad OC embajada: {err}")
