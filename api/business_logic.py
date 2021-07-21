@@ -63,7 +63,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
             )
             max_vacunas = CantidadMaxAceptada.objects.get(pk='ingredientes')
             if ordenes_aceptadas.count() >= max_vacunas.cantidad:
-                log_message += Log(mensaje=f'Se rechaza la OC por haber alcanzado el máximo permitido de OC de ingredientes aceptadas.')
+                log_message += f'Se rechaza la OC por haber alcanzado el máximo permitido de OC de ingredientes aceptadas.'
                 log = Log(mensaje=log_message)
                 log.save()
                 return False
@@ -180,7 +180,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                     return True
 
         elif str(sku) in SKU_VACUNAS:
-            log_message += Log(mensaje=f'Este sku {sku} es una vacuna.')
+            log_message += f'Este sku {sku} es una vacuna.'
             # Revisar si aún puedo aceptar dado el máximo actual de OC para ingredientes
             ordenes = EmbassyOC.objects.all()
             ordenes_aceptadas = EmbassyOC.objects.filter(
@@ -194,14 +194,14 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
             # Porcentaje en caso de RECHAZAR la OC actual
 
             if porcentaje_aceptacion_rechazando > 0.85:
-                log_message += Log(mensaje=f'Se rechaza la OC para vacunas. El porcentaje de aceptación actual es: {porcentaje_aceptacion_rechazando*100}%')
+                log_message += 'Se rechaza la OC para vacunas. El porcentaje de aceptación actual es: {porcentaje_aceptacion_rechazando*100}%'
                 log = Log(mensaje=log_message)
                 log.save()
                 return False
 
             # max_vacunas = CantidadMaxAceptada.objects.get(pk='vacunas')
             # if ordenes_aceptadas.count() >= max_vacunas.cantidad:
-            #     log_message += Log(mensaje=f'Se rechaza la OC por haber alcanzado el máximo permitido de OC de vacunas aceptadas.')
+            #     log_message += f'Se rechaza la OC por haber alcanzado el máximo permitido de OC de vacunas aceptadas.'
             #     log = Log(mensaje=log_message)
             #     log.save()
             #     return False
@@ -221,7 +221,7 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                     pedido = Pedido.objects.get(pk=response['_id'])
                     pedido.disponible_para_uso = False
                     pedido.save()   
-                    log_message += Log(mensaje=f'Se mandó a fabricar {unidades_ing_necesarias} de {sku_ingrediente}.')
+                    log_message += f'Se mandó a fabricar {unidades_ing_necesarias} de {sku_ingrediente}.'
                 else:
                     
                     
@@ -246,11 +246,11 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                             crear_oc(grupo_proveedor_2, sku_ingrediente, unidades_ing_necesarias)
                             break
                         
-                    log_message += Log(mensaje=f'Se mandó a pedir {unidades_ing_necesarias} de {sku_ingrediente} tanto al grupo {grupo_proveedor_1} como al grupo {grupo_proveedor_2}.')  
+                    log_message += f'Se mandó a pedir {unidades_ing_necesarias} de {sku_ingrediente} tanto al grupo {grupo_proveedor_1} como al grupo {grupo_proveedor_2}.'
 
             porcentaje_aceptacion_aceptando = (ordenes_aceptadas.count() + ordenes_finalizadas.count()+1)/ (ordenes.count()+1)
             # Es una vacuna y requiere fabricación entre medio
-            log_message += Log(mensaje=f'Se acepta la OC para vacunas. El porcentaje de aceptación actual es: {porcentaje_aceptacion_aceptando*100}%')
+            log_message += f'Se acepta la OC para vacunas. El porcentaje de aceptación actual es: {porcentaje_aceptacion_aceptando*100}%'
             log = Log(mensaje=log_message)
             log.save()
             return True
