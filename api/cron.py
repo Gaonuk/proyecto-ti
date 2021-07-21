@@ -301,8 +301,8 @@ def mover_despacho():
             try:
                 mover_entre_almacenes({'productoId': producto.id, "almacenId": almacen_despacho['_id']})
                 print(f'Se han movido 1 producto del SKU {producto.sku} al almacén desapcho\n')
-                log = Log(mensaje=f'Mover despacho: Se han movido 1 producto del SKU {producto.sku} al almacén despacho\n')
-                log.save()
+                # log = Log(mensaje=f'Mover despacho: Se han movido 1 producto del SKU {producto.sku} al almacén despacho\n')
+                # log.save()
                 time.sleep(1)
             except:
                 print(f'Alamacen Despacho se encuentra lleno')
@@ -310,13 +310,13 @@ def mover_despacho():
             try:
                 mover_entre_almacenes({'productoId': producto.id, "almacenId": almacen_recepcion['_id']})
                 print(f'Se han movido 1 producto del SKU {producto.sku} al almacén recepción\n')
-                log = Log(mensaje=f'Mover despacho: Se han movido 1 producto del SKU {producto.sku} al almacén recepción\n')
-                log.save()
+                # log = Log(mensaje=f'Mover despacho: Se han movido 1 producto del SKU {producto.sku} al almacén recepción\n')
+                # log.save()
                 time.sleep(1)
                 try:
                     mover_entre_almacenes({'productoId': producto.id, "almacenId": almacen_despacho['_id']})
-                    log = Log(mensaje=f'Mover despacho: Se han movido 1 producto del SKU {producto.sku} al almacén despacho\n')
-                    log.save()
+                    # log = Log(mensaje=f'Mover despacho: Se han movido 1 producto del SKU {producto.sku} al almacén despacho\n')
+                    # log.save()
                     time.sleep(1)
                 except:
                     print(f'Alamacen Despacho se encuentra lleno')
