@@ -61,6 +61,10 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
             num_productos_pedidos += pedido.cantidad
         stock_disponible = stock_no_reservado(sku)
         num_productos_stock = len(stock_disponible)
+
+        log_message2 = f'Revisión de Factibilidad previo a revisar si es ingrediente o vacuna'
+        log2 = Log(mensaje=log_message2)
+        log2.save()
         if str(sku) not in SKU_VACUNAS:
             # Revisar si aún puedo aceptar dado el máximo actual de OC para ingredientes
             ordenes_aceptadas = RecievedOC.objects.filter(
@@ -140,52 +144,57 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 log.save()
                 return True
 
-            elif cantidad_solicitada > total_productos:
+            # elif cantidad_solicitada > total_productos:
 
-                # Este IF nunca ocurrirá
-                if False:
-                    log_message += f'No alcanzo a entregar en esa fecha. Rechazando OC {oc_id}\n'
-                    log_rechazo.save()
-                    return False
-                elif True:
-                    # Hay que reservar los productos con la OC correspondiente.
-                    reservados = 0
-                    for producto in stock_disponible:
-                        producto.oc_reservada = oc_id
-                        reservados += 1
-                        if reservados == cantidad_solicitada:
-                            break
-                    log_message += f'Usando stock disponible de SKU {sku}, se reservaron {reservados} de un total de {cantidad_solicitada} para OC {oc_id}.\n'
-                    # Hay que reservar los pedidos
-                    productos_restantes = cantidad_solicitada - reservados
-                    pedidos_reservados = 0
-                    for pedido in pedidos:
-                        pedido.disponible_para_uso = False
-                        pedidos_reservados += pedido.cantidad
-                        productos_restantes -= pedido.cantidad
-                        if productos_restantes <= 0:
-                            break
-                    log_message += f'Usando pedidos en camino de SKU {sku}, se reservaron {pedidos_reservados} de un total de {cantidad_solicitada} para OC {oc_id}.\n'
-                    productos_a_pedir = cantidad_solicitada-pedidos_reservados-reservados
-                    log_message += f'Debo pedir {productos_a_pedir} de {sku} para satisfacer la OC.\n'
-
-                    # Hay que hacer un pedido de la diferencia
-                    
-                    body_fabricar = {
-                        'sku': str(sku),
-                        'cantidad': cantidad_solicitada
-                    }
-                    response = fabricar_producto(body_fabricar).json()
-                    pedido = Pedido.objects.get(pk=response['_id'])
+            #     # Este IF nunca ocurrirá
+            #     if False:
+            #         log_message += f'No alcanzo a entregar en esa fecha. Rechazando OC {oc_id}\n'
+            #         log_rechazo.save()
+            #         return False
+            #     elif True:
+            # Hay que reservar los productos con la OC correspondiente.
+            else:
+                reservados = 0
+                for producto in stock_disponible:
+                    producto.oc_reservada = oc_id
+                    reservados += 1
+                    if reservados == cantidad_solicitada:
+                        break
+                log_message += f'Usando stock disponible de SKU {sku}, se reservaron {reservados} de un total de {cantidad_solicitada} para OC {oc_id}.\n'
+                # Hay que reservar los pedidos
+                productos_restantes = cantidad_solicitada - reservados
+                pedidos_reservados = 0
+                for pedido in pedidos:
                     pedido.disponible_para_uso = False
-                    pedido.save()
+                    pedidos_reservados += pedido.cantidad
+                    productos_restantes -= pedido.cantidad
+                    if productos_restantes <= 0:
+                        break
+                log_message += f'Usando pedidos en camino de SKU {sku}, se reservaron {pedidos_reservados} de un total de {cantidad_solicitada} para OC {oc_id}.\n'
+                productos_a_pedir = cantidad_solicitada-pedidos_reservados-reservados
+                log_message += f'Debo pedir {productos_a_pedir} de {sku} para satisfacer la OC.\n'
 
-                    log_message +=  f'Se enviaron a fabricar {cantidad_solicitada} SKU {sku}.\n'
-                    log = Log(mensaje=log_message)
-                    log.save()      
-                    return True
+                # Hay que hacer un pedido de la diferencia
+                
+                body_fabricar = {
+                    'sku': str(sku),
+                    'cantidad': cantidad_solicitada
+                }
+                response = fabricar_producto(body_fabricar).json()
+                pedido = Pedido.objects.get(pk=response['_id'])
+                pedido.disponible_para_uso = False
+                pedido.save()
+
+                log_message +=  f'Se enviaron a fabricar {cantidad_solicitada} SKU {sku}.\n'
+                log = Log(mensaje=log_message)
+                log.save()      
+                return True
+
 
         elif str(sku) in SKU_VACUNAS:
+            log_message3 = f'Factibilidad entró al IF de SKUs de Vacunas'
+            log3 = Log(mensaje=log_message3)
+            log3.save()
             log_message += f'Este sku {sku} es una vacuna.\n'
             # Revisar si aún puedo aceptar dado el máximo actual de OC para ingredientes
             ordenes = EmbassyOC.objects.all()
@@ -219,6 +228,9 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 tamano_lote_ingrediente = int(FORMULA[sku_vacuna][sku_ingrediente])
                 unidades_ing_necesarias = int(tamano_lote_ingrediente*lotes_vacuna_solicitados)
                 if sku_ingrediente in NUESTRO_SKU:
+                    log_message4 = f'Factibilidad está fabricando de nuestros propios SKUs'
+                    log4 = Log(mensaje=log_message4)
+                    log4.save()
                     body_fabricar = {
                         'sku': str(sku_ingrediente),
                         'cantidad': unidades_ing_necesarias
@@ -229,7 +241,9 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                     pedido.save()   
                     log_message += f'Se mandó a fabricar {unidades_ing_necesarias} de {sku_ingrediente}.\n'
                 else:
-                    
+                    log_message4 = f'Factibilidad está pidiendo a otros grupos'
+                    log4 = Log(mensaje=log_message4)
+                    log4.save()
                     log_message += f'Es necesario pedir el SKU {sku_ingrediente} a otro grupo.\n'
                     # Elijo dos grupos al azar para pedir
                     proveedores = PRODUCTOS[sku_ingrediente]['Grupos Productores']
