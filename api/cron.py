@@ -333,7 +333,7 @@ def despachar_vacunas():
     vacunas_para_despachar = ProductoBodega.objects.filter(almacen=almacen_despacho['_id'], sku__in=skus_vacunas).exclude(oc_reservada='')
     for vacuna in vacunas_para_despachar:
         params = {
-            "productId": vacuna.id,
+            "productoId": vacuna.id,
             "oc": vacuna.oc_reservada,
             "direccion": "embajada",
             "precio": 1
