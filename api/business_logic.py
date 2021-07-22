@@ -95,18 +95,18 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 lote = int(PRODUCTOS[str(sku)]['Lote producción'])
                 por_pedir = math.ceil(reservados/lote)*lote
 
-                body_fabricar = {
-                        'sku': str(sku),
-                        'cantidad': por_pedir
-                    }
-                response = fabricar_producto(body_fabricar).json()
-                pedido = Pedido.objects.get(pk=response['_id'])
-                pedido.disponible_para_uso = True
-                pedido.save()
+                # body_fabricar = {
+                #         'sku': str(sku),
+                #         'cantidad': por_pedir
+                #     }
+                # response = fabricar_producto(body_fabricar).json()
+                # pedido = Pedido.objects.get(pk=response['_id'])
+                # pedido.disponible_para_uso = True
+                # pedido.save()
 
-                log_message += f'Se enviaron a fabricar {reservados} SKU {sku}.\n'
-                log = Log(mensaje=log_message)
-                log.save()
+                # log_message += f'Se enviaron a fabricar {reservados} SKU {sku}.\n'
+                # log = Log(mensaje=log_message)
+                # log.save()
                 return True
 
             elif cantidad_solicitada <= num_productos_pedidos + num_productos_stock:
@@ -136,18 +136,18 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 lote = int(PRODUCTOS[str(sku)]['Lote producción'])
                 por_pedir = math.ceil((pedidos_reservados + reservados)/lote)*lote
 
-                body_fabricar = {
-                        'sku': str(sku),
-                        'cantidad': por_pedir
-                    }
-                response = fabricar_producto(body_fabricar).json()
-                pedido = Pedido.objects.get(pk=response['_id'])
-                pedido.disponible_para_uso = True
-                pedido.save()
+                # body_fabricar = {
+                #         'sku': str(sku),
+                #         'cantidad': por_pedir
+                #     }
+                # response = fabricar_producto(body_fabricar).json()
+                # pedido = Pedido.objects.get(pk=response['_id'])
+                # pedido.disponible_para_uso = True
+                # pedido.save()
                 
-                log_message += f'Se enviaron a fabricar {pedidos_reservados + reservados} SKU {sku}.\n'
-                log = Log(mensaje=log_message)
-                log.save()
+                # log_message += f'Se enviaron a fabricar {pedidos_reservados + reservados} SKU {sku}.\n'
+                # log = Log(mensaje=log_message)
+                # log.save()
                 return True
 
             # elif cantidad_solicitada > total_productos:
@@ -184,18 +184,18 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                 lote = int(PRODUCTOS[str(sku)]['Lote producción'])
                 por_pedir = math.ceil((cantidad_solicitada)/lote)*lote
 
-                body_fabricar = {
-                    'sku': str(sku),
-                    'cantidad': por_pedir
-                }
-                response = fabricar_producto(body_fabricar).json()
-                pedido = Pedido.objects.get(pk=response['_id'])
-                pedido.disponible_para_uso = False
-                pedido.save()
+                # body_fabricar = {
+                #     'sku': str(sku),
+                #     'cantidad': por_pedir
+                # }
+                # response = fabricar_producto(body_fabricar).json()
+                # pedido = Pedido.objects.get(pk=response['_id'])
+                # pedido.disponible_para_uso = False
+                # pedido.save()
 
-                log_message +=  f'Se enviaron a fabricar {cantidad_solicitada} SKU {sku}.\n'
-                log = Log(mensaje=log_message)
-                log.save()      
+                # log_message +=  f'Se enviaron a fabricar {cantidad_solicitada} SKU {sku}.\n'
+                # log = Log(mensaje=log_message)
+                # log.save()      
                 return True
 
 
@@ -243,14 +243,14 @@ def factibildad(sku, cantidad_solicitada, fecha_entrega, oc_id = None):
                     lote = int(PRODUCTOS[str(sku)]['Lote producción'])
                     por_pedir = math.ceil((unidades_ing_necesarias)/lote)*lote
 
-                    body_fabricar = {
-                        'sku': str(sku_ingrediente),
-                        'cantidad': por_pedir
-                    }
-                    response = fabricar_producto(body_fabricar).json()
-                    pedido = Pedido.objects.get(pk=response['_id'])
-                    pedido.disponible_para_uso = False
-                    pedido.save()   
+                    # body_fabricar = {
+                    #     'sku': str(sku_ingrediente),
+                    #     'cantidad': por_pedir
+                    # }
+                    # response = fabricar_producto(body_fabricar).json()
+                    # pedido = Pedido.objects.get(pk=response['_id'])
+                    # pedido.disponible_para_uso = False
+                    # pedido.save()   
                     log_message += f'Se mandó a fabricar {unidades_ing_necesarias} de {sku_ingrediente}.\n'
                 else:
                     log_message4 = f'Factibilidad está pidiendo a otros grupos'
