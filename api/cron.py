@@ -307,6 +307,7 @@ def mover_despacho():
                 time.sleep(1)
             except:
                 print(f'Alamacen Despacho se encuentra lleno')
+                break
         else:
             try:
                 mover_entre_almacenes({'productoId': producto.id, "almacenId": almacen_recepcion['_id']})
@@ -321,8 +322,10 @@ def mover_despacho():
                     time.sleep(1)
                 except:
                     print(f'Alamacen Despacho se encuentra lleno')
+                    break
             except:
                 print(f'Alamcen Recepción se encuentra lleno')
+                break
 
 def despachar_vacunas():
     almacenes = obtener_almacenes().json()
