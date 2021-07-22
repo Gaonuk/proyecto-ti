@@ -241,7 +241,7 @@ def revision_oc():
                                 break
             ready = True
             for ingrediente in ingredientes.keys():
-                disponible = ProductoBodega.objects.filter(sku=ingrediente, oc_reservada=orden.id)
+                disponible = ProductoBodega.objects.filter(sku=ingrediente, oc_reservada=orden.id).count()
                 if int(disponible) < (int(ingredientes[ingrediente]) * lotes_por_pedir):
                     ready = False
             if ready:
