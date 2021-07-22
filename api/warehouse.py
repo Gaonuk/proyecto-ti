@@ -267,7 +267,11 @@ def fabricar_vacuna(params: dict):
     for prod in productos_almacen:
         if ahora > prod.fecha_vencimiento:
             continue
+        if prod.almacen == '60ccc5559092f700042392cd':
+            continue
+
         almacen_prod_id[prod.id] = prod.almacen
+
         if prod.sku in productos:
             productos[prod.sku] += 1
         else:
