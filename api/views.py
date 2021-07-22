@@ -297,7 +297,10 @@ def index(request):
     vacunas_fabricadas = {
         "Pfizer": 0,
         "Sinovac": 0,
-        "Moderna": 0
+        "Moderna": 0,
+        "Astrazeneca": 0,
+        "Janssen": 0,
+        "Sputnik": 0
     }
     # Información de los almacenes
     almacenes = obtener_almacenes().json()
@@ -318,7 +321,6 @@ def index(request):
     labels_almacenes = ['Recepción', 'Despacho', 'Pulmón', 'Central']
     ocupacion_almacenes = [info_almacenes[i][1] for i in labels_almacenes]
     id_almacenes = [info_almacenes[i][0] for i in labels_almacenes]
-
     # Información stock disponible de vacunas y compuestos
     cantidad_sku = {}
     for almacen in almacenes:
@@ -349,17 +351,22 @@ def index(request):
     # if "urlNotificacion" in orden_de_compra.keys():
     #     oc.url_notification = orden_de_compra["urlNotificacion"]
     # oc.save()
-
     productos = ProductoDespachado.objects.all()
     productos_grupo = {}
     productos_sku = {}
     for p in productos:
-        if int(p.sku) == 10001:
+        if int(prod.sku) == 10001:
             vacunas_fabricadas['Pfizer'] += 1
-        if int(p.sku) == 10002:
+        elif int(prod.sku) == 10002:
             vacunas_fabricadas['Sinovac'] += 1
-        if int(p.sku) == 10005:
+        elif int(prod.sku) == 10005:
             vacunas_fabricadas['Moderna'] += 1
+        elif int(prod.sku) == 10003:
+            vacunas_fabricadas['Astrazeneca'] += 1
+        elif int(prod.sku) == 10004:
+            vacunas_fabricadas['Janssen'] += 1
+        elif int(prod.sku) == 10006:
+            vacunas_fabricadas['Sputnik'] += 1
         grupo = ALMACENES_RECEPCION_EXT.index(p.cliente) + 1
         if grupo in productos_grupo and p.sku in productos_sku:
             productos_grupo[grupo] += 1
@@ -373,15 +380,20 @@ def index(request):
         else:
             productos_sku[p.sku] = 1
             productos_grupo[grupo] = 1
-
     productos_bodega = ProductoBodega.objects.all()
     for prod in productos_bodega:
         if int(prod.sku) == 10001:
             vacunas_fabricadas['Pfizer'] += 1
-        if int(prod.sku) == 10002:
+        elif int(prod.sku) == 10002:
             vacunas_fabricadas['Sinovac'] += 1
-        if int(prod.sku) == 10005:
+        elif int(prod.sku) == 10005:
             vacunas_fabricadas['Moderna'] += 1
+        elif int(prod.sku) == 10003:
+            vacunas_fabricadas['Astrazeneca'] += 1
+        elif int(prod.sku) == 10004:
+            vacunas_fabricadas['Janssen'] += 1
+        elif int(prod.sku) == 10006:
+            vacunas_fabricadas['Sputnik'] += 1
 
     labels_grupo = [key for key in productos_grupo.keys()]
     prods_grupo = [productos_grupo[i] for i in labels_grupo]
