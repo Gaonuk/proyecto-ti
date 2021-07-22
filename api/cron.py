@@ -184,70 +184,70 @@ def mover_pulmon_a_alm_recepcion():
         log_3.save()
 
 def revision_oc():
-    not_completed_embassy_oc = EmbassyOC.objects.filter(estado="aceptada")
-    for orden in not_completed_embassy_oc:
-        log = Log(mensaje = f"Actualizando Embassy OC de id {orden.id}")
-        log.save()
-        if orden.cantidad_despachada < orden.cantidad:
-            falta = orden.cantidad - orden.cantidad_despachada
-            lista_vacunas = ProductoBodega.objects.filter(oc_reservada='', sku = str(orden.sku))
-            vacunas_disponible = ProductoBodega.objects.filter(oc_reservada='', sku = str(orden.sku)).count()
-            if vacunas_disponible <= falta  :
-                for vacuna in lista_vacunas:
-                    vacuna.oc_reservada = orden.id
-                    vacuna.save()
-            else:
-                contador = 0
-                for vacuna in lista_vacunas:
-                    vacuna.oc_reservada = orden.id
-                    vacuna.save()
-                    contador += 1
-                    if contador == falta:
-                        break
-                orden.estado = "finalizada"
-                orden.save()
-            orden.cantidad_despachada = ProductoBodega.objects.filter(oc_reservada=orden.id, sku = str(orden.sku)).count()
-        else:
-            orden.estado = "finalizada"
-            orden.save()
-        if orden.estado == "aceptada":
-            ingredientes = FORMULA[str(orden.sku)]
-            cantidad_faltante = int(orden.cantidad) - int(orden.cantidad_despachada)
-            lote = int(PRODUCTOS[str(orden.sku)]['Lote producción'])
-            lotes_por_pedir = math.ceil(cantidad_faltante/lote)
-            for ingrediente in ingredientes.keys():
-                guardado = ProductoBodega.objects.filter(oc_reservada=orden.id, sku=ingrediente).count()
-                if guardado < (int(ingredientes[ingrediente]) * lotes_por_pedir):
-                    productos_disponibles = ProductoBodega.objects.filter(sku=ingrediente, oc_reservada='')
-                    cantidad_disponible = productos_disponibles.count()
-                    cantidad = (int(ingredientes[ingrediente]) * lotes_por_pedir) - int(guardado)
-                    if cantidad_disponible <= cantidad:
-                        for producto in productos_disponibles:
-                            producto.oc_reservada = orden.id
-                            producto.save()
-                            print(f"Asignando producto de id {producto.id} a OC de id {orden.id}")
-                            log = Log(mensaje=f"Revision Embassy OC: Asignando producto de id {producto.id} a OC de id {orden.id}")
-                            log.save()
-                    else:
-                        contador = 0
-                        for producto in productos_disponibles:
-                            producto.oc_reservada = orden.id
-                            producto.save()
-                            log = Log(mensaje=f"Revision Embassy OC: Asignando producto de id {producto.id} a OC de id {orden.id}")
-                            log.save()
-                            print(f"Asignando producto de id {producto.id} a OC de id {orden.id}")
-                            contador += 1
-                            if contador == cantidad:
-                                break
-            ready = True
-            for ingrediente in ingredientes.keys():
-                disponible = ProductoBodega.objects.filter(sku=ingrediente, oc_reservada=orden.id).count()
-                if int(disponible) < (int(ingredientes[ingrediente]) * lotes_por_pedir):
-                    ready = False
-            if ready:
-                lote = int(PRODUCTOS[str(orden.sku)]['Lote producción'])
-                por_pedir = math.ceil(orden.cantidad/lote) * lote
-                fabricar_vacuna({'sku': str(orden.sku), 'cantidad': por_pedir})
+    # not_completed_embassy_oc = EmbassyOC.objects.filter(estado="aceptada")
+    # for orden in not_completed_embassy_oc:
+    #     log = Log(mensaje = f"Actualizando Embassy OC de id {orden.id}")
+    #     log.save()
+    #     if orden.cantidad_despachada < orden.cantidad:
+    #         falta = orden.cantidad - orden.cantidad_despachada
+    #         lista_vacunas = ProductoBodega.objects.filter(oc_reservada='', sku = str(orden.sku))
+    #         vacunas_disponible = ProductoBodega.objects.filter(oc_reservada='', sku = str(orden.sku)).count()
+    #         if vacunas_disponible <= falta  :
+    #             for vacuna in lista_vacunas:
+    #                 vacuna.oc_reservada = orden.id
+    #                 vacuna.save()
+    #         else:
+    #             contador = 0
+    #             for vacuna in lista_vacunas:
+    #                 vacuna.oc_reservada = orden.id
+    #                 vacuna.save()
+    #                 contador += 1
+    #                 if contador == falta:
+    #                     break
+    #             orden.estado = "finalizada"
+    #             orden.save()
+    #         orden.cantidad_despachada = ProductoBodega.objects.filter(oc_reservada=orden.id, sku = str(orden.sku)).count()
+    #     else:
+    #         orden.estado = "finalizada"
+    #         orden.save()
+    #     if orden.estado == "aceptada":
+    #         ingredientes = FORMULA[str(orden.sku)]
+    #         cantidad_faltante = int(orden.cantidad) - int(orden.cantidad_despachada)
+    #         lote = int(PRODUCTOS[str(orden.sku)]['Lote producción'])
+    #         lotes_por_pedir = math.ceil(cantidad_faltante/lote)
+    #         for ingrediente in ingredientes.keys():
+    #             guardado = ProductoBodega.objects.filter(oc_reservada=orden.id, sku=ingrediente).count()
+    #             if guardado < (int(ingredientes[ingrediente]) * lotes_por_pedir):
+    #                 productos_disponibles = ProductoBodega.objects.filter(sku=ingrediente, oc_reservada='')
+    #                 cantidad_disponible = productos_disponibles.count()
+    #                 cantidad = (int(ingredientes[ingrediente]) * lotes_por_pedir) - int(guardado)
+    #                 if cantidad_disponible <= cantidad:
+    #                     for producto in productos_disponibles:
+    #                         producto.oc_reservada = orden.id
+    #                         producto.save()
+    #                         print(f"Asignando producto de id {producto.id} a OC de id {orden.id}")
+    #                         log = Log(mensaje=f"Revision Embassy OC: Asignando producto de id {producto.id} a OC de id {orden.id}")
+    #                         log.save()
+    #                 else:
+    #                     contador = 0
+    #                     for producto in productos_disponibles:
+    #                         producto.oc_reservada = orden.id
+    #                         producto.save()
+    #                         log = Log(mensaje=f"Revision Embassy OC: Asignando producto de id {producto.id} a OC de id {orden.id}")
+    #                         log.save()
+    #                         print(f"Asignando producto de id {producto.id} a OC de id {orden.id}")
+    #                         contador += 1
+    #                         if contador == cantidad:
+    #                             break
+    #         ready = True
+    #         for ingrediente in ingredientes.keys():
+    #             disponible = ProductoBodega.objects.filter(sku=ingrediente, oc_reservada=orden.id).count()
+    #             if int(disponible) < (int(ingredientes[ingrediente]) * lotes_por_pedir):
+    #                 ready = False
+    #         if ready:
+    #             lote = int(PRODUCTOS[str(orden.sku)]['Lote producción'])
+    #             por_pedir = math.ceil(orden.cantidad/lote) * lote
+    #             fabricar_vacuna({'sku': str(orden.sku), 'cantidad': por_pedir})
 
     not_completed_oc = RecievedOC.objects.filter(estado="aceptada")
     for orden in not_completed_oc:
