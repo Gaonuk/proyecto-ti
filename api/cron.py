@@ -104,7 +104,7 @@ def mover_recepcion_a_alm_central():
         else:
             print('No hay productos para mover desde el almacén de recepción')
     except Exception as err:
-            log_3 = Log(mensaje='Recepción a Central: '+err)
+            log_3 = Log(mensaje='Recepción a Central: '+str(err))
             log_3.save()
 
 def mover_pulmon_a_alm_recepcion():
@@ -180,7 +180,7 @@ def mover_pulmon_a_alm_recepcion():
         else:
             print('No hay productos para mover desde el almacén de recepción')
     except Exception as err:
-        log_3 = Log(mensaje='Pulmón a Recepción: '+err)
+        log_3 = Log(mensaje='Pulmón a Recepción: '+(err))
         log_3.save()
 
 def revision_oc():
